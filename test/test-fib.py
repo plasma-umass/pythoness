@@ -1,6 +1,6 @@
-import snakelang
+import pythoness
 
-@snakelang.spec("Compute the nth number in the Fibonacci series.")
+@pythoness.spec("Compute the nth number in the Fibonacci series.")
 def myfib(n: int) -> int:
     ""
 

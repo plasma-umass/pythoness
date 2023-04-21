@@ -65,7 +65,7 @@ def complete(user_prompt):
 def spec(string):
     def decorator(func):
         cached_function = None
-        cdb = CodeDatabase("snakelang-cache.db")
+        cdb = CodeDatabase("pythoness-cache.db")
         def wrapper(*args, **kwargs):
             nonlocal cdb, cached_function
             if cached_function:
