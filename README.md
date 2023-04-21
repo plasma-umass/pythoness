@@ -1,5 +1,7 @@
 # Pythoness
 
+> Pythoness: The priestess of the oracle of Apollo at Delphi.
+
 Pythoness is a Python module that uses OpenAI's GPT-4 model to automatically generate Python code based on natural language descriptions of the desired functionality.
 
 ## Installation
