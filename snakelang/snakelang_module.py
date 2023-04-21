@@ -91,7 +91,7 @@ def spec(string):
             Arguments: {arg_types}
             Return type: {return_type}
             """
-            print(prompt)
+            # print(prompt)
             # See if we already have code for that prompt.
             function_def = cdb.get_code(prompt)
             if not function_def:
