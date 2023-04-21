@@ -7,7 +7,7 @@ Pythoness is a Python module that uses OpenAI's GPT-4 model to automatically gen
 The easiest way to install Pythoness is through pip:
 
 ```bash
-python3 -m pip install snakelang
+python3 -m pip install pythoness
 ```
 
 ## Usage
