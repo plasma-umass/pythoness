@@ -6,6 +6,10 @@ import textwrap
 import openai
 import sqlite3
 
+import ast_comments as ast
+
+from functools import wraps
+
 class CodeDatabase:
     def __init__(self, db_file):
         self.db_file = db_file
@@ -65,10 +69,11 @@ def complete(user_prompt):
     sys.exit(1)
     
 
-def spec(string):
+def spec(string, replace=False):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
+        @wraps(func)
         def wrapper(*args, **kwargs):
             nonlocal cdb, cached_function
             # If we've already built this function and cached it,
@@ -90,8 +95,9 @@ def spec(string):
             that performs the following task as a filed \"code\".
             Only produce output that can be parsed as JSON.
             
-            {string}
+            Task: {string}
 
+            Include a docstring containing the task description above.
             The function should have the following argument types and return type:
             
             Arguments: {arg_types}
@@ -119,6 +125,29 @@ def spec(string):
                 exec(compiled, globals())
                 cached_function = globals()[function_name]
                 cdb.insert_code(prompt, function_def)
+                # If selected, replace the function definition
+                # in the file.
+                if replace:
+                    import inspect
+                    frame = inspect.currentframe()
+                    frame = frame.f_back
+                    file_name = frame.f_code.co_filename
+                    with open(file_name, "r") as file:
+                        source = file.read()
+                    tree = ast.parse(source)
+                    # Find the function with the given name and replace it with the new function.
+                    for node in ast.walk(tree):
+                        if isinstance(node, ast.FunctionDef) and node.name == function_name:
+                            node_index = tree.body.index(node)
+                            fn_body = ast.parse(function_def).body
+                            tree.body[node_index] = fn_body
+                            
+                    new_source = ast.unparse(tree)
+
+                    # Update the file.
+                    with open(file_name, "w") as f:
+                        f.write(new_source)
+                
                 return cached_function(*args, **kwargs)
         return wrapper
     return decorator
