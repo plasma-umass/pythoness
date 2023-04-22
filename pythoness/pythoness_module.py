@@ -21,6 +21,9 @@ class CodeDatabase:
                 code TEXT NOT NULL
             )
         """)
+        self.cursor.execute("""
+        CREATE INDEX IF NOT EXISTS index_prompt ON prompt_code (prompt)
+        """)
         self.connection.commit()
     
     def insert_code(self, prompt, code):
@@ -68,9 +71,12 @@ def spec(string):
         cdb = CodeDatabase("pythoness-cache.db")
         def wrapper(*args, **kwargs):
             nonlocal cdb, cached_function
+            # If we've already built this function and cached it,
+            # just run it.
             if cached_function:
                 return cached_function(*args, **kwargs)
-            # Build prompt
+            # We need to generate a function from the spec.
+            # We populate the prompt with the function's name, argument name and types, and the return type.
             function_name = func.__name__
             arg_types = []
             for arg_name, arg_value in zip(func.__code__.co_varnames, args):
@@ -91,22 +97,29 @@ def spec(string):
             Arguments: {arg_types}
             Return type: {return_type}
             """
-            # print(prompt)
-            # See if we already have code for that prompt.
+            # See if we already have code corresponding to that prompt in the database.
             function_def = cdb.get_code(prompt)
-            if not function_def:
-                result = complete(prompt)
-                # print(result)
-                #try:
-                the_json = json.loads(result)
-                function_def = the_json["code"]
-            else:
-                pass
-            compiled = compile(function_def, "<string>", "exec") # ast.unparse(get_function_body(function_def))
-            exec(compiled, globals())
-            cached_function = globals()[function_name]
-            cdb.insert_code(prompt, function_def)
-            return cached_function(*args, **kwargs)
+            while True:
+                # Retry until success.
+                if not function_def:
+                    result = complete(prompt)
+                    try:
+                        the_json = json.loads(result)
+                    except:
+                        # JSON parse failure: retry.
+                        continue
+                    function_def = the_json["code"]
+                # Try to compile the function
+                try:
+                    compiled = compile(function_def, "<string>", "exec")
+                except:
+                    # Compilation failed: retry.
+                    continue
+                # If we get here, we can run the function and use it going forwards.
+                exec(compiled, globals())
+                cached_function = globals()[function_name]
+                cdb.insert_code(prompt, function_def)
+                return cached_function(*args, **kwargs)
         return wrapper
     return decorator
 
