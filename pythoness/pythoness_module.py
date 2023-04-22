@@ -116,7 +116,7 @@ def complete(user_prompt):
     sys.exit(1)
     
 
-def spec(string, replace=False, tests=None, max_retries=3):
+def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
@@ -154,7 +154,7 @@ def spec(string, replace=False, tests=None, max_retries=3):
             """
 
             if tests:
-                test_string = "            \n".join(tests)
+                test_string = "\n            ".join(tests)
                 prompt += f"""
             The function should pass the following tests:
 
@@ -167,8 +167,16 @@ def spec(string, replace=False, tests=None, max_retries=3):
             Arguments: {arg_types}
             Return type: {return_type}
             """
+
+            if verbose:
+                print("[Pythoness] prompt:\n", prompt)
+            
             # See if we already have code corresponding to that prompt in the database.
             function_def = cdb.get_code(prompt)
+
+            if verbose and function_def:
+                print("[Pythoness] retrieved function from database:\n", function_def)
+            
             retries = 0
             failing_tests = set()
             while retries < max_retries:
@@ -182,6 +190,10 @@ def spec(string, replace=False, tests=None, max_retries=3):
                         # JSON parse failure: retry.
                         continue
                     function_def = the_json["code"]
+
+                    if verbose:
+                        print("[Pythoness] synthesized function\n", function_def)
+                    
                 # Try to compile the function
                 try:
                     compiled = compile(function_def, "<string>", "exec")
