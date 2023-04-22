@@ -35,3 +35,13 @@ for i in range(20):
 
 Pythoness caches the results of translating natural language to Python, so subsequent executions in the same directory will run much faster.
 
+If you want Pythoness to replace the code with the generated function, just add `replace=True`:
+
+```python
+@pythoness.spec("Compute the nth number in the Fibonacci series.", replace=True)
+def myfib(n: int) -> int:
+    ""
+```
+
+Setting the `replace` flag will cause Pythoness to rewrite the program with the synthesized function definition(s).
+
