@@ -215,7 +215,7 @@ def spec(string, replace=False, tests=None, max_retries=3):
                     tree = ast.parse(source)
                     # Find the function with the given name and replace it with the new function.
                     for node in ast.walk(tree):
-                        if isinstance(node, ast.FunctionDef) and node.name == function_name:
+                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name:
                             node_index = tree.body.index(node)
                             fn_body = ast.parse(function_def).body
                             tree.body[node_index] = fn_body
