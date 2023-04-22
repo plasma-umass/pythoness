@@ -69,7 +69,7 @@ def complete(user_prompt):
     sys.exit(1)
     
 
-def spec(string, replace=False):
+def spec(string, replace=False, tests=None):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
@@ -89,6 +89,7 @@ def spec(string, replace=False):
             for kwarg_name, kwarg_value in kwargs.items():
                 arg_types.append((kwarg_name, type(kwarg_value),))
             return_type = func.__annotations__.get('return', None)
+                
             prompt = f"""
 
             Produce a JSON object with code for a Python function named {function_name}
@@ -98,6 +99,17 @@ def spec(string, replace=False):
             Task: {string}
 
             Include a docstring containing the task description above.
+            """
+
+            if tests:
+                test_string = "            \n".join(tests)
+                prompt += f"""
+            The function should pass the following tests:
+
+            {test_string}
+                """
+                
+            prompt += f"""
             The function should have the following argument types and return type:
             
             Arguments: {arg_types}
