@@ -135,6 +135,7 @@ def spec(string, replace=False, tests=None):
                     continue
                 # If we get here, we can run the function and use it going forwards.
                 exec(compiled, globals())
+                # TODO: validate types and tests.
                 cached_function = globals()[function_name]
                 cdb.insert_code(prompt, function_def)
                 # If selected, replace the function definition
