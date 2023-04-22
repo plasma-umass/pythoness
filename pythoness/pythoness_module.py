@@ -1,3 +1,4 @@
+import inspect
 import io
 import json
 import re
@@ -9,6 +10,52 @@ import sqlite3
 import ast_comments as ast
 
 from functools import wraps
+from typing import Callable, Tuple
+
+
+def is_type_compatible(f: Callable, g: Callable) -> bool:
+    f_sig = inspect.signature(f)
+    g_sig = inspect.signature(g)
+
+    # Check number of parameters
+    if len(f_sig.parameters) != len(g_sig.parameters):
+        return False
+
+    # Check parameter types
+    for f_param, g_param in zip(f_sig.parameters.values(), g_sig.parameters.values()):
+        f_type = f_param.annotation
+        g_type = g_param.annotation
+
+        # If the second function's type is missing or Any, and the first function's type is not, they are compatible.
+        if g_type is inspect.Parameter.empty or g_type is type(None):
+            continue
+        elif f_type is inspect.Parameter.empty or f_type is type(None):
+            # For now, we consider this to be compatible.
+            continue
+            #if not issubclass(type(None), g_type):
+            #    return False
+
+        if not issubclass(g_type, f_type) and not issubclass(f_type, g_type):
+            return False
+
+    # Check return type
+    f_return_type = f_sig.return_annotation
+    g_return_type = g_sig.return_annotation
+
+    # If the second function's return type is missing or Any, and the first function's return type is not, they are compatible.
+    if g_return_type is inspect.Parameter.empty or g_return_type is type(None):
+        return True
+    elif f_return_type is inspect.Parameter.empty or f_return_type is type(None):
+        if issubclass(type(None), g_return_type):
+            return True
+        else:
+            return False
+
+    if not issubclass(g_return_type, f_return_type) and not issubclass(f_return_type, g_return_type):
+        return False
+
+    return True
+
 
 class CodeDatabase:
     def __init__(self, db_file):
@@ -119,6 +166,7 @@ def spec(string, replace=False, tests=None):
             function_def = cdb.get_code(prompt)
             max_retries = 3
             retries = 0
+            failing_tests = set()
             while retries < max_retries:
                 retries += 1
                 # Retry until success.
@@ -140,10 +188,11 @@ def spec(string, replace=False, tests=None):
                 exec(compiled, globals())
                
                 fn = globals()[function_name]
-                # TODO: validate types.
+                if not is_type_compatible(func, fn):
+                    # Function types don't validate. Retry.
+                    continue
                 
                 # Validate tests.
-                failing_tests = set()
                 if tests:
                     for t in tests:
                         if not eval(t):
