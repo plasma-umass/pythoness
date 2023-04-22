@@ -123,8 +123,13 @@ def spec(string, replace=False, tests=None, max_retries=3):
         @wraps(func)
         def wrapper(*args, **kwargs):
             nonlocal cdb, cached_function
-            # If we've already built this function and cached it,
-            # just run it.
+            # PROPOSED FEATURE: we could have a flag (lazy=True) control whether
+            # we wait until invocation to try to synthesize functions
+            # or (lazy=False) which would speculatively attempt to
+            # resolve all spec functions asynchronously (as futures).
+
+            # If we've already built this function and cached it, just
+            # run it.
             if cached_function:
                 return cached_function(*args, **kwargs)
             # We need to generate a function from the spec.
@@ -132,9 +137,9 @@ def spec(string, replace=False, tests=None, max_retries=3):
             function_name = func.__name__
             arg_types = []
             for arg_name, arg_value in zip(func.__code__.co_varnames, args):
-                arg_types.append((arg_name, type(arg_value)))
+                arg_types.append((arg_name, type(arg_value))) # FIXME: use annotations if available
             for kwarg_name, kwarg_value in kwargs.items():
-                arg_types.append((kwarg_name, type(kwarg_value),))
+                arg_types.append((kwarg_name, type(kwarg_value),)) # FIXME: use annotations if available
             return_type = func.__annotations__.get('return', None)
                 
             prompt = f"""
