@@ -117,7 +117,10 @@ def spec(string, replace=False, tests=None):
             """
             # See if we already have code corresponding to that prompt in the database.
             function_def = cdb.get_code(prompt)
-            while True:
+            max_retries = 3
+            retries = 0
+            while retries < max_retries:
+                retries += 1
                 # Retry until success.
                 if not function_def:
                     result = complete(prompt)
@@ -135,8 +138,22 @@ def spec(string, replace=False, tests=None):
                     continue
                 # If we get here, we can run the function and use it going forwards.
                 exec(compiled, globals())
-                # TODO: validate types and tests.
-                cached_function = globals()[function_name]
+               
+                fn = globals()[function_name]
+                # TODO: validate types.
+                
+                # Validate tests.
+                failing_tests = set()
+                if tests:
+                    for t in tests:
+                        if not eval(t):
+                            failing_tests.add(t)
+                if len(failing_tests) > 0:
+                    # At least one test failed. Retry.
+                    continue
+
+                # Validated. Cache the function and persist it.
+                cached_function = fn
                 cdb.insert_code(prompt, function_def)
                 # If selected, replace the function definition
                 # in the file.
@@ -162,6 +179,12 @@ def spec(string, replace=False, tests=None):
                         f.write(new_source)
                 
                 return cached_function(*args, **kwargs)
+            # If we got here, we had too many retries.
+            if failing_tests:
+                raise Exception(f"Maximum number of retries exceeded ({max_retries}).\nFailing tests: {failing_tests}")
+            else:
+                raise Exception(f"Maximum number of retries exceeded ({max_retries}).")
+                
         return wrapper
     return decorator
 
