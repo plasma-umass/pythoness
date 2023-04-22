@@ -116,7 +116,7 @@ def complete(user_prompt):
     sys.exit(1)
     
 
-def spec(string, replace=False, tests=None):
+def spec(string, replace=False, tests=None, max_retries=3):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
@@ -164,7 +164,6 @@ def spec(string, replace=False, tests=None):
             """
             # See if we already have code corresponding to that prompt in the database.
             function_def = cdb.get_code(prompt)
-            max_retries = 3
             retries = 0
             failing_tests = set()
             while retries < max_retries:
