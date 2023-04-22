@@ -12,6 +12,7 @@ import ast_comments as ast
 from functools import wraps
 from typing import Callable, Tuple
 
+debug_print = False
 
 def is_type_compatible(f: Callable, g: Callable) -> bool:
     f_sig = inspect.signature(f)
@@ -19,6 +20,8 @@ def is_type_compatible(f: Callable, g: Callable) -> bool:
 
     # Check number of parameters
     if len(f_sig.parameters) != len(g_sig.parameters):
+        if debug_print:
+            print("mismatch in number of parameters")
         return False
 
     # Check parameter types
@@ -36,6 +39,8 @@ def is_type_compatible(f: Callable, g: Callable) -> bool:
             #    return False
 
         if not issubclass(g_type, f_type) and not issubclass(f_type, g_type):
+            if debug_print:
+                print(f"subclass mismatch: f: {f_type}, g: {g_type}")
             return False
 
     # Check return type
@@ -49,9 +54,13 @@ def is_type_compatible(f: Callable, g: Callable) -> bool:
         if issubclass(type(None), g_return_type):
             return True
         else:
+            if debug_print:
+                print("subclass issue with return types")
             return False
 
     if not issubclass(g_return_type, f_return_type) and not issubclass(f_return_type, g_return_type):
+        if debug_print:
+            print("second subclass issue with return types")
         return False
 
     return True
@@ -145,12 +154,14 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
             prompt = f"""
 
             Produce a JSON object with code for a Python function named {function_name}
-            that performs the following task as a filed \"code\".
+            that performs the following task as a field \"code\".
             Only produce output that can be parsed as JSON.
             
-            Task: {string}
+            Task: {textwrap.dedent(string)}
 
             Include a docstring containing the task description above.
+            The function should be entirely self-contained, with all imports, code, and data
+            required for its functionality.
             """
 
             if tests:
@@ -169,7 +180,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
             """
 
             if verbose:
-                print("[Pythoness] prompt:\n", prompt)
+                print("[Pythoness] Prompt:\n", prompt)
             
             # See if we already have code corresponding to that prompt in the database.
             function_def = cdb.get_code(prompt)
@@ -180,7 +191,12 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
             retries = 0
             failing_tests = set()
             while retries < max_retries:
+
                 retries += 1
+                
+                if verbose:
+                    print(f"[Pythoness] Attempt number {retries}.")
+                    
                 # Retry until success.
                 if not function_def:
                     result = complete(prompt)
@@ -188,6 +204,8 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
                         the_json = json.loads(result)
                     except:
                         # JSON parse failure: retry.
+                        if verbose:
+                            print("[Pythoness] JSON parsing failed.")
                         continue
                     function_def = the_json["code"]
 
@@ -199,13 +217,25 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
                     compiled = compile(function_def, "<string>", "exec")
                 except:
                     # Compilation failed: retry.
+                    if verbose:
+                        print("[Pythoness] Compilation failed.")
+                    function_def = None
                     continue
                 # If we get here, we can run the function and use it going forwards.
-                exec(compiled, globals())
+                try:
+                    exec(compiled, globals())
+                except:
+                    if verbose:
+                        print("[Pythoness] Executing the function failed.")
+                    function_def = None
+                    continue
                
                 fn = globals()[function_name]
                 if not is_type_compatible(func, fn):
                     # Function types don't validate. Retry.
+                    if verbose:
+                        print("[Pythoness] The generated function is incompatible with the spec.")
+                        function_def = None
                     continue
                 
                 # Validate tests.
@@ -215,6 +245,9 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
                             failing_tests.add(t)
                 if len(failing_tests) > 0:
                     # At least one test failed. Retry.
+                    if verbose:
+                        print("[Pythoness] Tests failed: {failing_tests}")
+                    function_def = None
                     continue
 
                 # Validated. Cache the function and persist it.
