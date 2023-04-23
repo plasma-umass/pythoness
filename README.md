@@ -103,5 +103,17 @@ def myfib(n: int) -> int:
         return fib2
 ```
 
+### Other ways to control Pythoness
+
+Pythoness offers a few other ways to control its behavior. These are
+all arguments to `spec`. The provided values indicate the the default
+value.
+
+* `max_retries=3`: controls the maximum number of retries due to failures (e.g., a function that fails one of the provided tests).
+
+* `min_confidence=0.7`: sets the minimum level of confidence that the AI system reports regarding the correctness of the generated function (a number between 0 and 1, corresponding to 0% and 100%). Increasing the confidence level may require increasing `max_retries`.
+
+* `verbose=False`: setting this to true will cause Pythoness to output details as it generates and validates code.
+
 
 
