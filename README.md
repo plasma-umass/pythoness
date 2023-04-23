@@ -80,7 +80,7 @@ def myfib(n: int) -> int:
     ""
 ```
 
-For example, the above generated the following code:
+For example, Pythoness produced this code:
 
 ```
 def myfib(n: int) -> int:
