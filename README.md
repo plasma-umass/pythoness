@@ -1,6 +1,6 @@
 # Pythoness
 
-![Pythoness](https://github.com/plasma-umass/pythoness/raw/master/pythoness-logo.png)
+![Pythoness](https://github.com/plasma-umass/pythoness/raw/master/pythoness-logo.jpg)
 
 > Pythoness: The priestess of the oracle of Apollo at Delphi.
 
