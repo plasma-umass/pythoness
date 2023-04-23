@@ -113,7 +113,7 @@ value.
 
 * `min_confidence=0.7`: sets the minimum level of confidence that the AI system reports regarding the correctness of the generated function (a number between 0 and 1, corresponding to 0% and 100%). Increasing the confidence level may require increasing `max_retries`.
 
-* `verbose=False`: setting this to true will cause Pythoness to output details as it generates and validates code.
+* `verbose=False`: set this to `True` to have Pythoness to output details as it generates and validates code. Mostly useful for developers and for keeping tabs on progress.
 
-
+* `output=False`: set this to `True` to have Pythoness output the generated code the first time the function is called.
 

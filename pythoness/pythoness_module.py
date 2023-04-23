@@ -125,7 +125,7 @@ def complete(user_prompt):
     sys.exit(1)
     
 
-def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7):
+def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7, output=False):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
@@ -264,6 +264,8 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                 # Validated. Cache the function and persist it.
                 cached_function = fn
                 cdb.insert_code(prompt, function_def)
+                if output:
+                    print(function_def, file=sys.stdout)
                 # If selected, replace the function definition
                 # in the file.
                 if replace:
