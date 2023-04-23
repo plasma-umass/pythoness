@@ -37,9 +37,10 @@ def myfib(n: int) -> int:
     ""
 ```
 
-This code will generate a Python function named `myfib` that computes the nth number in the Fibonacci series.
-
-To actually execute the function, you can call it as you would any other Python function:
+This code will internally generate a Python function named `myfib`
+that computes the nth number in the Fibonacci series.  To actually
+execute the function, you can call it as you would any other Python
+function:
 
 ```python
 for i in range(20):
@@ -48,15 +49,57 @@ for i in range(20):
 
 Pythoness caches the results of translating natural language to
 Python, so subsequent executions in the same directory will run much
-faster.
+faster (Pythoness creates a database called `pythoness-cache.db` that
+saves these translations).
 
-If you want Pythoness to replace the code with the generated function, just add `replace=True`:
+### Incorporating tests
+
+You can guide Pythoness by providing some tests. Pythoness will use
+tests both to generate the Python code and to validate it. Tests are just
+a list of strings containing Python code which should all evaluate to `True`.
 
 ```python
-@pythoness.spec("Compute the nth number in the Fibonacci series.", replace=True)
+@pythoness.spec("Compute the nth number in the Fibonacci series.",
+                tests=["myfib(1) == 1", "myfib(2) == 1"])
 def myfib(n: int) -> int:
     ""
 ```
 
-Setting the `replace` flag will cause Pythoness to rewrite the program with the synthesized function definition(s).
+### Replacing Pythoness functions with Python
+
+You can have Pythoness to replace the spec directly in your file with
+the generated function: just add `replace=True`:
+
+```python
+@pythoness.spec("Compute the nth number in the Fibonacci series.",
+                tests=["myfib(1) == 1", "myfib(2) == 1"],
+		replace=True)
+def myfib(n: int) -> int:
+    ""
+```
+
+For example, the above generated the following code:
+
+```
+def myfib(n: int) -> int:
+    """
+    Compute the nth number in the Fibonacci series.
+
+    :param n: The position of the desired number in the Fibonacci series
+    :type n: int
+    :return: The nth number in the Fibonacci series
+    :rtype: int
+    """
+    if n <= 0:
+        raise ValueError("n must be a positive integer")
+    elif n == 1 or n == 2:
+        return 1
+    else:
+        fib1, fib2 = 1, 1
+        for _ in range(3, n + 1):
+            fib1, fib2 = fib2, fib1 + fib2
+        return fib2
+```
+
+
 
