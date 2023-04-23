@@ -125,7 +125,7 @@ def complete(user_prompt):
     sys.exit(1)
     
 
-def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
+def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
@@ -153,16 +153,20 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
                 
             prompt = f"""
 
-            Produce a JSON object with code for a Python function named {function_name}
-            that performs the following task as a field \"code\".
-            Only produce output that can be parsed as JSON.
+            Produce a JSON object with code for a Python function
+            named {function_name} that performs the following task as
+            a field \"code\".  Report your confidence that this code
+            performs the task as a number between 0 and 1, as a field
+            \"confidence\".  Only produce output that can be parsed as
+            JSON.
             
-            Task: {textwrap.dedent(string)}
+            Task:
+            {textwrap.dedent(string)}
 
-            Include a docstring containing the task description above.
-            The function should be entirely self-contained, with all imports, code, and data
-            required for its functionality.
-            """
+            Include a docstring containing the task description above
+            (without the word "Task:").  The function should be
+            entirely self-contained, with all imports, code, and data
+            required for its functionality.  """
 
             if tests:
                 test_string = "\n            ".join(tests)
@@ -208,9 +212,16 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False):
                             print("[Pythoness] JSON parsing failed.")
                         continue
                     function_def = the_json["code"]
+                    confidence = float(the_json["confidence"])
 
                     if verbose:
-                        print("[Pythoness] synthesized function\n", function_def)
+                        print("[Pythoness] Synthesized function\n", function_def)
+                        print("[Pythoness] Confidence:", confidence)
+
+                    if confidence < min_confidence:
+                        if verbose:
+                            print(f"[Pythoness] Confidence level {confidence} too low (below {min_confidence}).")
+                        continue
                     
                 # Try to compile the function
                 try:
