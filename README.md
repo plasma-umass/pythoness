@@ -2,13 +2,13 @@
 
 ![Pythoness](https://raw.githubusercontent.com/plasma-umass/pythoness/main/pythoness-logo.jpg)
 
-> Pythoness: The priestess of the oracle of Apollo at Delphi.
+_Pythoness: The priestess of the oracle of Apollo at Delphi._
 
 by [Emery Berger](https://emeryberger.com)
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/pythoness.svg)](https://pypi.org/project/pythoness/)[![Downloads](https://pepy.tech/badge/pythoness)](https://pepy.tech/project/pythoness) [![Downloads](https://pepy.tech/badge/pythoness/month)](https://pepy.tech/project/pythoness) ![Python versions](https://img.shields.io/pypi/pyversions/pythoness.svg?style=flat-square)
 
-Pythoness is a Python module that automatically generates Python code based on natural language descriptions of the desired functionality.
+Pythoness is a Python module that automatically generates Python code from natural language descriptions.
 
 *NOTE*: To use pythoness, you must first set up an OpenAI API key. If you
 already have an API key, you can set it as an environment variable
