@@ -29,7 +29,7 @@ python3 -m pip install pythoness
 
 ## Usage
 
-To use Pythoness, you just import the `pythoness` module and then use the `@pythoness.spec` decorator to specify the desired functionality. Here is an:
+To use Pythoness, you just import the `pythoness` module and then use the `@pythoness.spec` decorator to specify the desired functionality:
 
 ```python
 import pythoness
