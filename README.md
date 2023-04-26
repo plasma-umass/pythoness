@@ -8,9 +8,9 @@ by [Emery Berger](https://emeryberger.com)
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/pythoness.svg)](https://pypi.org/project/pythoness/)[![Downloads](https://pepy.tech/badge/pythoness)](https://pepy.tech/project/pythoness) [![Downloads](https://pepy.tech/badge/pythoness/month)](https://pepy.tech/project/pythoness) ![Python versions](https://img.shields.io/pypi/pyversions/pythoness.svg?style=flat-square)
 
-Pythoness is a Python module that automatically generates Python code from natural language descriptions.
+Pythoness automatically generates Python code from natural language descriptions.
 
-*NOTE*: To use pythoness, you must first set up an OpenAI API key. If you
+*NOTE*: To use Pythoness, you must first set up an OpenAI API key. If you
 already have an API key, you can set it as an environment variable
 called `OPENAI_API_KEY`. If you do not have one yet,
 you can get a key here: https://platform.openai.com/account/api-keys
@@ -29,7 +29,7 @@ python3 -m pip install pythoness
 
 ## Usage
 
-To use Pythoness, you just import the `pythoness` module and then use the `@pythoness.spec` decorator to specify the desired functionality. Here is an:
+To use Pythoness, you just import the `pythoness` module and then use the `@pythoness.spec` decorator to specify the desired functionality:
 
 ```python
 import pythoness
