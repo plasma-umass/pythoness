@@ -273,8 +273,12 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                 # Validate tests.
                 if tests:
                     for t in tests:
-                        if not eval(t):
-                            failing_tests.add(t)
+                        try:
+                            if not eval(t):
+                                failing_tests.add(t)
+                        except:
+                            raise Exception(f"This test failed to execute properly: {t}")
+                            
                 if len(failing_tests) > 0:
                     stats["test_failures"] += 1
                     stats["num_tests_failed"] += len(failing_tests)
