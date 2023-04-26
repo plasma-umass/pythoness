@@ -104,26 +104,27 @@ class CodeDatabase:
 
 
 def complete(user_prompt):
-    try:
-        completion = openai.ChatCompletion.create(
-            # For now, hard code
-            model="gpt-4", # args["llm"],
-            request_timeout=30, # args["timeout"],
-            messages=[{"role": "user", "content": user_prompt}],
-        )
-        return completion.choices[0].message.content
-    except openai.error.AuthenticationError:
-        print("You need an OpenAI key to use this tool.")
-        print("You can get a key here: https://platform.openai.com/account/api-keys")
-        print("Set the environment variable OPENAI_API_KEY to your key value.")
-        print(
-            "If OPENAI_API_KEY is already correctly set, you may have exceeded your usage or rate limit."
-        )
-    except openai.error.Timeout:
-        print(
-            "The OpenAI API timed out. You can try increasing the timeout with the --timeout option."
-        )
-    sys.exit(1)
+    initial_timeout = 30
+    while True:
+        try:
+            completion = openai.ChatCompletion.create(
+                # For now, hard code
+                model="gpt-4", # args["llm"],
+                request_timeout=initial_timeout, # args["timeout"],
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+            return completion.choices[0].message.content
+        except openai.error.AuthenticationError:
+            print("You need an OpenAI key to use this tool.")
+            print("You can get a key here: https://platform.openai.com/account/api-keys")
+            print("Set the environment variable OPENAI_API_KEY to your key value.")
+            print(
+                "If OPENAI_API_KEY is already correctly set, you may have exceeded your usage or rate limit."
+            )
+            sys.exit(1)
+        except openai.error.Timeout:
+            # Exponential growth.
+            initial_timeout *= 2
     
 
 def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7, output=False):
@@ -193,11 +194,18 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
             if verbose and function_def:
                 print("[Pythoness] retrieved function from database:\n", function_def)
 
+            # We have previously loaded the function. Just execute it and return.
+            if function_def:
+                compiled = compile(function_def, "<string>", "exec")
+                exec(compiled, globals())
+                fn = globals()[function_name]
+                return fn(*args, **kwargs)
+            
             # Keep track of basic (anonymous) statistics.
             stats = {}
-            # TODO: add info about number of type annotations?
-            # TODO: add info about length of spec provided?
-            stats["num_tests_provided"] = len(tests)
+            stats["spec"] = string
+            stats["function_name"] = function_name
+            stats["tests_provided"] = json.dumps(tests)
             stats["num_tests_failed"] = 0
             stats["retries"] = 0
             stats["successes"] = 0
