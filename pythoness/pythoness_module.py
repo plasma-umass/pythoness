@@ -1,6 +1,7 @@
 import inspect
 import io
 import json
+import logging
 import re
 import sys
 import textwrap
@@ -191,15 +192,30 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
 
             if verbose and function_def:
                 print("[Pythoness] retrieved function from database:\n", function_def)
-            
-            retries = 0
-            failing_tests = set()
-            while retries < max_retries:
 
-                retries += 1
+            # Keep track of basic (anonymous) statistics.
+            stats = {}
+            # TODO: add info about number of type annotations?
+            # TODO: add info about length of spec provided?
+            stats["num_tests_provided"] = len(tests)
+            stats["num_tests_failed"] = 0
+            stats["retries"] = 0
+            stats["successes"] = 0
+            stats["parse_failures"] = 0
+            stats["execution_failures"] = 0
+            stats["below_confidence_level"] = 0
+            stats["compilation_failures"] = 0
+            stats["type_incompatibility_failures"] = 0
+            stats["test_failures"] = 0
+            stats["min_confidence"] = min_confidence
+            
+            failing_tests = set()
+            while stats["retries"] < max_retries:
+
+                stats["retries"] += 1
                 
                 if verbose:
-                    print(f"[Pythoness] Attempt number {retries}.")
+                    print(f"[Pythoness] Attempt number {stats['retries']}.")
                     
                 # Retry until success.
                 if not function_def:
@@ -208,6 +224,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                         the_json = json.loads(result)
                     except:
                         # JSON parse failure: retry.
+                        stats["parse_failures"] += 1
                         if verbose:
                             print("[Pythoness] JSON parsing failed.")
                         continue
@@ -219,6 +236,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                         print("[Pythoness] Confidence:", confidence)
 
                     if confidence < min_confidence:
+                        stats["confidence_failures"] += 1
                         if verbose:
                             print(f"[Pythoness] Confidence level {confidence} too low (below {min_confidence}).")
                         continue
@@ -228,6 +246,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                     compiled = compile(function_def, "<string>", "exec")
                 except:
                     # Compilation failed: retry.
+                    stats["compilation_failures"] += 1
                     if verbose:
                         print("[Pythoness] Compilation failed.")
                     function_def = None
@@ -238,11 +257,13 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                 except:
                     if verbose:
                         print("[Pythoness] Executing the function failed.")
+                    stats["execution_failures"] += 1
                     function_def = None
                     continue
                
                 fn = globals()[function_name]
                 if not is_type_compatible(func, fn):
+                    stats["type_incompatibility_failures"] += 1
                     # Function types don't validate. Retry.
                     if verbose:
                         print("[Pythoness] The generated function is incompatible with the spec.")
@@ -255,12 +276,17 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                         if not eval(t):
                             failing_tests.add(t)
                 if len(failing_tests) > 0:
+                    stats["test_failures"] += 1
+                    stats["num_tests_failed"] += len(failing_tests)
                     # At least one test failed. Retry.
                     if verbose:
-                        print("[Pythoness] Tests failed: {failing_tests}")
+                        print(f"[Pythoness] Tests failed: {failing_tests}")
                     function_def = None
                     continue
 
+                stats["successes"] += 1
+                logging.info(json.dumps(stats))
+                
                 # Validated. Cache the function and persist it.
                 cached_function = fn
                 cdb.insert_code(prompt, function_def)
@@ -290,7 +316,9 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                         f.write(new_source)
                 
                 return cached_function(*args, **kwargs)
+            
             # If we got here, we had too many retries.
+            logging.info(json.dumps(stats))
             if failing_tests:
                 raise Exception(f"Maximum number of retries exceeded ({max_retries}).\nFailing tests: {failing_tests}")
             else:
@@ -299,3 +327,4 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
         return wrapper
     return decorator
 
+logging.basicConfig(filename='pythoness.log', encoding='utf-8', format="%(message)s", level=logging.INFO)
