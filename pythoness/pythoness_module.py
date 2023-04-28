@@ -16,13 +16,15 @@ from typing import Callable, Tuple
 
 debug_print = False
 
+
 def is_interactive():
-    if not hasattr(main, '__file__'):
+    if not hasattr(main, "__file__"):
         # executed interactively (e.g. at the CLI or in a Jupyter notebook)
         return True
     else:
         # executed non-interactively (executing a script)
         return False
+
 
 def is_type_compatible(f: Callable, g: Callable) -> bool:
     f_sig = inspect.signature(f)
@@ -45,7 +47,7 @@ def is_type_compatible(f: Callable, g: Callable) -> bool:
         elif f_type is inspect.Parameter.empty or f_type is type(None):
             # For now, we consider this to be compatible.
             continue
-            #if not issubclass(type(None), g_type):
+            # if not issubclass(type(None), g_type):
             #    return False
 
         if not issubclass(g_type, f_type) and not issubclass(f_type, g_type):
@@ -68,7 +70,9 @@ def is_type_compatible(f: Callable, g: Callable) -> bool:
                 print("subclass issue with return types")
             return False
 
-    if not issubclass(g_return_type, f_return_type) and not issubclass(f_return_type, g_return_type):
+    if not issubclass(g_return_type, f_return_type) and not issubclass(
+        f_return_type, g_return_type
+    ):
         if debug_print:
             print("second subclass issue with return types")
         return False
@@ -82,24 +86,30 @@ class CodeDatabase:
         self.connection = sqlite3.connect(db_file)
         self.cursor = self.connection.cursor()
         self.create_table()
-    
+
     def create_table(self):
-        self.cursor.execute("""
+        self.cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS prompt_code (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 prompt TEXT NOT NULL,
                 code TEXT NOT NULL
             )
-        """)
-        self.cursor.execute("""
+        """
+        )
+        self.cursor.execute(
+            """
         CREATE INDEX IF NOT EXISTS index_prompt ON prompt_code (prompt)
-        """)
+        """
+        )
         self.connection.commit()
-    
+
     def insert_code(self, prompt, code):
-        self.cursor.execute("INSERT INTO prompt_code (prompt, code) VALUES (?, ?)", (prompt, code))
+        self.cursor.execute(
+            "INSERT INTO prompt_code (prompt, code) VALUES (?, ?)", (prompt, code)
+        )
         self.connection.commit()
-    
+
     def get_code(self, prompt):
         self.cursor.execute("SELECT code FROM prompt_code WHERE prompt = ?", (prompt,))
         row = self.cursor.fetchone()
@@ -107,7 +117,7 @@ class CodeDatabase:
             return row[0]
         else:
             return None
-    
+
     def close(self):
         self.connection.close()
 
@@ -118,14 +128,16 @@ def complete(user_prompt):
         try:
             completion = openai.ChatCompletion.create(
                 # For now, hard code
-                model="gpt-4", # args["llm"],
-                request_timeout=initial_timeout, # args["timeout"],
+                model="gpt-4",  # args["llm"],
+                request_timeout=initial_timeout,  # args["timeout"],
                 messages=[{"role": "user", "content": user_prompt}],
             )
             return completion.choices[0].message.content
         except openai.error.AuthenticationError:
             print("You need an OpenAI key to use this tool.")
-            print("You can get a key here: https://platform.openai.com/account/api-keys")
+            print(
+                "You can get a key here: https://platform.openai.com/account/api-keys"
+            )
             print("Set the environment variable OPENAI_API_KEY to your key value.")
             print(
                 "If OPENAI_API_KEY is already correctly set, you may have exceeded your usage or rate limit."
@@ -134,12 +146,22 @@ def complete(user_prompt):
         except openai.error.Timeout:
             # Exponential growth.
             initial_timeout *= 2
-    
 
-def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7, output=False, regenerate=False):
+
+def spec(
+    string,
+    replace=False,
+    tests=None,
+    max_retries=3,
+    verbose=False,
+    min_confidence=0.7,
+    output=False,
+    regenerate=False,
+):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             nonlocal cdb, cached_function
@@ -161,11 +183,18 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
             function_name = func.__name__
             arg_types = []
             for arg_name, arg_value in zip(func.__code__.co_varnames, args):
-                arg_types.append((arg_name, type(arg_value))) # FIXME: use annotations if available
+                arg_types.append(
+                    (arg_name, type(arg_value))
+                )  # FIXME: use annotations if available
             for kwarg_name, kwarg_value in kwargs.items():
-                arg_types.append((kwarg_name, type(kwarg_value),)) # FIXME: use annotations if available
-            return_type = func.__annotations__.get('return', None)
-                
+                arg_types.append(
+                    (
+                        kwarg_name,
+                        type(kwarg_value),
+                    )
+                )  # FIXME: use annotations if available
+            return_type = func.__annotations__.get("return", None)
+
             prompt = f"""
 
             Produce a JSON object with code for a Python function
@@ -190,7 +219,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
 
             {test_string}
                 """
-                
+
             prompt += f"""
             The function should have the following argument types and return type:
             
@@ -200,7 +229,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
 
             if verbose:
                 print("[Pythoness] Prompt:\n", prompt)
-            
+
             # See if we already have code corresponding to that prompt in the database.
             if regenerate:
                 # Force regeneration by ignoring any existing code in the database.
@@ -217,7 +246,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                 exec(compiled, globals())
                 fn = globals()[function_name]
                 return fn(*args, **kwargs)
-            
+
             # Keep track of basic (anonymous) statistics.
             stats = {}
             stats["spec"] = string
@@ -233,15 +262,15 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
             stats["type_incompatibility_failures"] = 0
             stats["test_failures"] = 0
             stats["min_confidence"] = min_confidence
-            
+
             failing_tests = set()
             while stats["retries"] < max_retries:
 
                 stats["retries"] += 1
-                
+
                 if verbose:
                     print(f"[Pythoness] Attempt number {stats['retries']}.")
-                    
+
                 # Retry until success.
                 if not function_def:
                     result = complete(prompt)
@@ -263,9 +292,11 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                     if confidence < min_confidence:
                         stats["confidence_failures"] += 1
                         if verbose:
-                            print(f"[Pythoness] Confidence level {confidence} too low (below {min_confidence}).")
+                            print(
+                                f"[Pythoness] Confidence level {confidence} too low (below {min_confidence})."
+                            )
                         continue
-                    
+
                 # Try to compile the function
                 try:
                     compiled = compile(function_def, "<string>", "exec")
@@ -285,16 +316,18 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                     stats["execution_failures"] += 1
                     function_def = None
                     continue
-               
+
                 fn = globals()[function_name]
                 if not is_type_compatible(func, fn):
                     stats["type_incompatibility_failures"] += 1
                     # Function types don't validate. Retry.
                     if verbose:
-                        print("[Pythoness] The generated function is incompatible with the spec.")
+                        print(
+                            "[Pythoness] The generated function is incompatible with the spec."
+                        )
                         function_def = None
                     continue
-                
+
                 # Validate tests.
                 if tests:
                     for t in tests:
@@ -302,8 +335,10 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                             if not eval(t):
                                 failing_tests.add(t)
                         except:
-                            raise Exception(f"This test failed to execute properly: {t}")
-                            
+                            raise Exception(
+                                f"This test failed to execute properly: {t}"
+                            )
+
                 if len(failing_tests) > 0:
                     stats["test_failures"] += 1
                     stats["num_tests_failed"] += len(failing_tests)
@@ -315,16 +350,17 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
 
                 stats["successes"] += 1
                 logging.info(json.dumps(stats))
-                
+
                 # Validated. Cache the function and persist it.
                 cached_function = fn
                 cdb.insert_code(prompt, function_def)
-                if output: # or is_interactive():
+                if output:  # or is_interactive():
                     print(function_def, file=sys.stdout)
                 # If selected, replace the function definition
                 # in the file.
                 if replace:
                     import inspect
+
                     frame = inspect.currentframe()
                     frame = frame.f_back
                     file_name = frame.f_code.co_filename
@@ -333,27 +369,36 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                     tree = ast.parse(source)
                     # Find the function with the given name and replace it with the new function.
                     for node in ast.walk(tree):
-                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name:
+                        if (
+                            isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                            and node.name == function_name
+                        ):
                             node_index = tree.body.index(node)
                             fn_body = ast.parse(function_def).body
                             tree.body[node_index] = fn_body
-                            
+
                     new_source = ast.unparse(tree)
 
                     # Update the file.
                     with open(file_name, "w") as f:
                         f.write(new_source)
-                
+
                 return cached_function(*args, **kwargs)
-            
+
             # If we got here, we had too many retries.
             logging.info(json.dumps(stats))
             if failing_tests:
-                raise Exception(f"Maximum number of retries exceeded ({max_retries}).\nFailing tests: {failing_tests}")
+                raise Exception(
+                    f"Maximum number of retries exceeded ({max_retries}).\nFailing tests: {failing_tests}"
+                )
             else:
                 raise Exception(f"Maximum number of retries exceeded ({max_retries}).")
-                
+
         return wrapper
+
     return decorator
 
-logging.basicConfig(filename='pythoness.log', encoding='utf-8', format="%(message)s", level=logging.INFO)
+
+logging.basicConfig(
+    filename="pythoness.log", encoding="utf-8", format="%(message)s", level=logging.INFO
+)
