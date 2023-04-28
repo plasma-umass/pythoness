@@ -9,11 +9,20 @@ import openai
 import sqlite3
 
 import ast_comments as ast
+import __main__ as main
 
 from functools import wraps
 from typing import Callable, Tuple
 
 debug_print = False
+
+def is_interactive():
+    if not hasattr(main, '__file__'):
+        # executed interactively (e.g. at the CLI or in a Jupyter notebook)
+        return True
+    else:
+        # executed non-interactively (executing a script)
+        return False
 
 def is_type_compatible(f: Callable, g: Callable) -> bool:
     f_sig = inspect.signature(f)
@@ -127,7 +136,7 @@ def complete(user_prompt):
             initial_timeout *= 2
     
 
-def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7, output=False):
+def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7, output=False, regenerate=False):
     def decorator(func):
         cached_function = None
         cdb = CodeDatabase("pythoness-cache.db")
@@ -138,6 +147,10 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
             # we wait until invocation to try to synthesize functions
             # or (lazy=False) which would speculatively attempt to
             # resolve all spec functions asynchronously (as futures).
+
+            if regenerate:
+                # Clear the cached function if we are regenerating.
+                cached_function = None
 
             # If we've already built this function and cached it, just
             # run it.
@@ -189,7 +202,11 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                 print("[Pythoness] Prompt:\n", prompt)
             
             # See if we already have code corresponding to that prompt in the database.
-            function_def = cdb.get_code(prompt)
+            if regenerate:
+                # Force regeneration by ignoring any existing code in the database.
+                function_def = None
+            else:
+                function_def = cdb.get_code(prompt)
 
             if verbose and function_def:
                 print("[Pythoness] retrieved function from database:\n", function_def)
@@ -302,7 +319,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                 # Validated. Cache the function and persist it.
                 cached_function = fn
                 cdb.insert_code(prompt, function_def)
-                if output:
+                if output: # or is_interactive():
                     print(function_def, file=sys.stdout)
                 # If selected, replace the function definition
                 # in the file.
