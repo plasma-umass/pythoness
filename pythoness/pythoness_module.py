@@ -7,6 +7,9 @@ import sys
 import textwrap
 import openai
 import sqlite3
+import traceback
+from hypothesis import example, given
+from hypothesis.strategies import *
 
 import ast_comments as ast
 import __main__ as main
@@ -122,16 +125,18 @@ class CodeDatabase:
         self.connection.close()
 
 
-def complete(user_prompt):
+def complete(user_prompt,history):
     initial_timeout = 30
     while True:
         try:
+            history.append({"role": "user", "content": user_prompt})
             completion = openai.ChatCompletion.create(
                 # For now, hard code
                 model="gpt-4",  # args["llm"],
                 request_timeout=initial_timeout,  # args["timeout"],
-                messages=[{"role": "user", "content": user_prompt}],
+                messages= history,
             )
+            history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
         except openai.error.AuthenticationError:
             print("You need an OpenAI key to use this tool.")
@@ -213,7 +218,15 @@ def spec(
             required for its functionality.  """
 
             if tests:
-                test_string = "\n            ".join(tests)
+                final_tests = []
+                for t in tests:
+                    if isinstance(t, tuple):
+                        final_tests.append(t[1])
+                    elif isinstance(t, str):
+                        final_tests.append(t)
+                    else:
+                        pass
+                test_string = "\n            ".join(final_tests)
                 prompt += f"""
             The function should pass the following tests:
 
@@ -262,7 +275,7 @@ def spec(
             stats["type_incompatibility_failures"] = 0
             stats["test_failures"] = 0
             stats["min_confidence"] = min_confidence
-
+            history = []
             failing_tests = set()
             while stats["retries"] < max_retries:
 
@@ -273,7 +286,10 @@ def spec(
 
                 # Retry until success.
                 if not function_def:
-                    result = complete(prompt)
+                    result = complete(prompt, history)
+                    # print("History is ")
+                    # print(history)
+                    #print(result)
                     try:
                         the_json = json.loads(result)
                     except:
@@ -332,7 +348,31 @@ def spec(
                 if tests:
                     for t in tests:
                         try:
-                            if not eval(t):
+                            if isinstance(t, tuple):
+                                compiled_hypothesis_test = create_hypothesis_test(t)
+                                exec(compiled_hypothesis_test,globals())
+                            else:
+                                if not eval(t):
+                                    failing_tests.add(t)
+                        except AssertionError:
+                            #print(locals())
+                            exc_type, exc_value, exc_tb = sys.exc_info()
+                            tb = traceback.TracebackException(exc_type, exc_value, exc_tb)
+                            exception_info = tb.format_exception_only()
+                            line_number = 0
+                            falsifying_example = get_falsifying_example(exception_info)
+                            for exception_line in exception_info:
+                                print(str(line_number) + " "+ exception_line)
+                                line_number += 1
+
+                            print("Falsifying example is "+ falsifying_example)
+                            if isinstance(t,tuple):
+                                new_l = list(t)
+                                string_input = str(t[0])
+                                new_l[0] = string_input
+                                new_t = tuple(new_l)
+                                failing_tests.add(new_t)
+                            else:
                                 failing_tests.add(t)
                         except:
                             raise Exception(
@@ -398,6 +438,44 @@ def spec(
 
     return decorator
 
+def get_falsifying_example(exception_info):
+    assertion_error = False
+    result = ''
+    for exception_line in exception_info:
+        if "AssertionError" in exception_line:
+            assertion_error = True
+            break
+
+    if assertion_error:
+        input_start = False
+        for exception_line in exception_info:
+            if ")" in exception_line:
+                input_start = False
+                continue
+            if "Falsifying example:" in exception_line:
+                input_start = True
+                continue
+            if input_start:
+                result = result + exception_line.strip()
+
+    return result
+
+
+def create_hypothesis_test(t):
+    if isinstance(t[0],dict):
+        assertion = t[1]
+        given_input = ",".join(t[0].values())
+        parameter_input = ",".join(list(t[0].keys()))
+        hypothesis_test = f"""
+@given({given_input})
+def test({parameter_input}):
+    assert({assertion})                                
+test()
+"""
+    else:
+        raise Exception(f"The following test does not have a dictionary in it ({t}). Please use correct syntax")
+
+    return compile(hypothesis_test,"<string>","exec")
 
 logging.basicConfig(
     filename="pythoness.log", encoding="utf-8", format="%(message)s", level=logging.INFO
