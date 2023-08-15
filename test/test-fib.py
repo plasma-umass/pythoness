@@ -1,6 +1,6 @@
 import pythoness
 
-@pythoness.spec("Compute the nth number in the Fibonacci series.",tests = [({'n':'integers(1,20)'}, "myfib(n+3) == myfib(n+1)+myfib(n)")])
+@pythoness.spec("Compute the nth number in the Fibonacci series.",tests = [({'n':'integers(1,20)'}, "myfib(n+2) == myfib(n+1)+myfib(n)")])
 def myfib(n: int) -> int:
     ""
 
