@@ -8,16 +8,17 @@ by [Emery Berger](https://emeryberger.com)
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/pythoness.svg)](https://pypi.org/project/pythoness/)[![Downloads](https://static.pepy.tech/badge/pythoness)](https://pepy.tech/project/pythoness) [![Downloads](https://static.pepy.tech/badge/pythoness/month)](https://pepy.tech/project/pythoness) ![Python versions](https://img.shields.io/pypi/pyversions/pythoness.svg?style=flat-square)
 
-Pythoness automatically generates Python code from natural language descriptions.
+Pythoness automatically generates Python code from natural language descriptions and tests.
 
-*NOTE*: To use Pythoness, you must first set up an OpenAI API key. If you
-already have an API key, you can set it as an environment variable
-called `OPENAI_API_KEY`. If you do not have one yet,
-you can get a key here: https://platform.openai.com/account/api-keys
-
-```
-export OPENAI_API_KEY=<your-api-key>
-```
+> **Note**
+>
+> Pythoness needs to be connected to an [OpenAI account](https://openai.com/api/). _Your account will need to have a positive balance for this to work_ ([check your balance](https://platform.openai.com/account/usage)). If you have never purchased credits, you will need to purchase at least $1 in credits (if your API account was created before August 13, 2023) or $0.50 (if you have a newer API account) in order to have access to GPT-4, which Pythoness uses. [Get a key here.](https://platform.openai.com/account/api-keys)
+>
+> Once you have an API key, set it as an environment variable called `OPENAI_API_KEY`.
+>
+> ```bash
+> export OPENAI_API_KEY=<your-api-key>
+> ```
 
 ## Installation
 
@@ -66,6 +67,21 @@ a list of strings containing Python code which should all evaluate to `True`.
 def myfib(n: int) -> int:
     ""
 ```
+
+You can also guide Pythoness with _property-based tests_. To do this,
+describe the properties that you want your program to
+exhibit. Pythoness will run a property-based tester
+([Hypothesis](https://github.com/HypothesisWorks/hypothesis/tree/master/hypothesis-python)),
+which will perform tests many times to ensure that the generated
+function meets the specified properties. This approach is much more
+powerful than the unit tests described above.
+
+```python
+@pythoness.spec("Compute the nth number in the Fibonacci series.",tests = [({'n':'integers(1,20)'}, "myfib(n+2) == myfib(n+1)+myfib(n)")])
+def myfib(n: int) -> int:
+    ""
+```
+
 
 ### Replacing Pythoness functions with Python
 
