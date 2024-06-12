@@ -18,6 +18,10 @@ import __main__ as main
 from functools import wraps
 from typing import Callable, Tuple
 
+
+# new stuff
+import litellm
+
 debug_print = False
 
 
@@ -135,15 +139,18 @@ def complete(user_prompt: str, history: list) -> str:
     while True:
         try:
             history.append({"role": "user", "content": user_prompt})
-            completion = openai.ChatCompletion.create(
+            completion = litellm.completion(
                 # For now, hard code
-                model="gpt-4",  # args["llm"],
-                request_timeout=initial_timeout,  # args["timeout"],
-                messages= history,
+                model="gpt-4", # args["llm"]
+                request_timeout=initial_timeout, # args["timeout"]
+                messages=history,
+                stream=True,
             )
             history.append({"role": "assistant", "content": completion.choices[0].message.content})
             return completion.choices[0].message.content
-        except openai.error.AuthenticationError:
+        # litellm converts all errrors to openAI errors
+        # TODO: make the print()s less OpenAI-specific
+        except openai.AuthenticationError:
             print("You need an OpenAI key to use this tool.")
             print(
                 "You can get a key here: https://platform.openai.com/account/api-keys"
@@ -153,7 +160,7 @@ def complete(user_prompt: str, history: list) -> str:
                 "If OPENAI_API_KEY is already correctly set, you may have exceeded your usage or rate limit."
             )
             sys.exit(1)
-        except openai.error.Timeout:
+        except openai.Timeout:
             # Exponential growth.
             initial_timeout *= 2
 
