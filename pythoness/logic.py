@@ -13,13 +13,17 @@ from collections.abc import Generator
 from functools import wraps
 import __main__ as main
 from typing import Callable
+import signal
+from .timeout import timeout_handler 
+from .timeout import TimeoutException
+
 
 # TODO: Add history functionality (requires a prompt to be written)
 # TODO: Add Assistant functionality (streaming, tokens)
 # TODO: Fix writing to files so it works after the function is cached
-# TODO: Add more examples
 # TODO: Implement logging
 # TODO: look through is_interactive(), is_type_compatible, and hypothesis-functions again
+# TODO: does cached_function even work?
 
 debug_print = False
 
@@ -191,7 +195,7 @@ def execute_func(stats, verbose):
 def validate_types(stats, func, fn, verbose):
     ''' Validates that the types of func (spec) and fn (produced) are equal '''
     if not is_type_compatible(func, fn):
-        stats['type_incompatibility failures'] += 1
+        stats['type_incompatibility_failures'] += 1
         # Function types don't validate: retry
         if verbose:
             print('[Pythoness] The generated function is incompatible with the spec.')
@@ -237,7 +241,7 @@ def validate_tests(tests, failing_tests, stats):
         stats['function_def'] = None
     return (stats, failing_tests)
 
-def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7, output=False, regenerate=False):
+def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_confidence=0.7, output=False, regenerate=False, timeout_seconds=0):
     ''' Main logic of Pythoness '''
     # regenerate means ignore code in the DB
     # regenerates the function every single time
@@ -297,15 +301,15 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
             Return type: {function_info['return_type']}
             """
 
-            if verbose:
-                print('[Pythoness] Prompt:\n', prompt)
-
             # See if we already have code corresponding to that prompt in the database.
             if regenerate:
                 # Force regeneration by ignoring any existing code in the database
                 function_def = None
             else: 
                 function_def = cdb.get_code(prompt)
+
+            if verbose and not function_def:
+                print('[Pythoness] Prompt:\n', prompt)
 
             # We have previously loaded the function. Just execute it and return.
             if function_def:
@@ -319,70 +323,79 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
             failing_tests = set()
             history = []
             while stats['retries'] < max_retries:
-                stats['retries'] += 1
+                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(timeout_seconds)
 
-                if verbose:
-                    print(f'[Pythoness] Attempt number {stats['retries']}.')
+                try:
+                    stats['retries'] += 1
 
-                # Retry until success.
+                    if verbose:
+                        print(f'[Pythoness] Attempt number {stats['retries']}.')
 
-                if not function_def:
-                    stats = parse_func(client, prompt, history, stats, verbose)
+                    # Retry until success.
+
+                    if not function_def:
+                        stats = parse_func(client, prompt, history, stats, verbose)
+                        if not stats['function_def']:
+                            continue
+                        
+                    # Try to compile the function
+                    stats = compile_func(stats, verbose)
                     if not stats['function_def']:
                         continue
-                
-                # Try to compile the function
-                stats = compile_func(stats, verbose)
-                if not stats['function_def']:
-                    continue
-                
-                # If we get here, we can run the function and use it going forwards.
-                stats = execute_func(stats, verbose)
-                if not stats['function_def']:
-                    continue
-
-                fn = globals()[stats['function_name']]
-                stats = validate_types(stats, func, fn, verbose)
-                if not stats['function_def']:
-                    continue
-                
-                # Validate tests.
-                if tests:
-                    test_results = validate_tests(tests, failing_tests, stats)
-                    stats = test_results[0]
-                    failing_tests = test_results[1]
+                    
+                    # If we get here, we can run the function and use it going forwards.
+                    stats = execute_func(stats, verbose)
                     if not stats['function_def']:
                         continue
 
-                stats['successes'] += 1
-                logging.info(json.dumps(stats, indent=2))
-                # Validated. Cache the function and persist it
-                cached_function = fn
-                cdb.insert_code(prompt, stats['function_def'])
-                if output:
-                    print(stats['function_def'], file=sys.stdout)
+                    fn = globals()[stats['function_name']]
+                    stats = validate_types(stats, func, fn, verbose)
+                    if not stats['function_def']:
+                        continue
+                    
+                    # Validate tests.
+                    if tests:
+                        test_results = validate_tests(tests, failing_tests, stats)
+                        stats = test_results[0]
+                        failing_tests = test_results[1]
+                        if not stats['function_def']:
+                            continue
 
-                # if selected, replace the function def in the file
-                if replace: 
-                    import inspect
-                    frame = inspect.currentframe()
-                    frame = frame.f_back
-                    file_name = frame.f_code.co_filename
-                    with open(file_name, 'r') as file:
-                        source = file.read()
-                    tree = ast.parse(source)
-                    # Find the function with the given name and replace it with the new function.
-                    for node in ast.walk(tree):
-                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == stats['function_name']:
-                            node_index = tree.body.index(node)
-                            fn_body = ast.parse(stats['function_def']).body
-                            tree.body[node_index] = fn_body
-                    new_source = ast.unparse(tree)
-                    # Update the file.
-                    with open(file_name, 'w') as f:
-                        f.write(new_source)
-        
-                return cached_function(*args, **kwargs)
+                    stats['successes'] += 1
+                    logging.info(json.dumps(stats, indent=2))
+                    # Validated. Cache the function and persist it
+                    cached_function = fn
+                    cdb.insert_code(prompt, stats['function_def'])
+                    if output:
+                        print(stats['function_def'], file=sys.stdout)
+
+                    # if selected, replace the function def in the file
+                    if replace: 
+                        import inspect
+                        frame = inspect.currentframe()
+                        frame = frame.f_back
+                        file_name = frame.f_code.co_filename
+                        with open(file_name, 'r') as file:
+                            source = file.read()
+                        tree = ast.parse(source)
+                        # Find the function with the given name and replace it with the new function.
+                        for node in ast.walk(tree):
+                            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == stats['function_name']:
+                                node_index = tree.body.index(node)
+                                fn_body = ast.parse(stats['function_def']).body
+                                tree.body[node_index] = fn_body
+                        new_source = ast.unparse(tree)
+                        # Update the file.
+                        with open(file_name, 'w') as f:
+                            f.write(new_source)
+
+                    return cached_function(*args, **kwargs)
+                except TimeoutException:
+                    print("[Pythoness] Attempt timed out.")
+                    continue
+                finally:
+                    signal.alarm(0)
             # If we got here, we had too many retries.
             logging.info(json.dumps(stats, indent=2))
             if failing_tests:
@@ -391,6 +404,7 @@ def spec(string, replace=False, tests=None, max_retries=3, verbose=False, min_co
                 raise Exception(f'Maximum number of retries exceeded ({max_retries}).')
         return wrapper
     return decorator
+
 
 def get_falsifying_example(exception_info: Generator[str, None, None]) -> str:
     """Obtain the values of the parameters for which the hypothesis test is failing.
