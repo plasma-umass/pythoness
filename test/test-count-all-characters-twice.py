@@ -4,7 +4,7 @@ import pythoness
                 tests = ["count_chars('hello', 'e') == 0",
                          "count_chars('hello', 'l') == 1",
                          "count_chars('helll', 'l') == 2",
-                         "count_chars('what is up', 'q') == 0"], verbose=True)
+                         "count_chars('what is up', 'q') == 0"])
 
 def count_chars(s: str, c) -> int:
     ""

@@ -33,6 +33,12 @@ class CodeDatabase:
         )
         self.connection.commit()
 
+    def delete_code(self, prompt):
+        self.cursor.execute(
+            "DELETE FROM prompt_code WHERE prompt = ?", (prompt,)
+        )
+        self.connection.commit()
+
     def get_code(self, prompt):
         self.cursor.execute(
             "SELECT code FROM prompt_code WHERE prompt = ?", (prompt,)                

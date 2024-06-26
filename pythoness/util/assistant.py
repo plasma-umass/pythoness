@@ -10,19 +10,20 @@ class AssistantError(Exception):
 class Assistant:
     def __init__(
         self,
-        model="gpt-4",
+        model="gpt-4o",
     ):
         self._model = model
         self._stats = {}
+        self._history = []
         # streaming will be enabled later
         self._check_model()
 
-    def _warn_about_exception(self, e, message="Unexpected Exception"):
+    def _warn_about_exception(self, e, message):
         import traceback
 
         tb_lines = traceback.format_exception(type(e), e, e.__traceback__)
         tb_string = "".join(tb_lines)
-        print(tb_string)
+        print(f"{message}\n\n{e}\n{tb_string}")
         
     def query(self, prompt: str):
         """
@@ -46,26 +47,18 @@ class Assistant:
             self._stats["time"] = elapsed
             self._stats["model"] = self._model
             self._stats["completed"] = True
-            self._stats["message"] = f"\n[Cost: ~${self._stats['cost']:.2f} USD]"
 
         except openai.OpenAIError as e:
             self._warn_about_exception(e, f"Unexpected OpenAI Error.  Retry the query.")
-            self._stats["message"] = f"[Exception: {e}]"
             return
 
         except Exception as e:
             self._warn_about_exception(e, f"Unexpected Exception.")
-            self._stats["message"] = f"[Exception: {e}]"
             
         return result
 
     def get_stats(self, stat):
         return self._stats[stat]
-
-    def _report(self, stats):
-        if stats["completed"]:
-            print()
-        else: print("[Chat Interrupted]")
 
     def _check_model(self):
         result = litellm.validate_environment(self._model)
@@ -93,22 +86,20 @@ class Assistant:
                 )          
         
     def _batch_query(self, prompt: str):
-        cost = 0
                             
-        completion = self._completion(prompt, [])
-        cost += litellm.completion_cost(completion)
+        completion = self._completion(prompt)
+        self._stats['cost'] += litellm.completion_cost(completion)
 
         response_message = completion.choices[0].message.content
-
-        self._stats['cost'] = cost
     
         return response_message
 
-    def _completion(self, user_prompt: str, history: list):
-        history.append({"role": "user", "content": user_prompt})
+    def _completion(self, user_prompt: str):
+        self._history.append({"role": "user", "content": user_prompt})
         completion = litellm.completion(
-            model=self._model, # args["llm"]
-            messages=history,
+            model=self._model,
+            messages=self._history,
+            response_format={"type": "json_object"}
         )
-        history.append({"role": "assistant", "content": completion.choices[0].message.content})
+        self._history.append({"role": "assistant", "content": completion.choices[0].message.content})
         return completion
