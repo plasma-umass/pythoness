@@ -2,68 +2,32 @@ from . import assistant
 from . import logger
 from . import exceptions
 from . import timeout
-import textwrap
+import inspect
 import json
 import ast_comments as ast
 
-
-debug_print = False
-
-
-def get_function_info(func, *args, **kwargs):
+def get_function_info(func):
+    ''' Gets function info from the provided spec '''
     ret = {}
     ret['function_name'] = func.__name__
     ret['arg_types'] = []
-    for arg_name, arg_value in zip(func.__code__.co_varnames, args):
-        ret['arg_types'].append((arg_name, type(arg_value)))  # FIXME: use annotations if available
-    for kwarg_name, kwarg_value in kwargs.items():
-        ret['arg_types'].append((kwarg_name, type(kwarg_value)))  # FIXME: use annotations if available
-    ret['return_type'] = func.__annotations__.get('return', None)
+    f_sig = inspect.signature(func)
+
+    for param in f_sig.parameters.values():
+        spec_list = []
+        spec_list.append(f'Name: {param.name}')
+        if param.annotation is not inspect.Parameter.empty:
+            spec_list.append(f'Type: {param.annotation}')
+        if param.default is not inspect.Parameter.empty:
+            spec_list.append(f'Default: {param.default}')
+
+        ret['arg_types'].append(spec_list)
+
+    ret['return_type'] = func.__annotations__.get('return', "")
     return ret
 
-def prep_tests(tests):
-    ''' Takes a string of tests as input and prepares a string that will be appended to the prompt '''
-    final_tests = []
-    for t in tests:
-        if isinstance(t, tuple):
-            final_tests.append(t[1])
-        elif isinstance(t, str):
-            final_tests.append(t)
-        else:
-            pass
-    test_string = '\n'.join(final_tests)
-    prompt_string = f'\n        The function should pass the following tests:\n        {test_string}\n    '
-    return prompt_string
-
-def create_prompt(function_info, string, tests):
-    prompt = f"""
-        Produce a JSON object with code for a Python function
-        named {function_info['function_name']} that performs the following task as
-        a field \"code\". Only produce output that can be parsed as
-        JSON.  
-
-        Task:
-        {textwrap.dedent(string)}
-
-        Include a docstring containing the task description above
-        (without the word "Task:").  The function should be
-        entirely self-contained, with all imports, code, and data
-        required for its functionality. Do not include any tests in
-        the function. """
-    
-    if tests:
-        prompt += prep_tests(tests)
-
-    prompt += f"""
-        The function should have the following argument types and return type:
-
-        Arguments: {function_info['arg_types']}
-        Return type: {function_info['return_type']}
-        """
-
-    return prompt
-
 def replace_func(frame, function_name, function_def):
+    ''' Replaces the spec in the file with the generated function def '''
     frame = frame.f_back
     file_name = frame.f_code.co_filename
     with open(file_name, 'r') as file:
@@ -130,7 +94,7 @@ def compile_func(function_info):
         raise exceptions.CompileException()
 
 def execute_func(function_info):
-    ''' executes the function stored in info '''
+    ''' Executes the function stored in info '''
     try:
         exec(function_info['compiled'], globals())
         # need to remove the compiled version in order to avoid JSON logging issues
@@ -142,6 +106,7 @@ def execute_func(function_info):
 
 # NOTE: Requires Python 3.10+
 def exception_handler(e : Exception, verbose, log : logger.Logger):
+    ''' Handles all exceptions that may occur in the main loop of pythoness '''
     match e:
         case exceptions.JSONException():
             if verbose:
@@ -160,8 +125,13 @@ def exception_handler(e : Exception, verbose, log : logger.Logger):
 
         case exceptions.TypeCompatibilityException():
             if verbose:
-                log.log('[Pythoness] The generated function is incompatible with the spec.')
+                log.log('[Pythoness] The types of the generated function are incompatible with the spec.')
             to_add = "the types of the function and spec were incompatible"
+
+        case exceptions.DefaultMismatchException():
+            if verbose:
+                log.log('[Pythoness] The generated function has mismatching default arguments.')
+            to_add = "the default values of the function and spec were incompatible"
 
         case timeout.TimeoutException():
             # should timeout be verbose or always included?

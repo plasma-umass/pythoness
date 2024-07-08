@@ -10,6 +10,9 @@ class ExecException(Exception):
 class TypeCompatibilityException(Exception):
     pass
 
+class DefaultMismatchException(Exception):
+    pass
+
 class TestsException(Exception):
     pass
 
