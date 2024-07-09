@@ -98,17 +98,24 @@ def readWords(filename):
             word = line.strip()   # do not use letters (think: 'belly button')
             results.append(word) 
     return results
-    
-@pythoness.spec("""How many lowercase 7-letter isograms are in a given .txt file?
-    This function returns an int representing the number of 7-letter isograms
-    that are the answer.
-    """, tests=["b1('words/small-dict.txt') == 2"],
-    related_objs=[letters, canon, uniques, sized, readWords], verbose = True, max_retries=10)
 
-def b1(filename : str) -> int:
+@pythoness.spec(
+    """In words/diseases.txt is a list of names of diseases and in words/bibleNames.txt
+    is a list of bible names.
+
+    Think of a disease in five letters. Shift each letter three
+    spaces later in the alphabet---for example, 'a' would become 'd', 'b' would
+    become 'e', etc. The result will be a prominent name from the Bible. 
+    
+    This function returns a string that is a concatenation of the illness and
+    the name (eg, 'illness name' or 'name illness').
+    """, related_objs=[letters, canon, uniques, sized, readWords], 
+    verbose = True, max_retries=10)
+
+def p3() -> str:
     ""
 
-if __name__ == '__main__':
-    # call puzzle functions
-    print("b1(): " + str(b1('words/dict.txt')))
-    # correct asnwer: 6973
+
+if __name__ == "__main__":
+    print("p3(): " + str(p3()))
+    # correct answer: Ebola Herod

@@ -98,17 +98,20 @@ def readWords(filename):
             word = line.strip()   # do not use letters (think: 'belly button')
             results.append(word) 
     return results
-    
-@pythoness.spec("""How many lowercase 7-letter isograms are in a given .txt file?
-    This function returns an int representing the number of 7-letter isograms
-    that are the answer.
-    """, tests=["b1('words/small-dict.txt') == 2"],
-    related_objs=[letters, canon, uniques, sized, readWords], verbose = True, max_retries=10)
 
-def b1(filename : str) -> int:
+@pythoness.spec(
+    """Suppose you have a seven letter hive, 'mixcent'. How many
+    4-letter lowercase words in filename (1) include 'm' and (2) are
+    spelled only using (possibly repeated) letters from the hive string?  
+    
+    This function returns an int representing the number of words.
+    """, related_objs=[letters, canon, uniques, sized, readWords], tests=["b2('words/small-dict.txt') == 2"], 
+    verbose = True, max_retries=10)
+
+def b2(filename : str) -> int:
     ""
 
-if __name__ == '__main__':
-    # call puzzle functions
-    print("b1(): " + str(b1('words/dict.txt')))
-    # correct asnwer: 6973
+
+if __name__ == "__main__":
+    print("b2(): " + str(b2('words/dict.txt')))
+    # correct answer: 17

@@ -12,13 +12,16 @@ def prep_class_or_func(obj, indent):
 
     doc = inspect.getdoc(obj)
     if doc:
-        doc = textwrap.indent(f"\"\"\"{doc}\"\"\"", "    ")
+        # indent the doc so it's indented relative to the signature / name
+        doc = textwrap.indent(f"\"\"\"{doc}\"\"\"\n...", "    ")
         str = f"{str + doc}\n"
 
     while indent > 0:
+        # indent everything s.t. it is nested within its class
         str = textwrap.indent(str, "    ")
         indent -= 1
     
+    # indent everything so it lines up with the triple-quotation prompt
     return textwrap.indent(f"{str}\n", "            ")
 
 def convert_list(to_add):
@@ -29,8 +32,9 @@ def convert_list(to_add):
     for object in to_add:
         if inspect.isclass(object):
 
+            # keep track of previous classes in order to nested things
+            # appropriately
             preceding_classes = object.__qualname__.rsplit('.', 1)[0]
-
             if preceding_classes == prev_class:
                 indent += 1
             else:
@@ -44,6 +48,8 @@ def convert_list(to_add):
             if prev_class == "":
                 str += prep_class_or_func(object, indent)
             else:
+                # functions will nest within a class
+                # unless it's global, which is prev_class == ""
                 str += prep_class_or_func(object, indent + 1)
 
     return str
@@ -97,7 +103,7 @@ def prep_entire_file(target_func):
 
 def prep_related_objs(func, related_objs):
 
-    str = """
+    str = """\
         Below is a list of functions that may be used in the implementation.
         Included is their name, signature, and docstring. Do not write
         these functions. \n\n""" 
@@ -147,21 +153,22 @@ def create_prompt(function_info, string, tests, func, related_objs):
         Produce a JSON object with code for a Python function
         named {function_info['function_name']} that performs the following task as
         a field \"code\". Only produce output that can be parsed as
-        JSON.  
+        JSON. \n\n"""
+    if related_objs:
+        prompt += prep_related_objs(func, related_objs)
 
-        Task:"""
+    prompt +="""\
+        Task:
+        """
     
     prompt += string_reformat(string)
 
     prompt += """
         Include a docstring containing the task description above
         (without the word "Task:").  The function should be
-        entirely self-contained, with all imports, code, and data
-        required for its functionality. Do not include any tests in
-        the function.\n"""
-    
-    if related_objs:
-        prompt += prep_related_objs(func, related_objs)
+        entirely self-contained, with all imports, code, and data, except
+        for the above helper functions. Do not include any tests 
+        in the function.\n"""
     
     if tests:
         prompt += prep_tests(tests)

@@ -98,17 +98,19 @@ def readWords(filename):
             word = line.strip()   # do not use letters (think: 'belly button')
             results.append(word) 
     return results
-    
-@pythoness.spec("""How many lowercase 7-letter isograms are in a given .txt file?
-    This function returns an int representing the number of 7-letter isograms
-    that are the answer.
-    """, tests=["b1('words/small-dict.txt') == 2"],
-    related_objs=[letters, canon, uniques, sized, readWords], verbose = True, max_retries=10)
 
-def b1(filename : str) -> int:
+@pythoness.spec("""In words/bodyParts.txt is a list of names of human body parts.
+                
+    Name part of the human body in six letters. Add an 'r' and rearrange
+    the result to name another part of the body in seven letters.
+
+    This function returns a string representing the concatenation of the
+    two body parts (eg, 'part1 part2' or 'part2 part1').
+    """, related_objs=[letters, canon, uniques, sized, readWords], verbose = True, max_retries=10)
+
+def p1() -> str:
     ""
 
-if __name__ == '__main__':
-    # call puzzle functions
-    print("b1(): " + str(b1('words/dict.txt')))
-    # correct asnwer: 6973
+if __name__ == "__main__":
+    print("p1(): " + str(p1()))
+    # correct answer: tonsil nostril

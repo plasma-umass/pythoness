@@ -3,6 +3,7 @@ from . import logger
 from . import exceptions
 from . import timeout
 import inspect
+import traceback
 import json
 import ast_comments as ast
 
@@ -96,7 +97,7 @@ def compile_func(function_info):
 def execute_func(function_info):
     ''' Executes the function stored in info '''
     try:
-        exec(function_info['compiled'], globals())
+        exec(function_info['compiled'], function_info['globals'])
         # need to remove the compiled version in order to avoid JSON logging issues
         function_info['compiled'] = None
         return function_info
@@ -105,7 +106,7 @@ def execute_func(function_info):
     
 
 # NOTE: Requires Python 3.10+
-def exception_handler(e : Exception, verbose, log : logger.Logger):
+def exception_handler(e : Exception, verbose : bool, log : logger.Logger, e_print : bool):
     ''' Handles all exceptions that may occur in the main loop of pythoness '''
     match e:
         case exceptions.JSONException():
@@ -149,9 +150,12 @@ def exception_handler(e : Exception, verbose, log : logger.Logger):
             to_add = f"the following tests failed: {e}"
 
         case _:
-            log.log(f"[Pythoness] Unknown error: {e}")
-            to_add = "of an unknown error"
+            log.log(f"[Pythoness] Unknown error: {type(e)} {e}")        
+            to_add = f"of an unknown error: {type(e)} {e}"
 
+    if e_print:
+        traceback.print_exception(e)
+    
     prompt = f"        Your previous attempt failed because {to_add}. Try again."
     return prompt
 

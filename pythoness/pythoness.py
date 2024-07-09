@@ -9,24 +9,15 @@ from contextlib import nullcontext
 from functools import wraps
 import sys
 import signal
-import textwrap
 import termcolor
-
-# TODO: change the final part of the prompt so it prints out the signature very nice
 
 # TODO: grab docstrings so it can automatically use function defs and stuff
 
 # TODO: getting the correct JSON format throws exceptions when not using the correct model -> catch exception in parse JSON?
 # TODO: KeyboardInterrupt when hypothesis exiting should exit the whole program using sys.exit()
-# TODO: if spec is defined but the function never called, print something out as warning
-# TODO: fix the indent on the string is prep_tests
-# TODO: dedent and fix formatting on prompt
-# FIXME: One of the test-decode tests are broken / written incorrectly
+# TODO: if spec is defined but the function never called, print something out as warning?
 
-# TODO: function formatting fixed, test string formatting needs the same treatment
-
-# TODO: tests formatting
-
+# IDEA: get expected and actual out of tests
 
 # TODO: Start is appearing when it shouldn't in fib testing
 
@@ -34,7 +25,7 @@ import termcolor
 # ISSUE: when it bleeds onto a new line that ruins the dedent
 # The indent in the ''' ''' works ont he first lnie only
 
-def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbose=False, output=False, regenerate=False, related_objs=None, timeout_seconds=0):
+def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbose=False, output=False, regenerate=False, related_objs=None, e_print = False, timeout_seconds=0):
     ''' Main logic of Pythoness '''
     def decorator(func):
         cached_function = None
@@ -77,7 +68,6 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
 
                     if verbose and not function_def:
                         log.log('[Pythoness] Prompt:\n', prompt)
-            
 
                 # We have previously loaded the function. Just execute it and return.
                     if function_def:
@@ -100,7 +90,7 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
                     while function_info['retries'] < max_retries:
                         signal.signal(signal.SIGALRM, timeout.timeout_handler)
                         signal.alarm(timeout_seconds)
-                        
+
                         try:
                             function_info['retries'] += 1
 
@@ -110,7 +100,6 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
                             with log("[Pythoness] Parsing...") if verbose else nullcontext():
                                 function_info = helper_funcs.parse_func(function_info, client, prompt, verbose, log)
 
-                            
                             # store code in databse so the tests can run it
                             cdb.insert_code(function_info["original_prompt"], function_info['function_def'])
 
@@ -120,7 +109,8 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
                             with log("[Pythoness] Executing...") if verbose else nullcontext():
                                 function_info = helper_funcs.execute_func(function_info)
 
-                            fn = globals()['helper_funcs'].__dict__[function_info['function_name']]
+                           
+                            fn = function_info['globals'][function_info['function_name']]
                             with log("[Pythoness] Validating types...") if verbose else nullcontext():
                                 testing.validate_types(func, fn)
 
@@ -144,7 +134,7 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
                             return cached_function(*args, **kwargs)
                         
                         except Exception as e:
-                            prompt = helper_funcs.exception_handler(e, verbose, log)
+                            prompt = helper_funcs.exception_handler(e, verbose, log, e_print)
                             continue
                         
                         # ensures regeneration on future attempts
