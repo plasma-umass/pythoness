@@ -44,6 +44,7 @@ class CodeDatabase:
             "SELECT code FROM prompt_code WHERE prompt = ?", (prompt,)                
         )
         row = self.cursor.fetchone()
+        self.connection.commit()
         if row is not None:
             return row[0]
         else:

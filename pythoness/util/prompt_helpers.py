@@ -1,5 +1,6 @@
 import inspect
 import textwrap
+import re
 
 # NOTE: formatting looks good in verbose, but it's terrible in code
 
@@ -147,6 +148,17 @@ def string_reformat(string):
     return f"{ret}\n"
         
 
+def prep_signature(func):
+    sig = inspect.signature(func)
+    sig_str = str(sig)
+
+    # Use regex to find and remove `__main__.` prefix
+    cleaned_sig_str = re.sub(r'__main__\.', '', sig_str)
+
+    return cleaned_sig_str
+
+
+
 def create_prompt(function_info, string, tests, func, related_objs):
     ''' Creates a prompt string to send to the LLM '''
     prompt = f"""
@@ -168,14 +180,15 @@ def create_prompt(function_info, string, tests, func, related_objs):
         (without the word "Task:").  The function should be
         entirely self-contained, with all imports, code, and data, except
         for the above helper functions. Do not include any tests 
-        in the function.\n"""
+        in the function, and do not write any additional functions, classes,
+        or methods unless they are contained within the definition.\n"""
     
     if tests:
         prompt += prep_tests(tests)
 
     prompt += f"""
         The function should have the following signature:
-            {inspect.signature(func)}
+            {prep_signature(func)}
         """
     
     return textwrap.dedent(prompt)

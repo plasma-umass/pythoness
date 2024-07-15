@@ -17,33 +17,43 @@ import termcolor
 # TODO: KeyboardInterrupt when hypothesis exiting should exit the whole program using sys.exit()
 # TODO: if spec is defined but the function never called, print something out as warning?
 
+# ISSUE: if all functions are contained within a class, it won't be included in globals
+
+# TODO: can't grab the class that a function is in 
+
+# ISSUE: when I give it the qualname (e.g. Point.get_x(), it generates point in addition)
+# ISSUE: when it calls init, there's inifite recursion
+
 # IDEA: get expected and actual out of tests
 
-# TODO: Start is appearing when it shouldn't in fib testing
-
-# TO ASK: string formatting?
-# ISSUE: when it bleeds onto a new line that ruins the dedent
-# The indent in the ''' ''' works ont he first lnie only
+cdb = database.CodeDatabase('pythoness-cache.db')
 
 def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbose=False, output=False, regenerate=False, related_objs=None, e_print = False, timeout_seconds=0):
     ''' Main logic of Pythoness '''
     def decorator(func):
         cached_function = None
-        cdb = database.CodeDatabase('pythoness-cache.db')
+        
         log = logger.Logger()
         
+        func.__doc__ += string
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             # log("Start") in the wrapper so something must be wrapped
             # in order for "Start" to appear
             with log("Start") if verbose else nullcontext():
-                nonlocal cdb, cached_function
+                
+                nonlocal cached_function
                 if regenerate:
                     # Clear the cached function if we are regenerating.
+                    
                     cached_function = None
 
                 # If we've already built this function and cached it, just
                 # run it
+                
+                # Here is the infinite recursion
+
                 if cached_function:
                     return cached_function(*args, **kwargs)
 
@@ -58,7 +68,8 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
 
                 with log("[Pythoness] Creating prompt and checking the DB...") if verbose else nullcontext():
                     prompt = prompt_helpers.create_prompt(function_info, string, tests, func, related_objs)
-        
+                    function_info = helper_funcs.setup_info(function_info, func, string, prompt)
+
                 # See if we already have code corresponding to that prompt in the database.
                     if regenerate:
                         # Force regeneration by ignoring any existing code in the database
@@ -79,11 +90,10 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
                             frame = inspect.currentframe()
                             
                             with log("[Pythoness] Replacing...") if verbose else nullcontext(): 
-                                helper_funcs.replace_func(frame, function_info['function_name'], function_def)
+                                helper_funcs.replace_func(frame, func, function_def)
 
                         return helper_funcs.database_compile(function_info, function_def, *args, **kwargs)
 
-                function_info = helper_funcs.setup_info(function_info, func, string, prompt)
                 
                 with log("[Pythoness] Generating code...") if verbose else nullcontext():
                 
@@ -108,9 +118,11 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
 
                             with log("[Pythoness] Executing...") if verbose else nullcontext():
                                 function_info = helper_funcs.execute_func(function_info)
-
-                           
+                            
                             fn = function_info['globals'][function_info['function_name']]
+                            # need to remove the new function from the global namespace that exec put it in
+                            
+                            
                             with log("[Pythoness] Validating types...") if verbose else nullcontext():
                                 testing.validate_types(func, fn)
 
@@ -129,7 +141,7 @@ def spec(string, model="gpt-4o", replace=False, tests=None, max_retries=3, verbo
                                 frame = inspect.currentframe()
                                 
                                 with log("[Pythoness] Replacing...") if verbose else nullcontext():   
-                                        helper_funcs.replace_func(frame, function_info['function_name'], function_info['function_def'])
+                                        helper_funcs.replace_func(frame, func, function_info['function_def'])
                                 
                             return cached_function(*args, **kwargs)
                         

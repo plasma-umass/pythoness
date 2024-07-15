@@ -36,7 +36,7 @@ def validate_types(func : Callable, fn : Callable):
 
     f_return_type = f_sig.return_annotation
     g_return_type = g_sig.return_annotation
-
+    
     # same is true for returns
     if (f_return_type != inspect.Parameter.empty and g_return_type != inspect.Parameter.empty) and (f_return_type != g_return_type):
         raise exceptions.TypeCompatibilityException()
