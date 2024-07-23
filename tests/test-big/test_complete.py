@@ -162,20 +162,13 @@ class FreqWord:
 # The following two *functions* are defined outside of the class, 
 # so that we can use them as the key functions when sorting.
 
+@pythoness.spec("""A function that can be used as a sorting key function
+                It extracts the text from FreqWords""",
+                tests=["sorted([ FreqWord('b',5), FreqWord('c',10), FreqWord('a', 8) ],key=textKey) == [FreqWord('a',8), FreqWord('b',5), FreqWord('c',10)]"],
+                related_objs='*', verbose=True)
 def textKey(freqWord):
-    """
-    A function that can be used as a sorting key function.
-    It extracts the text from FreqWords.
-
-    >>> words = [ FreqWord("b",5), FreqWord("c",10), FreqWord("a", 8) ]
-    >>> sorted(words, key = textKey)
-    [a[8], b[5], c[10]]
-    >>> words = [ FreqWord(' ', 5), FreqWord('a', 8), FreqWord("c",10), ]
-    >>> sorted(words, key = textKey, reverse = True)
-    [c[10], a[8],  [5]]
-    """
-    # return only word
-    return freqWord.getText()
+    ""
+    
 
 def countKey(freqWord):
     """

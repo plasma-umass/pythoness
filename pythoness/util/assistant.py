@@ -17,6 +17,7 @@ class Assistant:
         self._history = []
         # streaming will be enabled later
         self._check_model()
+        
 
     def _warn_about_exception(self, e, message):
         import traceback

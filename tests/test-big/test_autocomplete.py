@@ -26,7 +26,7 @@ class FreqWord:
     A class representing a word and its count
     """
 
-    __slots__ = ["_text", "_count"]
+    # __slots__ = ["_text", "_count"]
 
     @pythoness.spec("""
                     Constructor for the FreqWord class.
@@ -87,7 +87,7 @@ class FreqWord:
 
 @pythoness.spec("""A function that can be used as a sorting key function
                 It extracts the text from FreqWords""",
-                tests=["sorted([ FreqWord('b',5), FreqWord('c',10), FreqWord('a', 8) ],key=textkey) == '[FreqWord('a',8), FreqWord('b',5), FreqWord('c',10)]'"],
+                tests=["sorted([ FreqWord('b',5), FreqWord('c',10), FreqWord('a', 8) ],key=textKey) == [FreqWord('a',8), FreqWord('b',5), FreqWord('c',10)]"],
                 related_objs='*', verbose=True)
 def textKey(freqWord):
     ""
@@ -95,7 +95,7 @@ def textKey(freqWord):
 
 @pythoness.spec("""A function that can be used as a sorting key function
                 It extracts the count from FreqWords""",
-                tests=["sorted([ FreqWord('b',5), FreqWord('c',10), FreqWord('a', 8) ], key = countKey)=='[FreqWord('b',5), FreqWord('a',8), FreqWord('c',10)]'"],
+                tests=["sorted([ FreqWord('b',5), FreqWord('c',10), FreqWord('a', 8) ], key = countKey)== [FreqWord('b',5), FreqWord('a',8), FreqWord('c',10)]"],
                 related_objs='*', verbose=True)
 def countKey(freqWord):
     ""

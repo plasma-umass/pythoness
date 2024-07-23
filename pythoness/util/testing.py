@@ -47,6 +47,7 @@ def validate_types(func : Callable, fn : Callable):
 def validate_tests(function_info, tests, log : logger.Logger):
     ''' Validates that all provided tests pass, prints out which ones, if any, fail '''
     failing_tests = []
+
     for t in tests:
         try:
             if isinstance(t, tuple):

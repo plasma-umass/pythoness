@@ -2,10 +2,13 @@ from . import assistant
 from . import logger
 from . import exceptions
 from . import timeout
+import ast_comments as ast
 import inspect
 import traceback
 import json
-import ast_comments as ast
+import os
+import inspect
+
 
 
 # testing accesses the globals which I then remove
@@ -54,18 +57,11 @@ def ast_class_search(func, cur_class, class_names):
     return None
 
 
-def replace_func(frame, func, function_def):
+def replace_func(func, function_def):
     """ Replaces the spec in the file with the generated function def """
-    # print(inspect.stack())
-    frame = frame.f_back
 
-    # print(inspect.getframeinfo(frame))
-
-    # the issue arises when classes become involved, suddenly the file does not exist:
-    # FileNotFoundError: [Errno 2] No such file or directory: '<string>'
-
-    file_name = frame.f_code.co_filename
-    print(file_name)
+    file_name = os.path.abspath(inspect.getfile(func))
+    
     with open(file_name, 'r') as file:
         source = file.read()
     tree = ast.parse(source)
@@ -94,7 +90,8 @@ def replace_func(frame, func, function_def):
 
 def database_compile(function_info, function_def, *args, **kwargs):
     """ Compiles and executes a function with information from the CodeDatabase """
-    compiled = compile(function_def, '<string>', 'exec')
+
+    compiled = compile(function_def, 'generated_func', 'exec')
     exec(compiled, function_info['globals'])
     fn = function_info['globals'][function_info['function_name']]
     # need to remove the new function from the global namespace that exec put it in
@@ -125,7 +122,7 @@ def setup_info(function_info, func, string, prompt):
     #     func.__globals__[value.__qualname__] = value
 
 
-    function_info.update({'spec': string, 'retries': 0, 'function_def': None, 'compiled': None, 'globals': func.__globals__, 'original_prompt': prompt})
+    function_info.update({'spec': string, 'retries': 0, 'function_def': None, 'compiled': None, 'globals': func.__globals__, 'original_prompt': prompt, 'globals_no_print' : []})
     return function_info
 
 def parse_func(function_info, client: assistant.Assistant, prompt, verbose, log: logger.Logger):
@@ -146,7 +143,7 @@ def parse_func(function_info, client: assistant.Assistant, prompt, verbose, log:
 def compile_func(function_info):
     """ Compiles the function_def stored in info """
     try:
-        compiled = compile(function_info['function_def'], '<string>', 'exec')
+        compiled = compile(function_info['function_def'], 'generated_func', 'exec')
         function_info['compiled'] = compiled
         return function_info
     except:
@@ -164,7 +161,7 @@ def execute_func(function_info):
         raise exceptions.ExecException()
 # NOTE: Requires Python 3.10+
 
-def exception_handler(e: Exception, verbose: bool, log: logger.Logger, e_print: bool):
+def exception_handler(e: Exception, verbose: bool, log: logger.Logger):
     """ Handles all exceptions that may occur in the main loop of pythoness """
     match e:
         case exceptions.JSONException():
@@ -178,8 +175,6 @@ def exception_handler(e: Exception, verbose: bool, log: logger.Logger, e_print: 
         case exceptions.ExecException():
             if verbose:
                 log.log('[Pythoness] Executing the function failed')
-                log.log(f"{type(e)} {e}")
-                traceback.print_exception(e)
             to_add = 'of an execution error'
         case exceptions.TypeCompatibilityException():
             if verbose:
@@ -201,11 +196,14 @@ def exception_handler(e: Exception, verbose: bool, log: logger.Logger, e_print: 
             if verbose:
                 log.log(f'[Pythoness] The following tests failed: {e}')
             to_add = f'the following tests failed: {e}'
+        case KeyError():
+            to_add = "the function or method failed to execute. Ensure that only a single function or method is defined"
         case _:
-            log.log(f'[Pythoness] Unknown error: {type(e)} {e}')
+            if verbose:
+                log.log(f'[Pythoness] Unknown error: {type(e)} {e}')
             to_add = f'of an unknown error: {type(e)} {e}'
-            traceback.print_exception(e)
-    if e_print:
+    if verbose:
+        log.log(f"{type(e)} {e}")
         traceback.print_exception(e)
     prompt = f'        Your previous attempt failed because {to_add}. Try again.'
     return prompt

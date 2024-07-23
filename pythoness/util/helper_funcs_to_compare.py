@@ -87,7 +87,7 @@ def parse_func(function_info, client: assistant.Assistant, prompt, verbose, log 
 def compile_func(function_info):
     ''' Compiles the function_def stored in info '''
     try:
-        compiled = compile(function_info['function_def'], '<string>', 'exec')
+        compiled = compile(function_info['function_def'], '', 'exec')
         function_info['compiled'] = compiled
         return function_info
     except:
