@@ -11,7 +11,7 @@ Pythoness by [Emery Berger](https://emeryberger.com), extension by Kyle Gwilt, S
 Pythoness automatically generates Python code from natural language descriptions and tests.
 
 > **Note**
-> Pythoness needs to be connected to any reasonable LLM. Below is an example for how to connect Pythoness with an OpenAI account. For other LLMs, consult their documentation.
+> Pythoness needs to be connected to an LLM in order to function. Below is an example for how to connect Pythoness with an OpenAI account. For other LLMs, consult their documentation.
 >
 > [OpenAI account](https://openai.com/api/). _Your account will need to have a positive balance for this to work_ ([check your balance](https://platform.openai.com/account/usage)). If you have never purchased credits, you will need to purchase at least $1 in credits (if your API account was created before August 13, 2023) or $0.50 (if you have a newer API account). [Get a key here.](https://platform.openai.com/account/api-keys)
 >
@@ -98,11 +98,11 @@ is specified in `spec`.
 
 ```python
 @pythoness.spec("Encodes a string using a single-shift Caesar cipher")
-def encode(str : str) -> str:
+def encode(s : str) -> str:
     ""
 
 @pythoness.spec("Decodes a string given to encode()", related_objs = [encode])
-def decode(str : str) -> str:
+def decode(s : str) -> str:
     ""
 ```
 
