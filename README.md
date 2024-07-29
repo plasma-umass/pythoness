@@ -86,7 +86,7 @@ def myfib(n: int) -> int:
 ### Incorporating other objects
 
 You can further guide Pythoness by giving it functions and classes that are related
-to the code that it will be generating. Pythoness uses the docstring of provided functions 
+to the code that it will be generating. It uses the docstring of provided functions 
 and classes to understand their purpose. Pythoness can make use of functions that will be generated 
 by itself this way, where the docstring is specified in `spec`.
  
