@@ -1,6 +1,7 @@
 import pythoness
 
 def encode(input_string):
+    "A single-shift Caesar cipher"
     encoded_string = ""
     
     for char in input_string:
@@ -19,9 +20,7 @@ def encode(input_string):
     return encoded_string
 
 
-@pythoness.spec("""Decode str into the string inputted into an encode() function. 
-                Here are sample inputs and outputs to the encode() function:
-                encode('zAp') == 'aBq', encode('Pro') == 'Qsp', encode('LME') == 'MNF'""", tests=[({'s':"text(alphabet='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')"}, "decode(encode(s)) == s")])
+@pythoness.spec("""Decode str into the string inputted into an encode() function. """, tests=[({'s':"text(alphabet='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')"}, "decode(encode(s)) == s")], related_objs=[encode])
 
 def decode(str : str):
     ""

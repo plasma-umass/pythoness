@@ -6,7 +6,7 @@ import pythoness
                          "count_chars('helll', 'l') == 2",
                          "count_chars('what is up', 'q') == 0"])
 
-def count_chars(s: str, c="h"):
+def count_chars(s: str, c: str) -> int:
     ""
 
 print("Running tests: count-all-characters-twice")

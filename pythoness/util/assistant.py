@@ -4,6 +4,7 @@ import litellm
 import openai
 
 class AssistantError(Exception):
+    """ A custom exception to catch wrong model issues"""
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
@@ -20,6 +21,7 @@ class Assistant:
         
 
     def _warn_about_exception(self, e, message):
+        """Formats and prints exception information"""
         import traceback
 
         tb_lines = traceback.format_exception(type(e), e, e.__traceback__)
@@ -59,9 +61,12 @@ class Assistant:
         return result
 
     def get_stats(self, stat):
+        """ Gets the stat 'stat' from the self._stats dictionary"""
         return self._stats[stat]
 
     def _check_model(self):
+        """ Verifies the API key in environment variables"""
+
         result = litellm.validate_environment(self._model)
         missing_keys = result["missing_keys"]
         if missing_keys != []:
@@ -87,7 +92,7 @@ class Assistant:
                 )          
         
     def _batch_query(self, prompt: str):
-                            
+        """ Gets cost and returns the string from a completion"""
         completion = self._completion(prompt)
         self._stats['cost'] += litellm.completion_cost(completion)
 
@@ -96,6 +101,7 @@ class Assistant:
         return response_message
 
     def _completion(self, user_prompt: str):
+        """ Returns an LLM completion and appends the prompt and result to self._history"""
         self._history.append({"role": "user", "content": user_prompt})
         completion = litellm.completion(
             model=self._model,

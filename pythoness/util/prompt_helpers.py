@@ -5,7 +5,7 @@ import ast
 import os
 
 def find_aliases_in_import(obj, func):
-    ""
+    """Finds the name / alias of the module obj is in, in the file of func"""
     # need file path to the original file
     file_path = os.path.abspath(inspect.getfile(func))
 
@@ -25,6 +25,7 @@ def find_aliases_in_import(obj, func):
     return None
 
 def get_mod(obj, func):
+    """Gets module names / aliases of obj and returns it as a string, in the file of func"""
     mod = ""
     prefix = find_aliases_in_import(obj, func)
     if prefix:
@@ -33,24 +34,25 @@ def get_mod(obj, func):
     return mod
 
 def get_bases(obj, func):
+    """Gets the base classes for obj and formats the string, in the file of func"""
     if obj.__bases__:
         bases = ""
         for cls in obj.__bases__:
+            # 'object' is a special case that isn't useful
             if cls.__name__ != 'object':
                 mod = get_mod(obj, func)
                 bases += f'({mod}{cls.__qualname__}, '
 
         bases = bases[:-2]
 
+        # formatting
         if len(bases) > 0:
             bases += ')'
 
     return bases
 
 def prep_class_or_func(obj, indent, func):
-    # need to ensure that I only grab the necessary parts of the module, see blackjack for an example 
-    # use rsplit and grab all but the last element in the list
-    ""
+    """Formats the string and docstring for obj, in the file of func"""
     mod = get_mod(obj, func)
 
     if inspect.isclass(obj):
@@ -74,6 +76,7 @@ def prep_class_or_func(obj, indent, func):
     return textwrap.indent(f"{str}\n", "            ")
 
 def convert_list(to_add, no_print, func):
+    """Converts a list of objects to_add into a string for the prompt"""
     str = ""
     indent = 0
     prev_class = ""
@@ -81,9 +84,7 @@ def convert_list(to_add, no_print, func):
     for object in to_add:
         if object.__qualname__ not in no_print:
             if inspect.isclass(object):
-
-                # keep track of previous classes in order to nested things
-                # appropriately
+                # keep track of previous classes in order to nest things
                 preceding_classes = object.__qualname__.rsplit('.', 1)[0]
                 if preceding_classes == prev_class:
                     indent += 1
@@ -93,12 +94,12 @@ def convert_list(to_add, no_print, func):
                 str += prep_class_or_func(object, indent, func)
                 prev_class = object.__qualname__
 
-            # isfunction
+            # if isfunction:
             else:
                 if prev_class == "":
                     str += prep_class_or_func(object, indent, func)
                 else:
-                    # functions will nest within a class
+                    # functions will nest within a class, so increase indent
                     # unless it's global, which is prev_class == ""
                     str += prep_class_or_func(object, indent + 1, func)
 
@@ -106,6 +107,7 @@ def convert_list(to_add, no_print, func):
 
 
 def get_funcs_from_class(cls, target_func):
+    """Returns the list of functions in cls that aren't target_func"""
     ret = []
 
     funcs = inspect.getmembers(cls, inspect.isfunction)
@@ -118,6 +120,7 @@ def get_funcs_from_class(cls, target_func):
     return ret
 
 def get_complete_class(cls, target_func):
+    """Returns a list of every element of cls, including functions and nested classes, except target_func"""
     ret = []
 
     # grab methods
@@ -135,6 +138,7 @@ def get_complete_class(cls, target_func):
     return ret
 
 def prep_entire_file(target_func):
+    """Returns a list of every class and function in target_func's file, except target_func"""
      # module is at the global level
     module = inspect.getmodule(target_func)
     clst = inspect.getmembers(module, inspect.isclass)
@@ -151,6 +155,7 @@ def prep_entire_file(target_func):
 
 
 def get_class_from_func(func):
+    """Returns func if func is global, returns the innermost class object related to func otherwise"""
     ret = inspect.getmodule(func)
     classes_to_find = func.__qualname__.split('.')[:-1]
 
@@ -170,18 +175,20 @@ def get_class_from_func(func):
     return func
 
 def prep_related_objs(func, related_objs, no_print):
+    """Prepares the prompt string for related_objs"""
 
     str = """\
         Below is a list of functions that may be used in the implementation.
         Included is their name, signature, and docstring. Do not write
         these functions and do not import anything to use them. \n\n""" 
-
+    # prep entire file
     if related_objs == '*':
        to_add = prep_entire_file(func)
 
     else:
         to_add = []
         for obj in related_objs:
+            # prep innermost class of func
             if obj == "cls":
                 cls_obj = get_class_from_func(func)
                 to_add.append(cls_obj)
@@ -190,15 +197,13 @@ def prep_related_objs(func, related_objs, no_print):
                 to_add.append(obj)
                 if inspect.isclass(obj):
                     to_add += get_funcs_from_class(obj, func)
-    
-    
 
     str += convert_list(to_add, no_print, func)
 
     return str 
 
 def prep_tests(tests):
-    ''' Takes a string of tests as input and prepares a string that will be appended to the prompt '''
+    """Takes a string of tests as input and prepares a string that will be appended to the prompt"""
     final_tests = []
     for t in tests:
         if isinstance(t, tuple):
@@ -214,6 +219,7 @@ def prep_tests(tests):
 
 
 def string_reformat(string):
+    """Reformats string so the prompt prints nicely"""
     string_list = string.split('\n')
     ret = ""
     for line in string_list:
@@ -223,6 +229,7 @@ def string_reformat(string):
         
 
 def prep_signature(func):
+    """Formats the string signature of a func"""
     sig = inspect.signature(func)
     sig_str = str(sig)
 
@@ -234,7 +241,7 @@ def prep_signature(func):
 
 
 def create_prompt(function_info, string, tests, func, related_objs, no_print):
-    ''' Creates a prompt string to send to the LLM '''
+    """Creates a prompt string to send to the LLM"""
     prompt = f"""
         Produce a JSON object with code for a Python function
         named {function_info['function_name']} that performs the following task as

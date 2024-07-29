@@ -16,7 +16,7 @@ def get_env(option_name: str, default_value: T) -> T:
 
 class Config:
     """
-    Configuration class for NBSketch. This class is used to store the global configuration of the NBSketch system.
+    Configuration class for Pythoness. This class is used to store the global configuration of the Pythoness system.
     """
 
     def __init__(self):

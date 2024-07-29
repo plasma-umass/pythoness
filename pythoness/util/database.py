@@ -1,15 +1,15 @@
 import sqlite3
 
 class CodeDatabase:
+    """Tools for interacting with the Pythoness sqllite database"""
     def __init__(self, db_file):
         self.db_file = db_file
         self.connection = sqlite3.connect(db_file)
         self.cursor = self.connection.cursor()
         self.create_table()
 
-    # SQL is maybe overkill? I don't know how cost efficient this is
     def create_table(self):
-        # can't I make this into one execute call?
+        """Creates a new 'prompt_code' table if one doesn't exist"""
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS prompt_code (
@@ -28,18 +28,21 @@ class CodeDatabase:
 
 
     def insert_code(self, prompt, code):
+        """Inserts (prompt, code) into the table"""
         self.cursor.execute(   
             "INSERT INTO prompt_code (prompt, code) VALUES (?, ?)", (prompt, code)
         )
         self.connection.commit()
 
     def delete_code(self, prompt):
+        """Deletes any instances where prompt = prompt"""
         self.cursor.execute(
             "DELETE FROM prompt_code WHERE prompt = ?", (prompt,)
         )
         self.connection.commit()
 
     def get_code(self, prompt):
+        """Gets the first instance of code corresponding to prompt"""
         self.cursor.execute(
             "SELECT code FROM prompt_code WHERE prompt = ?", (prompt,)                
         )
@@ -50,5 +53,3 @@ class CodeDatabase:
         else:
             return None
         
-    def close(self):
-        self.connection.close()

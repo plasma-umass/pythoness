@@ -11,7 +11,7 @@ import traceback
 import sys
 
 def validate_types(func : Callable, fn : Callable):
-    ''' Validates that the types of func (spec) and fn (produced) are equal '''
+    """Validates that the types of func (spec) and fn (produced) are equal"""
     f_sig = inspect.signature(func)
     g_sig = inspect.signature(fn)
 
@@ -45,7 +45,7 @@ def validate_types(func : Callable, fn : Callable):
     
 
 def validate_tests(function_info, tests, log : logger.Logger):
-    ''' Validates that all provided tests pass, prints out which ones, if any, fail '''
+    """Validates that all provided tests pass, prints out which ones, if any, fail"""
     failing_tests = []
 
     for t in tests:
@@ -84,7 +84,7 @@ def validate_tests(function_info, tests, log : logger.Logger):
 
 
 def get_falsifying_example(exception_info: Generator[str, None, None]) -> str:
-    ''' Obtain the values of the parameters for which the hypothesis test is failing.'''
+    """Obtain the values of the parameters for which the hypothesis test is failing."""
     assertion_error = False
     result = ''
     for exception_line in exception_info:
@@ -105,7 +105,7 @@ def get_falsifying_example(exception_info: Generator[str, None, None]) -> str:
     return result
 
 def create_hypothesis_test(t):
-    ''' Creates hypothesis tests '''
+    """Creates hypothesis tests"""
     if isinstance(t[0], dict):
         assertion = t[1]
         given_input = ','.join(t[0].values())

@@ -28,14 +28,17 @@ import termcolor
 
 # TODO: test whether adding that line at the beginning of the prompt makes a difference
 
-
-
+# FIXME: false indentation errors cause it to hard crash rather than retry -> fixed I think with the pop try-except block?
 
 
 # Issues to fix:
 # check if subclasses work
 # What if I do 'cls' in a global function?
 # perhaps change the __qualname__ to __name__ if it falls under the target class? (but it doesn't seem to be decreasing consistency)
+# need to change '*' to be a character in the list instead of something alone
+# getting the module of a function works if the function is added globally, not if it was added from within a function (does this actually change anything?
+    # the use case is when a function is put into related_objs and it needs to be used
+    # so yeah maybe it is a problem)
 
 # Things to add (goal: increase consistency):
 # Expected -> actual for testing
@@ -47,13 +50,15 @@ import termcolor
 # IDEA: get expected and actual out of tests
 
 
-
+# exec() pushes function to the global scope
+# globals_no_print ensures they aren't included twice in the prompt
 globals_no_print = []
 cdb = database.CodeDatabase('pythoness-cache.db')
 cost = 0
+time = 0
 
 def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbose=None, output=False, regenerate=False, related_objs=None, timeout_seconds=0):
-    ''' Main logic of Pythoness '''
+    """Main logic of Pythoness"""
 
     if verbose is None:
         verbose = config.config.verbose_flag
@@ -66,6 +71,7 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
         
         log = logger.Logger()
         
+        # enables interrelated function generation
         if func.__doc__:
             func.__doc__ += string
         else:
@@ -73,8 +79,6 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # log("Start") in the wrapper so something must be wrapped
-            # in order for "Start" to appear
             with log("Start") if verbose else nullcontext():
                 
                 nonlocal cached_function
@@ -175,7 +179,10 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                             return cached_function(*args, **kwargs)
                         
                         except Exception as e:
-                            func.__globals__.pop(function_info['function_name'])
+                            try:
+                                func.__globals__.pop(function_info['function_name'])
+                            except:
+                                pass
                             # code is stored in database so tests can run it, need to make sure it's cleared
                             cdb.delete_code(function_info["original_prompt"])
                             prompt = helper_funcs.exception_handler(e, verbose, log)
@@ -194,9 +201,11 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                         finally:
                             signal.alarm(0)
                             if verbose:
-                                global cost
+                                global cost, time
                                 cost += client.get_stats('cost')
+                                time += client.get_stats('time')
                                 log.log(f"\n[Total cost so far: ~${cost:.2f} USD]")
+                                log.log(f"\n[Total time so far: {time}]")
 
                 # If we got here, we had too many retries.
                 # ensure that nothing is in the DB to interfere with a future call

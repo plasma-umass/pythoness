@@ -11,10 +11,8 @@ import inspect
 
 
 
-# testing accesses the globals which I then remove
-
 def get_function_info(func):
-    """ Gets function info from the provided spec """
+    """Gets function info from func"""
     ret = {}
     ret['function_name'] = func.__name__
     ret['arg_types'] = []
@@ -31,35 +29,30 @@ def get_function_info(func):
     return ret
 
 def get_class_names(func):
+    """Gets the list of class names a func is under"""
     qualname_parts = func.__qualname__.split('.')
     class_names = [part for part in qualname_parts[:-1]]
-
     return class_names
 
-def ast_class_body_search(cls : ast.ClassDef, func):
-    for node in cls.body:
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == func.__name__:
-            return func
-    return
-            
-
-def ast_class_search(func, cur_class, class_names):
+def ast_class_search(func, cur_class_node, class_names):
+    """Searches the ast and returns the class object and index of the class of func in the ast
+    or None if it doesn't exist"""
     if len(class_names) == 0:
         # grab the correct func
-        for node in cur_class.body:
+        for node in cur_class_node.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == func.__name__:
-                return (cur_class, cur_class.body.index(node))
+                return (cur_class_node, cur_class_node.body.index(node))
     else:
+        # grab the next class
         search_for = class_names[0]
-        for node in cur_class.body:
+        for node in cur_class_node.body:
             if isinstance(node, ast.ClassDef) and node.name == search_for:
                 return ast_class_search(func, class_names[1::])
     return None
 
 
 def replace_func(func, function_def):
-    """ Replaces the spec in the file with the generated function def """
-
+    """Replaces the spec in the file with the generated function def"""
     file_name = os.path.abspath(inspect.getfile(func))
     
     with open(file_name, 'r') as file:
@@ -89,44 +82,20 @@ def replace_func(func, function_def):
         f.write(new_source)
 
 def database_compile(function_info, function_def, *args, **kwargs):
-    """ Compiles and executes a function with information from the CodeDatabase """
-
+    """Compiles and executes a function with information from the CodeDatabase"""
     compiled = compile(function_def, 'generated_func', 'exec')
     exec(compiled, function_info['globals'])
     fn = function_info['globals'][function_info['function_name']]
-    # need to remove the new function from the global namespace that exec put it in
-
 
     return fn(*args, **kwargs)
 
-def get_all_classed_funcs(cls, target_func):
-    ret = []
-    nested = inspect.getmembers(cls, inspect.isclass)
-    if nested:
-        for nest in nested:
-            if nest[0] != '__class__':
-                ret += get_all_classed_funcs(nest[1], target_func)
-    func_list = inspect.getmembers(cls, inspect.isfunction)
-    for func in func_list:
-        if func != target_func:
-            ret.append(func)
-    return ret
-
 def setup_info(function_info, func, string, prompt):
-    """ Creates the function_info dictionary """
-    # func_list = []
-    # for cls in func.__globals__.values():
-    #     if inspect.isclass(cls):
-    #         func_list += get_all_classed_funcs(cls, func)
-    # for key, value in func_list:
-    #     func.__globals__[value.__qualname__] = value
-
-
+    """Creates the function_info dictionary """
     function_info.update({'spec': string, 'retries': 0, 'function_def': None, 'compiled': None, 'globals': func.__globals__, 'original_prompt': prompt, 'globals_no_print' : []})
     return function_info
 
 def parse_func(function_info, client: assistant.Assistant, prompt, verbose, log: logger.Logger):
-    """ Using Assistant, queries the LLM and places returned information in function_info """
+    """Using Assistant, queries the LLM and places returned information in function_info """
     result = client.query(prompt)
     function_info['completion'] = result
     try:
@@ -141,7 +110,7 @@ def parse_func(function_info, client: assistant.Assistant, prompt, verbose, log:
     return function_info
 
 def compile_func(function_info):
-    """ Compiles the function_def stored in info """
+    """Compiles the function_def stored in info """
     try:
         compiled = compile(function_info['function_def'], 'generated_func', 'exec')
         function_info['compiled'] = compiled
@@ -151,7 +120,7 @@ def compile_func(function_info):
         raise exceptions.CompileException()
 
 def execute_func(function_info):
-    """ Executes the function stored in info """
+    """Executes the function stored in info """
     try:
         exec(function_info['compiled'], function_info['globals'])
         # need to remove the compiled version in order to avoid JSON logging issues
@@ -159,10 +128,10 @@ def execute_func(function_info):
         return function_info
     except:
         raise exceptions.ExecException()
+    
 # NOTE: Requires Python 3.10+
-
 def exception_handler(e: Exception, verbose: bool, log: logger.Logger):
-    """ Handles all exceptions that may occur in the main loop of pythoness """
+    """Handles all exceptions that may occur in the main loop of Pythoness and returns a new prompt based on that exception"""
     match e:
         case exceptions.JSONException():
             if verbose:

@@ -3,40 +3,37 @@ import test_point
 import inspect
 
 def a(b):
-    ""
+    """"""
 
 class Line:
-    "A basic 2D line class"
+    """A basic 2D line class"""
 
-    @pythoness.spec("initializes a line, which is composed of two points", related_objs=[test_point.Point])
+    @pythoness.spec("initializes a line, which is composed of two points, p1 and p2", related_objs=[test_point.Point])
     def __init__(self, p1, p2):
         ""
 
+    @pythoness.spec('returns True if all coords of points are equal, false otherwise', tests=['Line(test_point.Point(1,1), test_point.Point(1,1)) == Line(test_point.Point(1,1), test_point.Point(1,1))', 'Line(test_point.Point(1,1), test_point.Point(1,1)) != Line(test_point.Point(2,1), test_point.Point(1,1))'], related_objs=['cls', test_point.Point])
     def __eq__(self, other):
-        return self.p1.x == other.p1.x and self.p1.y == other.p1.y and self.p2.x == other.p2.x and self.p2.y == other.p2.y 
+        ""
 
-    @pythoness.spec("adds two lines by adding the corrsponding values of each point, (x1 + x2, y1 + y2)", related_objs=['cls', test_point.Point], tests=["Line(test_point.Point(1,1), test_point.Point(1,1)) + Line(test_point.Point(1,1), test_point.Point(1,1)) == Line(test_point.Point(2,2), test_point.Point(2,2)) "])
+    @pythoness.spec("adds two lines by adding the corrsponding values of each point, (x1 + x2, y1 + y2)", related_objs=['cls', test_point.Point], tests=["Line(test_point.Point(1,1), test_point.Point(1,1)) + Line(test_point.Point(1,1), test_point.Point(1,1)) == Line(test_point.Point(2,2), test_point.Point(2,2))"])
     def __add__(self, other):
         ""
 
+    @pythoness.spec('converts the line into the form (p1, p2)', related_objs=['cls', test_point.Point], tests=["str(Line(test_point.Point(1,1), test_point.Point(1,1))) == '((1,1), (1,1))'"])
     def __str__(self):
-        return f'{(str(self.p1), str(self.p2))}'
-    
+        ""
 
-@pythoness.spec("adds two points, s.t. the corresponding coords are added", related_objs=[test_point.Point])    
-def add_two_points(p1 : test_point.Point, p2 : test_point.Point) -> test_point.Point:
-    ""
+    @pythoness.spec('gets p1 in the line', related_objs=[__init__], tests=["Line(test_point.Point(1,1), test_point.Point(2,2)).get_p1() == test_point.Point(1,1)"])
+    def get_p1(self):
+        ""
 
-@pythoness.spec("gets the signature of a function and converts it to a string", tests=["get_function_string(a) == '(b)'"])
-def get_function_string(func):
-    pass
+    @pythoness.spec('gets p2 in the line', related_objs=[__init__], tests=["Line(test_point.Point(1,1), test_point.Point(2,2)).get_p2() == test_point.Point(2,2)"])
+    def get_p2(self):
+        ""
 
-
-if __name__ == "__main__":
-    line1 = Line(test_point.Point(1,2), test_point.Point(3, 2))
+if __name__ == '__main__':
+    line1 = Line(test_point.Point(1, 2), test_point.Point(3, 2))
     line2 = Line(test_point.Point(-1, -2), test_point.Point(-3, -2))
-    print(line1 + line2)
-    p1 = test_point.Point(1,1)
-    p2 = test_point.Point(1,1)
-    print(add_two_points(p1, p2))
-    print(get_function_string(a))
+    line3 = line1 + line2
+    print(line3)
