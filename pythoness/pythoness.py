@@ -12,44 +12,6 @@ import sys
 import signal
 import termcolor
 
-# TODO: getting the correct JSON format throws exceptions when not using the correct model -> catch exception in parse JSON?
-# TODO: KeyboardInterrupt when hypothesis exiting should exit the whole program using sys.exit()
-# TODO: if spec is defined but the function never called, print something out as warning?
- 
-# TODO: turn related_objs into a set in case of repeats
-
-# TODO: thinking about adding slots
-
-# TODO: What if I do 'cls' in a global function?
-
-# TODO: could I extend testing functionality to accomodate entire functions?
-
-# TODO: might be replacing it in the wrong order
-
-# TODO: test whether adding that line at the beginning of the prompt makes a difference
-
-# FIXME: false indentation errors cause it to hard crash rather than retry -> fixed I think with the pop try-except block?
-
-
-# Issues to fix:
-# check if subclasses work
-# What if I do 'cls' in a global function?
-# perhaps change the __qualname__ to __name__ if it falls under the target class? (but it doesn't seem to be decreasing consistency)
-# need to change '*' to be a character in the list instead of something alone
-# getting the module of a function works if the function is added globally, not if it was added from within a function (does this actually change anything?
-    # the use case is when a function is put into related_objs and it needs to be used
-    # so yeah maybe it is a problem)
-
-# Things to add (goal: increase consistency):
-# Expected -> actual for testing
-# Generating more test cases automatically so it will check itself 
-# test subclasses
-# possibly get __slots__ to increase consistency?
-# 'self' option for possible functions
-
-# IDEA: get expected and actual out of tests
-
-
 # exec() pushes function to the global scope
 # globals_no_print ensures they aren't included twice in the prompt
 globals_no_print = []
@@ -170,7 +132,6 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                                 print(termcolor.colored(f"\n[Pythoness] Output:\n{function_info['function_def']}\n", "green"), file=sys.stdout)
 
                             if replace: 
-                                
                                 with log("[Pythoness] Replacing...") if verbose else nullcontext():   
                                         helper_funcs.replace_func(func, function_info['function_def'])
                                 
@@ -178,6 +139,8 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                             
                             return cached_function(*args, **kwargs)
                         
+                        
+
                         except Exception as e:
                             try:
                                 func.__globals__.pop(function_info['function_name'])

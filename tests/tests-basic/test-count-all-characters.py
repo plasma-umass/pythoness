@@ -1,8 +1,9 @@
 import pythoness
+import tests
 
 @pythoness.spec("Given a string s and a character c, return the number of times c appears in s.",
                 tests = ["count_chars('hello', 'e') == 1",
-                         "count_chars('what is up', 'q') == 0"])
+                         "count_chars('what is up', 'q') == 4", tests])
 
 def count_chars(s: str, c: str) -> int:
     ""

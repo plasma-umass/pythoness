@@ -3,8 +3,75 @@ import textwrap
 import re
 import ast
 import os
+import unittest
 
-def find_aliases_in_import(obj, func):
+def test_case_predicate(obj) -> bool:
+    """Returns true if obj is a unittest.TestCase"""
+
+    if inspect.isclass(obj):
+        return issubclass(obj, unittest.TestCase)
+    return False
+
+def get_test_func_lines_from_testcase(cls) -> list:
+    """Gets the source code of all lines given a testcase"""
+
+    ret = []
+
+    funcs = inspect.getmembers(cls, inspect.isfunction)
+    for func in funcs:
+        if func[1].__module__ != 'unittest.case':
+            ret.append(inspect.getsourcelines(func[1]))   
+
+    return ret 
+
+def get_funcs_from_testsuite(suite : unittest.TestSuite) -> list:
+    """Gets the source code of all objects within a TestSuite"""
+
+    ret = []
+
+    for test in suite:
+        if isinstance(test, unittest.TestSuite):
+            ret += get_funcs_from_testsuite(test)
+        
+        # is a TestCase
+        else:
+            ret += get_test_func_lines_from_testcase(test)
+
+    return ret
+
+def prep_unit_tests(tests : list) -> str:
+    """Gets the source code of a all unittests in tests and converts it into a string"""
+
+    src = []
+
+    for t in tests:
+        if inspect.ismodule(t):
+            # do I need the predicate? or can I safely assume a module is all tests
+            cases = inspect.getmembers(t, test_case_predicate)
+            for cls in cases:
+                src += get_test_func_lines_from_testcase(cls[1])
+        # there should never be a non-TestCase class here anyways, do I need this?
+        elif type(t) == type and issubclass(t, unittest.TestCase):
+            src += get_test_func_lines_from_testcase(t)
+
+        elif isinstance(t, unittest.TestSuite):
+            src += get_funcs_from_testsuite(t)
+
+    ret = ""
+
+    if src:
+        ret += "The function should also pass the following unit tests. Included is their name and source code. Do not write these tests\n\n"
+
+        for func in src:
+            for line in func[0]:
+                ret += line
+
+            ret += '\n'
+    
+    return textwrap.indent(textwrap.dedent(ret), "        ")
+
+
+def find_aliases_in_import(obj, func) -> str:
     """Finds the name / alias of the module obj is in, in the file of func"""
     # need file path to the original file
     file_path = os.path.abspath(inspect.getfile(func))
@@ -24,7 +91,7 @@ def find_aliases_in_import(obj, func):
 
     return None
 
-def get_mod(obj, func):
+def get_mod(obj, func) -> str:
     """Gets module names / aliases of obj and returns it as a string, in the file of func"""
     mod = ""
     prefix = find_aliases_in_import(obj, func)
@@ -33,7 +100,7 @@ def get_mod(obj, func):
 
     return mod
 
-def get_bases(obj, func):
+def get_bases(obj, func) -> str:
     """Gets the base classes for obj and formats the string, in the file of func"""
     if obj.__bases__:
         bases = ""
@@ -51,7 +118,7 @@ def get_bases(obj, func):
 
     return bases
 
-def prep_class_or_func(obj, indent, func):
+def prep_class_or_func(obj, indent : int, func) -> str:
     """Formats the string and docstring for obj, in the file of func"""
     mod = get_mod(obj, func)
 
@@ -75,7 +142,19 @@ def prep_class_or_func(obj, indent, func):
     # indent everything so it lines up with the triple-quotation prompt
     return textwrap.indent(f"{str}\n", "            ")
 
-def convert_list(to_add, no_print, func):
+def prep_slots(slots : list) -> str:
+    """Converts a list of slots into a string of the format 'class_name: __slots__"""
+
+    str = "\n\nFor each class, if there is a __slots__ attribute, that class name and corresponding attribute is below:\n\n"
+
+    # each slot is a tuple of (name, slots)
+    for slot in slots:
+        str += f"    {slot[0]}: {slot[1]}\n\n"
+
+    return textwrap.indent(f"{str}\n", "        ")
+
+
+def convert_list(to_add : list, no_print : list, func, slots : list) -> str:
     """Converts a list of objects to_add into a string for the prompt"""
     str = ""
     indent = 0
@@ -103,10 +182,12 @@ def convert_list(to_add, no_print, func):
                     # unless it's global, which is prev_class == ""
                     str += prep_class_or_func(object, indent + 1, func)
 
+    str += prep_slots(slots)
+
     return str
 
 
-def get_funcs_from_class(cls, target_func):
+def get_funcs_from_class(cls : type, target_func) -> list:
     """Returns the list of functions in cls that aren't target_func"""
     ret = []
 
@@ -119,7 +200,7 @@ def get_funcs_from_class(cls, target_func):
     
     return ret
 
-def get_complete_class(cls, target_func):
+def get_complete_class(cls : type, target_func) -> list:
     """Returns a list of every element of cls, including functions and nested classes, except target_func"""
     ret = []
 
@@ -137,9 +218,9 @@ def get_complete_class(cls, target_func):
 
     return ret
 
-def prep_entire_file(target_func):
+def prep_entire_file(target_func) -> list:
     """Returns a list of every class and function in target_func's file, except target_func"""
-     # module is at the global level
+    # module is at the global level
     module = inspect.getmodule(target_func)
     clst = inspect.getmembers(module, inspect.isclass)
     glbl_funcs = inspect.getmembers(module, inspect.isfunction)
@@ -152,7 +233,6 @@ def prep_entire_file(target_func):
         to_add += get_complete_class(cls[1], target_func)
 
     return to_add
-
 
 def get_class_from_func(func):
     """Returns func if func is global, returns the innermost class object related to func otherwise"""
@@ -174,51 +254,66 @@ def get_class_from_func(func):
         return ret
     return func
 
-def prep_related_objs(func, related_objs, no_print):
+
+def prep_related_objs(func, related_objs : list, no_print : list) -> str:
     """Prepares the prompt string for related_objs"""
 
     str = """\
         Below is a list of functions that may be used in the implementation.
         Included is their name, signature, and docstring. Do not write
         these functions and do not import anything to use them. \n\n""" 
-    # prep entire file
-    if related_objs == '*':
-       to_add = prep_entire_file(func)
+    
+    to_add = []
+    for obj in related_objs:
+        # prep entire file
+        if obj == '*':
+            to_add += prep_entire_file(func)
+        # prep innermost class of func
+        elif obj == "cls":
+            cls_obj = get_class_from_func(func)
+            to_add.append(cls_obj)
+            to_add += get_funcs_from_class(cls_obj, func)
+        else:
+            to_add.append(obj)
+            if inspect.isclass(obj):
+                to_add += get_funcs_from_class(obj, func)
 
-    else:
-        to_add = []
-        for obj in related_objs:
-            # prep innermost class of func
-            if obj == "cls":
-                cls_obj = get_class_from_func(func)
-                to_add.append(cls_obj)
-                to_add += get_funcs_from_class(cls_obj, func)
-            else:
-                to_add.append(obj)
-                if inspect.isclass(obj):
-                    to_add += get_funcs_from_class(obj, func)
+    slots = []
 
-    str += convert_list(to_add, no_print, func)
+    for obj in to_add:
+        possible_cls = get_class_from_func(obj)
+        if type(possible_cls) == type: 
+            if hasattr(possible_cls, '__slots__'):
+                # FIXME: temporary fix, can't use sets since lists are non-hashable
+                if (possible_cls.__name__, possible_cls.__slots__) not in slots:
+                    slots.append((possible_cls.__name__, possible_cls.__slots__))
+
+    str += convert_list(to_add, no_print, func, slots)
 
     return str 
 
-def prep_tests(tests):
+def prep_tests(tests : list) -> str:
     """Takes a string of tests as input and prepares a string that will be appended to the prompt"""
     final_tests = []
+
     for t in tests:
         if isinstance(t, tuple):
             final_tests.append(t[1])
-        elif isinstance(t, str):
+        elif isinstance(t,str):
             final_tests.append(t)
         else:
             pass
-    test_string = '\n'.join(final_tests)
-    test_string = textwrap.indent(test_string, "    ")
-    prompt_string = textwrap.indent(f"\nThe function should pass the following tests:\n{test_string}\n", "        ")
-    return prompt_string
+
+    if final_tests:
+        test_string = '\n'.join(final_tests)
+        test_string = textwrap.indent(test_string, "    ")
+        prompt_string = textwrap.indent(f"\nThe function should pass the following tests:\n{test_string}\n", "        ")
+        return prompt_string
+    else:
+        return ""
 
 
-def string_reformat(string):
+def string_reformat(string : str) -> str:
     """Reformats string so the prompt prints nicely"""
     string_list = string.split('\n')
     ret = ""
@@ -228,7 +323,7 @@ def string_reformat(string):
     return f"{ret}\n"
         
 
-def prep_signature(func):
+def prep_signature(func) -> str:
     """Formats the string signature of a func"""
     sig = inspect.signature(func)
     sig_str = str(sig)
@@ -239,8 +334,7 @@ def prep_signature(func):
     return cleaned_sig_str
 
 
-
-def create_prompt(function_info, string, tests, func, related_objs, no_print):
+def create_prompt(function_info : dict, string : str, tests : list, func, related_objs : list, no_print : list) -> str:
     """Creates a prompt string to send to the LLM"""
     prompt = f"""
         Produce a JSON object with code for a Python function
@@ -269,9 +363,10 @@ def create_prompt(function_info, string, tests, func, related_objs, no_print):
     
     if tests:
         prompt += prep_tests(tests)
+        prompt += f"\n{prep_unit_tests(tests)}"
 
     prompt += f"""
-        Return only a method or function definition. Use this template for your response:
+        Return only a single method or function definition. Use this template for your response:
             def {function_info['function_name']}{prep_signature(func)}:
                 ...
         """

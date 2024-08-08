@@ -20,7 +20,7 @@ class Assistant:
         self._check_model()
         
 
-    def _warn_about_exception(self, e, message):
+    def _warn_about_exception(self, e : Exception, message : str) -> None:
         """Formats and prints exception information"""
         import traceback
 
@@ -28,7 +28,7 @@ class Assistant:
         tb_string = "".join(tb_lines)
         print(f"{message}\n\n{e}\n{tb_string}")
         
-    def query(self, prompt: str):
+    def query(self, prompt: str) -> str:
         """
         Sends prompt to the LLM and returns the resulting text
         
@@ -60,11 +60,11 @@ class Assistant:
             
         return result
 
-    def get_stats(self, stat):
+    def get_stats(self, stat : str):
         """ Gets the stat 'stat' from the self._stats dictionary"""
         return self._stats[stat]
 
-    def _check_model(self):
+    def _check_model(self) -> None:
         """ Verifies the API key in environment variables"""
 
         result = litellm.validate_environment(self._model)
@@ -91,7 +91,7 @@ class Assistant:
                     )
                 )          
         
-    def _batch_query(self, prompt: str):
+    def _batch_query(self, prompt: str) -> str:
         """ Gets cost and returns the string from a completion"""
         completion = self._completion(prompt)
         self._stats['cost'] += litellm.completion_cost(completion)
@@ -100,7 +100,7 @@ class Assistant:
     
         return response_message
 
-    def _completion(self, user_prompt: str):
+    def _completion(self, user_prompt: str) -> litellm.ModelResponse:
         """ Returns an LLM completion and appends the prompt and result to self._history"""
         self._history.append({"role": "user", "content": user_prompt})
         completion = litellm.completion(

@@ -24,4 +24,9 @@ class TestsException(Exception):
 
 class TestsFailedException(Exception):
     """Exception raised when tests fail"""
+    def __init__(self, normal_tests_failed, unittests_failed):
+        self.normal_tests_failed = normal_tests_failed
+        self.unittests_failed = unittests_failed
+
+class MaxRetriesException(Exception):
     pass
