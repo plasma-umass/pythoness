@@ -83,7 +83,7 @@ def myfib(n: int) -> int:
     ""
 ```
 
-TestCases from the built in [unittest](https://docs.python.org/3/library/unittest.html) framework are the final option for testing and can be used by giving Pythoness TestCases or a module of TestCases:
+TestCases from the built in [unittest](https://docs.python.org/3/library/unittest.html) framework are the final option for testing, and can be used by giving Pythoness TestCases or a module of TestCases:
 
 ```python
 @pythoness.spec("Compute the nth number in the Fibonacci series.", tests = [testmodule.TestFib])
