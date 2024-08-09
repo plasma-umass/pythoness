@@ -7,6 +7,7 @@ it will use unittest.TestLoader.loadTestsFromName() to load them; additionally u
 and which are unittests
 * get expected and actual out of tests -> convert every test to unittests and use their assertions?
 * verify that failing `max_retries` when unittests start generating code exits the program entirely; same with ctrl-c
+* move `__slots__` around in the prompt to find where it works best
 
 QUESTIONS:
 * when `verbose=True` and a test relies on stdout output, my pythoness verbose output is included; is there a way to only include non-pythoness generated output?

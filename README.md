@@ -23,7 +23,7 @@ Pythoness automatically generates Python code from natural language descriptions
 
 ## Installation
 
-The easiest way to install Pythoness is through pip: # CURRENTLY NOT TRUE
+The easiest way to install Pythoness is through pip: 
 
 ```bash
 python3 -m pip install pythoness
@@ -83,6 +83,14 @@ def myfib(n: int) -> int:
     ""
 ```
 
+TestCases from the built in [unittest](https://docs.python.org/3/library/unittest.html) framework are the final option for testing, provided by giving Pythoness the TestCase or a module of TestCases:
+
+```python
+@pythoness.spec("Compute the nth number in the Fibonacci series.", tests = [testmodule.TestFib])
+def myfib(n: int) -> int:
+    ""
+```
+
 ### Incorporating other objects
 
 You can further guide Pythoness by giving it functions and classes that are related
@@ -105,6 +113,8 @@ def encode(s : str) -> str:
 def decode(s : str) -> str:
     ""
 ```
+
+When working with classes, it's best to use Python's `__slots__` feature. While Pythoness can function without it, this increases Pythoness' consistency.
 
 ### Replacing Pythoness functions with Python
 
