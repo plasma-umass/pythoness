@@ -145,7 +145,7 @@ def prep_class_or_func(obj, indent : int, func) -> str:
 def prep_slots(slots : list) -> str:
     """Converts a list of slots into a string of the format 'class_name: __slots__"""
 
-    str = "\n\nFor each class, if there is a __slots__ attribute, that class name and corresponding attribute is below:\n\n"
+    str = "\n\nFor each listed class, that class contains only these attributes:\n\n"
 
     # each slot is a tuple of (name, slots)
     for slot in slots:
@@ -259,9 +259,9 @@ def prep_related_objs(func, related_objs : list, no_print : list) -> str:
     """Prepares the prompt string for related_objs"""
 
     str = """\
-        Below is a list of functions that may be used in the implementation.
-        Included is their name, signature, and docstring. Do not write
-        these functions and do not import anything to use them. \n\n""" 
+        Below is a list of classes and functions that may be used in the implementation.
+        Included is their name, signature, and docstring. Do not declare
+        these functions or classes and do not import anything to use them. \n\n""" 
     
     to_add = []
     for obj in related_objs:
@@ -357,9 +357,8 @@ def create_prompt(function_info : dict, string : str, tests : list, func, relate
         Include a docstring containing the task description above
         (without the word "Task:").  The function should be
         entirely self-contained, with all imports, code, and data, except
-        for the above helper functions. Do not include any tests 
-        in the function, and do not write any other functions, classes,
-        or methods.\n"""
+        for the above helper functions. Do not define any other functions, classes,
+        or methods inside the function you are writing.\n"""
     
     if tests:
         prompt += prep_tests(tests)

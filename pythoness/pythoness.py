@@ -119,7 +119,7 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                             fn = function_info['globals'][function_info['function_name']]                            
                             
                             with log("[Pythoness] Validating types...") if verbose else nullcontext():
-                                testing.validate_types(func, fn)
+                                testing.validate_types(func, fn, function_info)
 
                             if tests:
                                 with log("[Pythoness] Validating tests...") if verbose else nullcontext():
@@ -138,8 +138,6 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                             globals_no_print.append(function_info['function_name'])  
                             
                             return cached_function(*args, **kwargs)
-                        
-                        
 
                         except Exception as e:
                             try:
@@ -148,7 +146,7 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                                 pass
                             # code is stored in database so tests can run it, need to make sure it's cleared
                             cdb.delete_code(function_info["original_prompt"])
-                            prompt = helper_funcs.exception_handler(e, verbose, log)
+                            prompt = helper_funcs.exception_handler(e, verbose, log, func, related_objs, globals_no_print)
                             continue
                         
                         # ensures regeneration on future attempts

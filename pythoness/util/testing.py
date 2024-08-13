@@ -12,8 +12,10 @@ import traceback
 import sys
 import unittest
 import io
+import os
+import ast
 
-def validate_types(func : Callable, fn : Callable) -> None:
+def validate_types(func : Callable, fn : Callable, function_info : dict) -> None:
     """Validates that the types of func (spec) and fn (produced) are equal"""
     f_sig = inspect.signature(func)
     g_sig = inspect.signature(fn)
@@ -43,8 +45,24 @@ def validate_types(func : Callable, fn : Callable) -> None:
     # same is true for returns
     if (f_return_type != inspect.Parameter.empty and g_return_type != inspect.Parameter.empty) and (f_return_type != g_return_type):
         raise exceptions.TypeCompatibilityException()
+    
+    if is_def_within_func(fn, function_info):
+        raise exceptions.DefWithinException()
 
     return
+
+def is_def_within_func(fn, function_info : dict) -> None:
+    """Returns True if fn contains a function or class definition within it"""
+    
+    tree = ast.parse(function_info['function_def'])
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == fn.__name__:
+            for node in node.body:
+                if isinstance(node, ast.ClassDef) or isinstance(node, ast.FunctionDef):
+                    return True
+        
+    return False
 
 def cleanup_tests(suite : unittest.TestSuite) -> unittest.TestSuite:
     """Removes tests that failed to load from a unittest.TestSuite"""

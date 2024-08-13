@@ -28,5 +28,10 @@ class TestsFailedException(Exception):
         self.normal_tests_failed = normal_tests_failed
         self.unittests_failed = unittests_failed
 
+class DefWithinException(Exception):
+    """Exception raised when a generated function contains a class or function def"""
+    pass
+
 class MaxRetriesException(Exception):
+    """Exception raised when the number of retries exceeds the specified max retries"""
     pass

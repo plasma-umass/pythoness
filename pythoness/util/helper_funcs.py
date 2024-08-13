@@ -2,14 +2,14 @@ from . import assistant
 from . import logger
 from . import exceptions
 from . import timeout
+from . import prompt_helpers
 import ast_comments as ast
 import inspect
-import traceback
 import json
 import os
 import inspect
-import sys
-
+import textwrap
+import traceback
 
 
 def get_function_info(func) -> dict:
@@ -131,7 +131,7 @@ def execute_func(function_info : dict) -> dict:
         raise exceptions.ExecException()
     
 # NOTE: Requires Python 3.10+
-def exception_handler(e: Exception, verbose: bool, log: logger.Logger) -> str:
+def exception_handler(e: Exception, verbose: bool, log: logger.Logger, func, related_objs : list, no_print : list) -> str:
     """Handles all exceptions that may occur in the main loop of Pythoness and returns a new prompt based on that exception"""
     match e:
         case exceptions.JSONException():
@@ -148,7 +148,7 @@ def exception_handler(e: Exception, verbose: bool, log: logger.Logger) -> str:
             to_add = 'of an execution error.'
         case exceptions.TypeCompatibilityException():
             if verbose:
-                log.log('[Pythoness] The types of the generated function are incompatible with the spec.')
+                log.log('[Pythoness] The types of the generated function are incompatible with the spec. Ensure the signatures match. ')
             to_add = 'the types of the function and spec were incompatible.'
         case exceptions.DefaultMismatchException():
             if verbose:
@@ -183,12 +183,17 @@ def exception_handler(e: Exception, verbose: bool, log: logger.Logger) -> str:
         case KeyError():
             to_add = "the function or method failed to execute. Ensure that only a single function or method is defined"
 
+        case exceptions.DefWithinException():
+            to_add = f"you added a class or function definition within the generated function.\n\n"
+            to_add += f"{prompt_helpers.prep_related_objs(func, related_objs, no_print)}"
+            to_add = textwrap.dedent(to_add)
+
         case _:
             # if verbose:
             #     log.log(f'[Pythoness] Unknown error: {type(e)} {e}')
             to_add = f'of an unknown error: {type(e)} {e}.'
     # if verbose:
         # log.log(f"{type(e)} {e}")
-    # traceback.print_exception(e)
+    traceback.print_exception(e)
     prompt = f'        Your previous attempt failed because {to_add}Try again.'
     return prompt

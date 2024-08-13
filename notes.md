@@ -8,6 +8,8 @@ and which are unittests
 * get expected and actual out of tests -> convert every test to unittests and use their assertions?
 * verify that failing `max_retries` when unittests start generating code exits the program entirely; same with ctrl-c
 * move `__slots__` around in the prompt to find where it works best
+* review methods that use ast; ast.walk() grabs every node in the ast, not just those visible from the body; some implementation may be using a false assumption
+* rigorously verify the functionality of is_def_within_func()
 
 QUESTIONS:
 * when `verbose=True` and a test relies on stdout output, my pythoness verbose output is included; is there a way to only include non-pythoness generated output?
