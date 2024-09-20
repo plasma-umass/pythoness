@@ -4,15 +4,16 @@
 
 _Pythoness: The priestess of the oracle of Apollo at Delphi._
 
-by [Emery Berger](https://emeryberger.com)
+Pythoness by [Emery Berger](https://emeryberger.com), extension by Kyle Gwilt and Stephen Freund
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/pythoness.svg)](https://pypi.org/project/pythoness/)[![Downloads](https://static.pepy.tech/badge/pythoness)](https://pepy.tech/project/pythoness) [![Downloads](https://static.pepy.tech/badge/pythoness/month)](https://pepy.tech/project/pythoness) ![Python versions](https://img.shields.io/pypi/pyversions/pythoness.svg?style=flat-square)
 
 Pythoness automatically generates Python code from natural language descriptions and tests.
 
 > **Note**
+> Pythoness needs to be connected to an LLM in order to function. Below is an example for how to connect Pythoness with an OpenAI account. For other LLMs, consult their documentation.
 >
-> Pythoness needs to be connected to an [OpenAI account](https://openai.com/api/). _Your account will need to have a positive balance for this to work_ ([check your balance](https://platform.openai.com/account/usage)). If you have never purchased credits, you will need to purchase at least $1 in credits (if your API account was created before August 13, 2023) or $0.50 (if you have a newer API account) in order to have access to GPT-4, which Pythoness uses. [Get a key here.](https://platform.openai.com/account/api-keys)
+> [OpenAI account](https://openai.com/api/). _Your account will need to have a positive balance for this to work_ ([check your balance](https://platform.openai.com/account/usage)). If you have never purchased credits, you will need to purchase at least $1 in credits (if your API account was created before August 13, 2023) or $0.50 (if you have a newer API account). [Get a key here.](https://platform.openai.com/account/api-keys)
 >
 > Once you have an API key, set it as an environment variable called `OPENAI_API_KEY`.
 >
@@ -22,7 +23,7 @@ Pythoness automatically generates Python code from natural language descriptions
 
 ## Installation
 
-The easiest way to install Pythoness is through pip:
+The easiest way to install Pythoness is through pip: 
 
 ```bash
 python3 -m pip install pythoness
@@ -55,11 +56,18 @@ Python, so subsequent executions in the same directory will run much
 faster (Pythoness creates a database called `pythoness-cache.db` that
 saves these translations).
 
+To turn off all logging messages, use the `PYNS_QUIET` environment variable:
+
+```bash
+env PYNS_QUIET=1 python3 myfib.py 
+```
+
+
 ### Incorporating tests
 
 You can guide Pythoness by providing some tests. Pythoness will use
 tests both to generate the Python code and to validate it. Tests are just
-a list of strings containing Python code which should all evaluate to `True`.
+a list of strings containing Python code or functions which should all evaluate to `True`.
 
 ```python
 @pythoness.spec("Compute the nth number in the Fibonacci series.",
@@ -82,11 +90,43 @@ def myfib(n: int) -> int:
     ""
 ```
 
+TestCases from the built in [unittest](https://docs.python.org/3/library/unittest.html) framework are the final option for testing, and can be used by giving Pythoness TestCases or a module of TestCases:
+
+```python
+@pythoness.spec("Compute the nth number in the Fibonacci series.", tests = [testmodule.TestFib])
+def myfib(n: int) -> int:
+    ""
+```
+
+### Incorporating other objects
+
+You can further guide Pythoness by giving it functions and classes that are related
+to the code that it will be generating. It uses the docstring of provided functions 
+and classes to understand their purpose. Pythoness can make use of functions that will be generated 
+by itself this way, where the docstring is specified in `spec`.
+ 
+`related_objs` is a list that can include functions, classes, or special strings:
+* `'cls'` which represents everything in the class the generated function is contained in,
+besides itself
+* `'*'` which represents everything in the file the generated function is contained in,
+besides itself
+
+```python
+@pythoness.spec("Encodes a string using a single-shift Caesar cipher")
+def encode(s : str) -> str:
+    ""
+
+@pythoness.spec("Decodes a string given to encode()", related_objs = [encode])
+def decode(s : str) -> str:
+    ""
+```
+
+When working with classes, it's best to use Python's `__slots__` feature. While Pythoness can function without it, this increases Pythoness' consistency.
 
 ### Replacing Pythoness functions with Python
 
 You can have Pythoness to replace the spec directly in your file with
-the generated function: just add `replace=True`:
+the generated function: just add `replace=True':
 
 ```python
 @pythoness.spec("Compute the nth number in the Fibonacci series.",
@@ -119,6 +159,11 @@ def myfib(n: int) -> int:
         return fib2
 ```
 
+You can also replace every generated function using the 'PYNS_REPLACE' environment variable:
+```bash
+env 'PYNS_REPLACE'=1
+```
+
 ### Other ways to control Pythoness
 
 Pythoness offers a few other ways to control its behavior. These are
@@ -127,9 +172,16 @@ value.
 
 * `max_retries=3`: controls the maximum number of retries due to failures (e.g., a function that fails one of the provided tests).
 
-* `min_confidence=0.7`: sets the minimum level of confidence that the AI system reports regarding the correctness of the generated function (a number between 0 and 1, corresponding to 0% and 100%). Increasing the confidence level may require increasing `max_retries`.
+* `model='gpt-4o'`: controls which LLM model to query
 
-* `verbose=False`: set this to `True` to have Pythoness to output details as it generates and validates code. Mostly useful for developers and for keeping tabs on progress.
+* `timeout_seconds=0`: sets the amount of time for a single Pythoness attempt to timeout. By default, there is no timeout.
+
+* `verbose=False`: set this to `True` to have Pythoness to output details as it generates and validates code. Mostly useful for developers and for keeping tabs on progress. Can be set
+for every function at once using the 'PYNS_VERBOSE' environment variable.
+
+* `regenerate=False`: set this to `True` to generate new code every time a function is called, rather than store it and reuse it. 
 
 * `output=False`: set this to `True` to have Pythoness output the generated code the first time the function is called.
+
+
 

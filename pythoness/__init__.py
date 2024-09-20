@@ -1,4 +1,3 @@
-from .pythoness_module import spec
+from .pythoness import spec
 
 __all__ = ["spec"]
-
