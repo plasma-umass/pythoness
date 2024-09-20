@@ -4,18 +4,18 @@ import time
 
 class Logger:
     """Logger to control verbose printing"""
-    def __init__(self, color="cyan", max_depth=10, debug_messages=False):
+    def __init__(self, color="cyan", quiet=False, debug_messages=False):
         self.keys = [""]
         self.color = color
         self.pending_newline = False
-        self.max_depth = max_depth
+        self.quiet = quiet
         self.debug_messages = debug_messages
 
     def set_debug(self, debug_messages):
         self.debug_messages = debug_messages
 
-    def set_depth(self, max_depth):
-        self.max_depth = max_depth
+    def set_quiet(self, quiet):
+        self.quiet = quiet
 
     def __call__(self, key):
         return self.LoggerContext(self, key)
@@ -44,7 +44,7 @@ class Logger:
         return textwrap.indent(message, " " * ((len(self.keys) - 1) * 2))
 
     def enter(self, *args):
-        if len(self.keys) > self.max_depth:
+        if self.quiet:
             return
         if self.pending_newline:
             self.print_colored("]")
@@ -54,7 +54,7 @@ class Logger:
         self.pending_newline = True
 
     def exit(self, *args):
-        if len(self.keys) > self.max_depth:
+        if self.quiet:
             return
         message = " ".join(map(str, args))
         if self.pending_newline:
@@ -64,7 +64,7 @@ class Logger:
         self.pending_newline = False
 
     def log(self, *args):
-        if len(self.keys) > self.max_depth:
+        if self.quiet:
             return
         if self.pending_newline:
             self.print_colored("]")
@@ -93,7 +93,7 @@ class Logger:
 log = Logger()
 
 if __name__ == "__main__":
-    log = Logger(max_depth=10)
+    log = Logger()
     # Test the logger
     with log("Main"):
         log.log("This is a log message")

@@ -31,7 +31,7 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
     def decorator(func):
         cached_function = None
         
-        log = logger.Logger()
+        log = logger.Logger(quiet=config.config.quiet_flag)
         
         # enables interrelated function generation
         if func.__doc__:
@@ -102,7 +102,7 @@ def spec(string, model="gpt-4o", replace=None, tests=None, max_retries=3, verbos
                             function_info['retries'] += 1
 
                             if verbose:
-                                log.log(f'[Pythoness] Attempt {function_info['retries']}')
+                                log.log(f'[Pythoness] Attempt {function_info["retries"]}')
 
                             with log("[Pythoness] Parsing...") if verbose else nullcontext():
                                 function_info = helper_funcs.parse_func(function_info, client, prompt, verbose, log)

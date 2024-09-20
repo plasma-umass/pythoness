@@ -318,7 +318,7 @@ def string_reformat(string : str) -> str:
     string_list = string.split('\n')
     ret = ""
     for line in string_list:
-        ret += f"\n{textwrap.indent(textwrap.dedent(line), "            ")}"
+        ret += f"\n{textwrap.indent(textwrap.dedent(line), '            ')}"
 
     return f"{ret}\n"
         

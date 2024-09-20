@@ -23,6 +23,7 @@ class Config:
         """
         Initialize the configuration class with default values.
         """
+        self.quiet_flag = bool(int(get_env("quiet", "0")))
         self.verbose_flag = bool(int(get_env("verbose", "0")))
         self.replace_flag = bool(int(get_env("replace", "0")))
 

@@ -56,6 +56,13 @@ Python, so subsequent executions in the same directory will run much
 faster (Pythoness creates a database called `pythoness-cache.db` that
 saves these translations).
 
+To turn off all logging messages, use the `PYNS_QUIET` environment variable:
+
+```bash
+env PYNS_QUIET=1 python3 myfib.py 
+```
+
+
 ### Incorporating tests
 
 You can guide Pythoness by providing some tests. Pythoness will use
