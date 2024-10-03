@@ -14,6 +14,7 @@ class TestInsertInOrder(unittest.TestCase):
         bst.insert(80)
         self.assertEqual(bst.inorder(), [20, 30, 40, 50, 60, 70, 80])
 
+
 class TestSearch(unittest.TestCase):
 
     def test_search(self):
@@ -23,6 +24,7 @@ class TestSearch(unittest.TestCase):
         bst.insert(70)
         self.assertIsNotNone(bst.search(30))
         self.assertIsNone(bst.search(100))
+
 
 class TestDelete(unittest.TestCase):
     def test_delete_node_with_no_children(self):
@@ -52,6 +54,7 @@ class TestDelete(unittest.TestCase):
         bst.delete(30)
         self.assertEqual(bst.inorder(), [20, 40, 50, 70])
 
+
 class TestPreorder(unittest.TestCase):
 
     def test_preorder_traversal(self):
@@ -62,6 +65,7 @@ class TestPreorder(unittest.TestCase):
         bst.insert(20)
         bst.insert(40)
         self.assertEqual(bst.preorder(), [50, 30, 20, 40, 70])
+
 
 class TestPostorder(unittest.TestCase):
 

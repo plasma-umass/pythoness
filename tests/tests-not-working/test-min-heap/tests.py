@@ -126,5 +126,5 @@ class TestMinHeapWithTuples(unittest.TestCase):
         self.assertEqual(self.h.h, [(10, 121), (12, 9), (13, 5)])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

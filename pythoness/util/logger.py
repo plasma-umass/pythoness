@@ -2,8 +2,10 @@ import textwrap
 import termcolor
 import time
 
+
 class Logger:
     """Logger to control verbose printing"""
+
     def __init__(self, color="cyan", quiet=False, debug_messages=False):
         self.keys = [""]
         self.color = color
@@ -109,4 +111,3 @@ if __name__ == "__main__":
             log.log("This is a log message")
         with log("Bop"):
             pass
-

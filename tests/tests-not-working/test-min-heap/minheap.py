@@ -1,6 +1,7 @@
 import pythoness
 import tests
 
+
 class MinHeap:
     """MinHeap implementation.
 
@@ -123,9 +124,10 @@ class MinHeap:
             if smallest != i:
                 self.h[i], self.h[smallest] = self.h[smallest], self.h[i]
                 # Update label indices.
-                self.index[self._label(self.h[i])], self.index[
-                    self._label(self.h[smallest])
-                ] = (
+                (
+                    self.index[self._label(self.h[i])],
+                    self.index[self._label(self.h[smallest])],
+                ) = (
                     self.index[self._label(self.h[smallest])],
                     self.index[self._label(self.h[i])],
                 )
@@ -139,8 +141,8 @@ class MinHeap:
     def peek(self):
         return self.h[0] if len(self.h) > 0 else None
 
-
-    @pythoness.spec("""Insert unique element into heap.
+    @pythoness.spec(
+        """Insert unique element into heap.
 
             Args:
                 element: any value. If a two-element tuple i.e. (5, 'A'), the
@@ -153,12 +155,15 @@ class MinHeap:
 
             Raises:
                 ValueError: if element already exists in heap.
-""", related_objs=['cls'], tests=[tests])
+""",
+        related_objs=["cls"],
+        tests=[tests],
+    )
     def insert(self, element):
-        ""
+        """"""
 
-
-    @pythoness.spec("""Update minimum value of element in heap.
+    @pythoness.spec(
+        """Update minimum value of element in heap.
 
             Args:
                 value: Value to overwrite existing value only if it is less
@@ -176,21 +181,27 @@ class MinHeap:
             Raises:
                 ValueError: If element with `label` not found in heap or element
                 replacing current element value is already in the heap.
-""", related_objs=['cls'], tests=[tests])
+""",
+        related_objs=["cls"],
+        tests=[tests],
+    )
     def update_min(self, value, label):
-        ""
+        """"""
 
-    @pythoness.spec("""Remove element with smallest value in heap, then re-heapify heap.
+    @pythoness.spec(
+        """Remove element with smallest value in heap, then re-heapify heap.
 
             Returns:
-                Element with smallest value in the heap.""", related_objs=['cls'], tests=[tests])
+                Element with smallest value in the heap.""",
+        related_objs=["cls"],
+        tests=[tests],
+    )
     def pop(self):
-        ""
+        """"""
 
 
 if __name__ == "__main__":
     heap = MinHeap([10, 5, 2, 8, -1, 9])
-    heap.insert((1, 'A'))
-    heap.update_min(7, 'I')
+    heap.insert((1, "A"))
+    heap.update_min(7, "I")
     print(heap.pop())
-

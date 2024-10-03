@@ -1,7 +1,8 @@
 import os
 from typing import TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def get_env(option_name: str, default_value: T) -> T:
     """
@@ -13,6 +14,7 @@ def get_env(option_name: str, default_value: T) -> T:
         return v.lower() == "true"
     else:
         return v
+
 
 class Config:
     """
@@ -26,5 +28,6 @@ class Config:
         self.quiet_flag = bool(int(get_env("quiet", "0")))
         self.verbose_flag = bool(int(get_env("verbose", "0")))
         self.replace_flag = bool(int(get_env("replace", "0")))
+
 
 config = Config()

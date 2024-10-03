@@ -3,10 +3,13 @@ import time
 import litellm
 import openai
 
+
 class AssistantError(Exception):
-    """ A custom exception to catch wrong model issues"""
+    """A custom exception to catch wrong model issues"""
+
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
 
 class Assistant:
     def __init__(
@@ -18,20 +21,19 @@ class Assistant:
         self._history = []
         # streaming will be enabled later
         self._check_model()
-        
 
-    def _warn_about_exception(self, e : Exception, message : str) -> None:
+    def _warn_about_exception(self, e: Exception, message: str) -> None:
         """Formats and prints exception information"""
         import traceback
 
         tb_lines = traceback.format_exception(type(e), e, e.__traceback__)
         tb_string = "".join(tb_lines)
         print(f"{message}\n\n{e}\n{tb_string}")
-        
+
     def query(self, prompt: str) -> str:
         """
         Sends prompt to the LLM and returns the resulting text
-        
+
         Updates a dictionary containing
             - "completed": True if the query ran to completion
             - "cost": Cost of the query, or 0 if not completed
@@ -41,7 +43,7 @@ class Assistant:
         """
         self._stats = {"completed": False, "cost": 0}
         start = time.time()
-            
+
         try:
             result = self._batch_query(prompt)
 
@@ -57,15 +59,15 @@ class Assistant:
 
         except Exception as e:
             self._warn_about_exception(e, f"Unexpected Exception.")
-            
+
         return result
 
-    def get_stats(self, stat : str):
-        """ Gets the stat 'stat' from the self._stats dictionary"""
+    def get_stats(self, stat: str):
+        """Gets the stat 'stat' from the self._stats dictionary"""
         return self._stats[stat]
 
     def _check_model(self) -> None:
-        """ Verifies the API key in environment variables"""
+        """Verifies the API key in environment variables"""
 
         result = litellm.validate_environment(self._model)
         missing_keys = result["missing_keys"]
@@ -89,24 +91,26 @@ class Assistant:
                     to use the {self._model} model: {', '.join(missing_keys)}.
                     """
                     )
-                )          
-        
+                )
+
     def _batch_query(self, prompt: str) -> str:
-        """ Gets cost and returns the string from a completion"""
+        """Gets cost and returns the string from a completion"""
         completion = self._completion(prompt)
-        self._stats['cost'] += litellm.completion_cost(completion)
+        self._stats["cost"] += litellm.completion_cost(completion)
 
         response_message = completion.choices[0].message.content
-    
+
         return response_message
 
     def _completion(self, user_prompt: str) -> litellm.ModelResponse:
-        """ Returns an LLM completion and appends the prompt and result to self._history"""
+        """Returns an LLM completion and appends the prompt and result to self._history"""
         self._history.append({"role": "user", "content": user_prompt})
         completion = litellm.completion(
             model=self._model,
             messages=self._history,
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
         )
-        self._history.append({"role": "assistant", "content": completion.choices[0].message.content})
+        self._history.append(
+            {"role": "assistant", "content": completion.choices[0].message.content}
+        )
         return completion

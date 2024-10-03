@@ -1,10 +1,11 @@
 import pythoness
 from . import tests
 
+
 class Node:
     "A Node for BinarySearchTree"
 
-    __slots__ = ['left', 'right', 'value']
+    __slots__ = ["left", "right", "value"]
 
     def __init__(self, key):
         "Initializes a node of left and right children with value key"
@@ -12,65 +13,114 @@ class Node:
         self.right = None
         self.value = key
 
+
 class BinarySearchTree:
     "A binary search tree"
 
-    __slots__ = ['head']
+    __slots__ = ["head"]
 
-    @pythoness.spec("Initializes the head of the BST", related_objs =[Node])
+    @pythoness.spec("Initializes the head of the BST", related_objs=[Node])
     def __init__(self):
-        ""
-        
-    @pythoness.spec("Inserts a node with value key into the BST", related_objs=[Node, __init__], tests=[tests.TestBinarySearchTree])
+        """"""
+
+    @pythoness.spec(
+        "Inserts a node with value key into the BST",
+        related_objs=[Node, __init__],
+        tests=[tests.TestBinarySearchTree],
+    )
     def _insert(self, node, key):
-        ""
+        """"""
 
-    @pythoness.spec("Inserts a node with value key into the BST", related_objs=[_insert], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "Inserts a node with value key into the BST",
+        related_objs=[_insert],
+        tests=[tests.TestBinarySearchTree],
+    )
     def insert(self, key):
-        ""
+        """"""
 
-    @pythoness.spec("searches the tree for a node with value key", related_objs=[Node, __init__], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "searches the tree for a node with value key",
+        related_objs=[Node, __init__],
+        tests=[tests.TestBinarySearchTree],
+    )
     def _search(self, node, key):
-        ""
+        """"""
 
-    @pythoness.spec("searches the tree for a node with value key", related_objs=[_search], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "searches the tree for a node with value key",
+        related_objs=[_search],
+        tests=[tests.TestBinarySearchTree],
+    )
     def search(self, key):
-        ""
+        """"""
 
-    @pythoness.spec("Gets the minimum value node in the BST", related_objs=[Node, __init__])
+    @pythoness.spec(
+        "Gets the minimum value node in the BST", related_objs=[Node, __init__]
+    )
     def _min_value_node(self, node):
-        ""
+        """"""
 
-    @pythoness.spec("Deletes a node in the tree with value key", related_objs=[Node, __init__, search, _min_value_node], tests=[tests.TestBinarySearchTree])   
+    @pythoness.spec(
+        "Deletes a node in the tree with value key",
+        related_objs=[Node, __init__, search, _min_value_node],
+        tests=[tests.TestBinarySearchTree],
+    )
     def _delete(self, node, key):
-        ""
+        """"""
 
-    @pythoness.spec("Deletes a node in the tree with value key", related_objs=[_delete], tests=[tests.TestBinarySearchTree])    
+    @pythoness.spec(
+        "Deletes a node in the tree with value key",
+        related_objs=[_delete],
+        tests=[tests.TestBinarySearchTree],
+    )
     def delete(self, key):
-        ""
+        """"""
 
-    
-    @pythoness.spec("returns the inorder traversal of the BST", related_objs=[Node, __init__], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "returns the inorder traversal of the BST",
+        related_objs=[Node, __init__],
+        tests=[tests.TestBinarySearchTree],
+    )
     def _inorder(self, node):
-        ""
+        """"""
 
-    @pythoness.spec("returns the inorder traversal of the BST", related_objs=[_inorder], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "returns the inorder traversal of the BST",
+        related_objs=[_inorder],
+        tests=[tests.TestBinarySearchTree],
+    )
     def inorder(self):
-        ""
+        """"""
 
-    @pythoness.spec("returns the preorder traversal of the BST", related_objs=[Node, __init__], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "returns the preorder traversal of the BST",
+        related_objs=[Node, __init__],
+        tests=[tests.TestBinarySearchTree],
+    )
     def _preorder(self, node):
-        ""
+        """"""
 
-    @pythoness.spec("returns the preorder traversal of the BST", related_objs=[Node, _preorder], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "returns the preorder traversal of the BST",
+        related_objs=[Node, _preorder],
+        tests=[tests.TestBinarySearchTree],
+    )
     def preorder(self):
-        ""
+        """"""
 
-    @pythoness.spec("returns the postorder traversal of the BST", related_objs=[Node, __init__], tests=[tests.TestBinarySearchTree])
+    @pythoness.spec(
+        "returns the postorder traversal of the BST",
+        related_objs=[Node, __init__],
+        tests=[tests.TestBinarySearchTree],
+    )
     def _postorder(self, node):
-        ""
-    
-    @pythoness.spec("returns the postorder traversal of the BST", related_objs=[_postorder], tests=[tests.TestBinarySearchTree])
-    def postorder(self):
-        ""
+        """"""
 
+    @pythoness.spec(
+        "returns the postorder traversal of the BST",
+        related_objs=[_postorder],
+        tests=[tests.TestBinarySearchTree],
+    )
+    def postorder(self):
+        """"""
