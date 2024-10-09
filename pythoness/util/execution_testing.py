@@ -20,30 +20,17 @@ def add_execution_testing(
     return function_info
 
 
-def execution_decorator(info: dict) -> str:
+def execution_decorator(function_info: dict) -> str:
     """Executes the function stored in info"""
-    function_code = info["function_def"]
     # Create the wrapper function code
     wrapped_code = [
-        # f"import functools",
-        # f"import inspect",
         f"def decorator(func):",
-        # f"  @functools.wraps(func)",
         f"  def wrapper(*args, **kwargs):",
         f"    result = func(*args, **kwargs)",
         f"    print('Running execution tests...')",
         f"    return result",
-        # f"  wrapper.__signature__ = inspect.signature(func)",
         f"  return wrapper",
-        f"\n@decorator\n{function_code}",
+        f"\n@decorator\n{function_info["function_def"]}",
     ]
 
-    # # Add the original function code after the wrapper
-    # wrapped_code.extend(lines)
-
-    # # At the end, return the wrapper function
-    # wrapped_code.append("return wrapper")
-
-    # Join all the lines back into a single string
-    full_code = "\n".join(wrapped_code)
-    return full_code
+    return "\n".join(wrapped_code)
