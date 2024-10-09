@@ -7,10 +7,10 @@ if __name__ == "__main__":
     cll.append(2)
     cll.append(3)
     cll.prepend(0)
-     
+
     print("Circular Linked List:")
     cll.print_list()  # Output: 0 1 2 3
- 
+
     cll.delete(2)
     print("After deleting 2:")
     cll.print_list()  # Output: 0 1 3

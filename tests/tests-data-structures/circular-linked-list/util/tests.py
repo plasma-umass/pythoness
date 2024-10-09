@@ -12,7 +12,7 @@ from . import implementation as i
 #         self.assertEqual(cll.head.next.data, 2)
 #         self.assertEqual(cll.head.next.next.data, 3)
 #         self.assertEqual(cll.head.next.next.next, cll.head)
-# 
+#
 # class TestPrepend(unittest.TestCase):
 #     def test_prepend(self):
 #         cll = i.CircularLinkedList()
@@ -23,7 +23,7 @@ from . import implementation as i
 #         self.assertEqual(cll.head.next.data, 2)
 #         self.assertEqual(cll.head.next.next.data, 1)
 #         self.assertEqual(cll.head.next.next.next, cll.head)
-# 
+#
 # class TestDelete(unittest.TestCase):
 #     def test_delete(self):
 #         cll = i.CircularLinkedList()
@@ -34,20 +34,20 @@ from . import implementation as i
 #         self.assertEqual(cll.head.data, 1)
 #         self.assertEqual(cll.head.next.data, 3)
 #         self.assertEqual(cll.head.next.next, cll.head)
-#         
+#
 #         cll.delete(1)
 #         self.assertEqual(cll.head.data, 3)
 #         self.assertEqual(cll.head.next, cll.head)
-#         
+#
 #         cll.delete(3)
 #         self.assertIsNone(cll.head)
-# 
+#
 #     def test_delete_single_node(self):
 #         cll = i.CircularLinkedList()
 #         cll.append(1)
 #         cll.delete(1)
 #         self.assertIsNone(cll.head)
-# 
+#
 #     def test_delete_nonexistent(self):
 #         cll = i.CircularLinkedList()
 #         cll.append(1)
@@ -56,8 +56,8 @@ from . import implementation as i
 #         self.assertEqual(cll.head.data, 1)
 #         self.assertEqual(cll.head.next.data, 2)
 #         self.assertEqual(cll.head.next.next, cll.head)
-# 
-# 
+#
+#
 # if __name__ == '__main__':
 #     unittest.main()
 
@@ -65,10 +65,10 @@ import unittest
 import io
 from . import implementation as i
 
+
 class TestCircularLinkedList(unittest.TestCase):
     def setUp(self):
         self.cll = i.CircularLinkedList()
-
 
     def test_append(self):
         self.cll.append(1)
@@ -96,11 +96,11 @@ class TestCircularLinkedList(unittest.TestCase):
         self.assertEqual(self.cll.head.data, 1)
         self.assertEqual(self.cll.head.next.data, 3)
         self.assertEqual(self.cll.head.next.next, self.cll.head)
-        
+
         self.cll.delete(1)
         self.assertEqual(self.cll.head.data, 3)
         self.assertEqual(self.cll.head.next, self.cll.head)
-        
+
         self.cll.delete(3)
         self.assertIsNone(self.cll.head)
 
@@ -118,6 +118,5 @@ class TestCircularLinkedList(unittest.TestCase):
         self.assertEqual(self.cll.head.next.next, self.cll.head)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

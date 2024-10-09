@@ -12,4 +12,3 @@ if __name__ == "__main__":
     print(pq.peek())
     print(pq.pop())
     print(pq.peek())
-

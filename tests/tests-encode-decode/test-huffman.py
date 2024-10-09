@@ -1,7 +1,9 @@
 import heapq
 import pythoness
 from collections import Counter
+
 # Node class for the Huffman Tree
+
 
 class Node:
 
@@ -10,11 +12,15 @@ class Node:
         self.freq = freq
         self.left = left
         self.right = right
+
     # To compare nodes for priority queue
 
     def __lt__(self, other):
         return self.freq < other.freq
+
+
 # Function to build the Huffman Tree
+
 
 def build_huffman_tree(frequency):
     heap = [Node(char, freq) for char, freq in frequency.items()]
@@ -25,7 +31,10 @@ def build_huffman_tree(frequency):
         merged = Node(None, left.freq + right.freq, left, right)
         heapq.heappush(heap, merged)
     return heap[0]
+
+
 # Function to build the Huffman Code from the tree
+
 
 def build_huffman_code(root):
     huffman_code = {}
@@ -35,15 +44,19 @@ def build_huffman_code(root):
             return
         if node.char is not None:
             huffman_code[node.char] = current_code
-        build_code_helper(node.left, current_code + '0')
-        build_code_helper(node.right, current_code + '1')
-    build_code_helper(root, '')
+        build_code_helper(node.left, current_code + "0")
+        build_code_helper(node.right, current_code + "1")
+
+    build_code_helper(root, "")
     return huffman_code
+
+
 # Function to encode the input text using the Huffman Code
+
 
 def encode(input_string):
     if not input_string:
-        return ('', {})
+        return ("", {})
     # Step 1: Calculate frequency of each character
     frequency = Counter(input_string)
     # Step 2: Build Huffman Tree
@@ -51,11 +64,13 @@ def encode(input_string):
     # Step 3: Build Huffman Code from the tree
     huffman_code = build_huffman_code(huffman_tree_root)
     # Step 4: Encode the input string
-    encoded_string = ''.join((huffman_code[char] for char in input_string))
+    encoded_string = "".join((huffman_code[char] for char in input_string))
     return (encoded_string, huffman_code)
+
 
 import heapq
 from collections import defaultdict
+
 
 class Node:
 
@@ -67,6 +82,7 @@ class Node:
 
     def __lt__(self, other):
         return self.freq < other.freq
+
 
 def decode(str, tr):
     """
@@ -89,9 +105,9 @@ def decode(str, tr):
     Return type: <class 'str'>
     """
     current_node = tr
-    decoded_string = ''
+    decoded_string = ""
     for bit in str:
-        if bit == '0':
+        if bit == "0":
             current_node = current_node.left
         else:
             current_node = current_node.right
@@ -100,13 +116,14 @@ def decode(str, tr):
             current_node = tr
     return decoded_string
 
+
 # Test the function
-test_string = 'awhiodajoifhwa'
+test_string = "awhiodajoifhwa"
 frequency = Counter(test_string)
 tr = build_huffman_tree(frequency)
 encoded_string, hc = encode(test_string)
 decoded_string = decode(encoded_string, tr)
-print(f'Original: {test_string}')
-print(f'Encoded: {encoded_string}')
-print(f'Huffman Code: {hc}')
-print(f'Decoded: {decoded_string}')
+print(f"Original: {test_string}")
+print(f"Encoded: {encoded_string}")
+print(f"Huffman Code: {hc}")
+print(f"Decoded: {decoded_string}")

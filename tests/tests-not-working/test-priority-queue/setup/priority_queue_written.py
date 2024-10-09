@@ -7,7 +7,7 @@ class PriorityQueue(object):
         self.nodes = [None]  # first element is not used
 
         # Current state of the insert counter
-        self.insert_counter = 0          # tie breaker, keeps the insertion order
+        self.insert_counter = 0  # tie breaker, keeps the insertion order
 
     # Comparison function between two nodes
     # Higher priority wins
@@ -66,9 +66,8 @@ class PriorityQueue(object):
             right_child_index = empty_space_index * 2 + 1
 
             # Left child wins
-            if (
-                len(self.nodes) <= right_child_index
-                or self._is_higher_than(self.nodes[left_child_index], self.nodes[right_child_index])
+            if len(self.nodes) <= right_child_index or self._is_higher_than(
+                self.nodes[left_child_index], self.nodes[right_child_index]
             ):
                 self.nodes[empty_space_index] = self.nodes[left_child_index]
                 empty_space_index = left_child_index

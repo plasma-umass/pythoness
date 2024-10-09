@@ -3,9 +3,9 @@ import inspect
 
 
 if __name__ == "__main__":
-    
+
     game = blackjack.Blackjack()
-    while(True):
+    while True:
         game.play_hand()
 
     # print(f"qualname: {blackjack.Blackjack.Blackjack2.__qualname__}")

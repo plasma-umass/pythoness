@@ -4,8 +4,8 @@ from . import priority_queue as prq
 
 
 class AddTest(unittest.TestCase):
-        
-    def test_add(self):    
+
+    def test_add(self):
         p = prq.PriorityQueue()
         p.add(1, 10)
 
@@ -15,11 +15,12 @@ class PeekTest(unittest.TestCase):
     def test_peek(self):
         p = prq.PriorityQueue()
         self.assertEqual(p.peek(), None)
-        p.add(1,4)
+        p.add(1, 4)
         self.assertEqual(p.peek(), 1)
 
-class PopTest (unittest.TestCase):
-    
+
+class PopTest(unittest.TestCase):
+
     def test_pop(self):
         p = prq.PriorityQueue()
         p.add(1, 10)

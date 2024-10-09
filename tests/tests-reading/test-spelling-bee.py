@@ -1,15 +1,17 @@
 import pythoness
 
+
 def letters(phrase):
     """Takes as input a string phrase and returns a string
     that contains just the letters from phrase (in order).
     """
-    result = ''
+    result = ""
     for char in phrase:
         # store only the alphabetic characters in result
-        if char.isalpha():  
-            result += char 
+        if char.isalpha():
+            result += char
     return result
+
 
 def canon(word):
     """Takes as input a string word and returns a "canonical" version
@@ -18,15 +20,16 @@ def canon(word):
     """
 
     # get the letters from word, make them lowercase, and sort them
-    word = letters(word)      
-    lowerWord = word.lower()  
+    word = letters(word)
+    lowerWord = word.lower()
 
     # ie.  a *list* of letters, in alpha order
-    orderedWord = sorted(lowerWord) 
+    orderedWord = sorted(lowerWord)
 
     # convert our list back to a string of characters
-    result = ''.join(orderedWord)
+    result = "".join(orderedWord)
     return result
+
 
 def uniques(word):
     """Takes an input string word and return a string consisting of the unique
@@ -36,16 +39,17 @@ def uniques(word):
     # turn the word(s) into lowercase letters and declare a final variable
     word = letters(word)
     word = word.lower()
-    charstr = ''
+    charstr = ""
 
-    # compare each letter in the word with each other   
+    # compare each letter in the word with each other
     for char1 in word:
-        for char2 in word: 
+        for char2 in word:
             # if the characters are the same AND not already in the list, add it to the string
-            if char1 == char2 and char1 not in charstr: 
-                charstr = charstr + char1                    
+            if char1 == char2 and char1 not in charstr:
+                charstr = charstr + char1
 
     return charstr
+
 
 def isIsogram(word):
     """Takes as input a string word and returns True only if the
@@ -56,26 +60,27 @@ def isIsogram(word):
     word = letters(word)
     word = word.lower()
     uniquechars = uniques(word)
-    i = 0 
+    i = 0
 
     # compare the letters of word with unique characters, and everytime one matches, add 1 to i
     for char1 in word:
         for char2 in uniquechars:
             if char1 == char2:
-                i += 1 
+                i += 1
 
     # if every character in word has only one match in uniquechars, i and len(uniquechars) will be equal
     # and it is therefore an isogram
     if i == len(uniquechars):
-        return True 
+        return True
 
     # if they aren't equal, a letter matched (appeared) more than once and it isn't an isogram
     else:
-        return False 
+        return False
+
 
 def sized(n, wordList):
-    """ Takes input of an integer n and a list of string words and returns which words
-    in that list have a length of n (not including spaces)  
+    """Takes input of an integer n and a list of string words and returns which words
+    in that list have a length of n (not including spaces)
     """
     # declaring variable to store matching words
     matchingWords = []
@@ -84,10 +89,11 @@ def sized(n, wordList):
     for word in wordList:
         word = letters(word)
         if len(word) == n:
-            matchingWords.append(word) 
+            matchingWords.append(word)
 
     return matchingWords
-        
+
+
 def readWords(filename):
     """Takes as input the path to a file filename, opens and reads the words
     (one per line) in that file, and returns a list containing those words.
@@ -95,9 +101,10 @@ def readWords(filename):
     results = []
     with open(filename) as wordFile:
         for line in wordFile:
-            word = line.strip()   # do not use letters (think: 'belly button')
-            results.append(word) 
+            word = line.strip()  # do not use letters (think: 'belly button')
+            results.append(word)
     return results
+
 
 @pythoness.spec(
     """Suppose you have a seven letter hive, 'mixcent'. How many
@@ -105,13 +112,16 @@ def readWords(filename):
     spelled only using (possibly repeated) letters from the hive string?  
     
     This function returns an int representing the number of words.
-    """, related_objs=[letters, canon, uniques, sized, readWords], tests=["b2('words/small-dict.txt') == 2"], 
-    verbose = True, max_retries=10)
-
-def b2(filename : str) -> int:
-    ""
+    """,
+    related_objs=[letters, canon, uniques, sized, readWords],
+    tests=["b2('words/small-dict.txt') == 2"],
+    verbose=True,
+    max_retries=10,
+)
+def b2(filename: str) -> int:
+    """"""
 
 
 if __name__ == "__main__":
-    print("b2(): " + str(b2('words/dict.txt')))
+    print("b2(): " + str(b2("words/dict.txt")))
     # correct answer: 17
