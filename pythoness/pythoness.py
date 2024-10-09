@@ -79,6 +79,7 @@ def spec(
                 ):
                     # function_info = helper_funcs.get_function_info(func, *args, **kwargs)
                     function_info = helper_funcs.get_function_info(func)
+                    function_mock_info = helper_funcs.get_function_info(func)
 
                 with (
                     log("[Pythoness] Creating prompt and checking the DB...")
@@ -95,6 +96,9 @@ def spec(
                     )
                     function_info = helper_funcs.setup_info(
                         function_info, func, string, prompt
+                    )
+                    function_mock_info = helper_funcs.setup_info(
+                        function_mock_info, func, string, prompt
                     )
 
                     # See if we already have code corresponding with that prompt in the database.
@@ -150,11 +154,18 @@ def spec(
                                 if verbose
                                 else nullcontext()
                             ):
-                                function_info = helper_funcs.parse_func(
-                                    function_info, client, prompt, verbose, log
+                                function_info, function_mock_info = (
+                                    helper_funcs.parse_func(
+                                        function_info,
+                                        function_mock_info,
+                                        client,
+                                        prompt,
+                                        verbose,
+                                        log,
+                                    )
                                 )
 
-                            # store code in databse so the tests can run it
+                            # store code in database so the tests can run it
                             cdb.insert_code(
                                 function_info["original_prompt"],
                                 function_info["function_def"],
@@ -166,13 +177,18 @@ def spec(
                                 else nullcontext()
                             ):
                                 function_info = helper_funcs.compile_func(function_info)
-
+                                function_mock_info = helper_funcs.compile_func(
+                                    function_mock_info
+                                )
                             with (
                                 log("[Pythoness] Executing...")
                                 if verbose
                                 else nullcontext()
                             ):
                                 function_info = helper_funcs.execute_func(function_info)
+                                function_mock_info = helper_funcs.execute_func(
+                                    function_mock_info
+                                )
 
                             fn = function_info["globals"][
                                 function_info["function_name"]
@@ -194,11 +210,18 @@ def spec(
                                     testing.validate_tests(function_info, tests, log)
 
                             # Validated. Cache the function and persist it
-                            cached_function = fn
-                            cdb.insert_code(
+                            cached_function = function_mock_info["globals"][
+                                function_mock_info["function_name"]
+                            ]
+
+                            cdb.delete_code(
                                 function_info["original_prompt"],
-                                function_info["function_def"],
                             )
+                            cdb.insert_code(
+                                function_mock_info["original_prompt"],
+                                function_mock_info["function_def"],
+                            )
+
                             if output:
                                 print(
                                     termcolor.colored(

@@ -10,6 +10,7 @@ import os
 import inspect
 import textwrap
 import traceback
+import copy
 
 
 def get_function_info(func) -> dict:
@@ -108,7 +109,7 @@ def setup_info(function_info: dict, func, string: str, prompt: str) -> dict:
             "retries": 0,
             "function_def": None,
             "compiled": None,
-            "globals": func.__globals__,
+            "globals": func.__globals__.copy(),
             "original_prompt": prompt,
             "globals_no_print": [],
         }
@@ -118,14 +119,16 @@ def setup_info(function_info: dict, func, string: str, prompt: str) -> dict:
 
 def parse_func(
     function_info: dict,
+    function_mock_info: dict,
     client: assistant.Assistant,
     prompt: str,
     verbose: bool,
     log: logger.Logger,
-) -> dict:
+) -> tuple[dict, dict]:
     """Using Assistant, queries the LLM and places returned information in function_info"""
     result = client.query(prompt)
     function_info["completion"] = result
+    function_mock_info["completion"] = result
     try:
         the_json = json.loads(result)
     except:
@@ -134,8 +137,11 @@ def parse_func(
     function_def = the_json["code"]
     if verbose:
         log.log("[Pythoness] Synthesized function: \n", function_def)
+
     function_info["function_def"] = function_def
-    return function_info
+    # ADD IN DECORATOR
+    function_mock_info["function_def"] = create_decorate(function_info)
+    return function_info, function_mock_info
 
 
 def compile_func(function_info: dict) -> dict:
@@ -240,3 +246,34 @@ def exception_handler(
     traceback.print_exception(e)
     prompt = f"        Your previous attempt failed because {to_add}Try again."
     return prompt
+
+
+def create_decorate(info: dict) -> str:
+    """Executes the function stored in info"""
+    # Split the function code into individual lines
+    function_code = info["function_def"]
+    function_name = info["function_name"]
+    # Create the wrapper function code
+    wrapped_code = [
+        # f"import functools",
+        # f"import inspect",
+        f"def decorator(func):",
+        # f"  @functools.wraps(func)",
+        f"  def wrapper(*args, **kwargs):",
+        f"    result = func(*args, **kwargs)",
+        f"    print('Running execution tests...')",
+        f"    return result",
+        # f"  wrapper.__signature__ = inspect.signature(func)",
+        f"  return wrapper",
+        f"\n@decorator\n{function_code}",
+    ]
+
+    # # Add the original function code after the wrapper
+    # wrapped_code.extend(lines)
+
+    # # At the end, return the wrapper function
+    # wrapped_code.append("return wrapper")
+
+    # Join all the lines back into a single string
+    full_code = "\n".join(wrapped_code)
+    return full_code
