@@ -1,11 +1,15 @@
 from . import helper_funcs
 
 
-def add_execution_testing(function_info: dict, cdb) -> dict:
-    function_info["function_def"] = create_decorate(function_info)
+def add_execution_testing(
+    function_info: dict,
+    cdb,
+) -> dict:
 
+    function_info["function_def"] = execution_decorator(function_info)
     function_info = helper_funcs.compile_func(function_info)
     function_info = helper_funcs.execute_func(function_info)
+
     cdb.delete_code(
         function_info["original_prompt"],
     )
@@ -16,7 +20,7 @@ def add_execution_testing(function_info: dict, cdb) -> dict:
     return function_info
 
 
-def create_decorate(info: dict) -> str:
+def execution_decorator(info: dict) -> str:
     """Executes the function stored in info"""
     function_code = info["function_def"]
     # Create the wrapper function code

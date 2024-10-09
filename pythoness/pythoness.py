@@ -24,9 +24,8 @@ time = 0
 def spec(
     string,
     model="gpt-4o",
-    exec=False,
+    exec=None,
     replace=None,
-    replace_exec=None,
     tests=None,
     max_retries=3,
     verbose=None,
@@ -82,7 +81,6 @@ def spec(
                 ):
                     # function_info = helper_funcs.get_function_info(func, *args, **kwargs)
                     function_info = helper_funcs.get_function_info(func)
-                    # function_mock_info = helper_funcs.get_function_info(func)
 
                 with (
                     log("[Pythoness] Creating prompt and checking the DB...")
@@ -202,15 +200,19 @@ def spec(
                                     testing.validate_tests(function_info, tests, log)
 
                             # Validated. Cache the function and persist it
-                            if exec:
+                            if exec is None:
+                                cached_function = fn
+                            else:
+                                if verbose:
+                                    log.log(
+                                        "[Pythoness] Adding execution-time testing framework..."
+                                    )
                                 function_info = execution_testing.add_execution_testing(
                                     function_info, cdb
                                 )
                                 cached_function = function_info["globals"][
                                     function_info["function_name"]
                                 ]
-                            else:
-                                cached_function = fn
 
                             if output:
                                 print(
