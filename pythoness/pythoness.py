@@ -27,6 +27,7 @@ def spec(
     exec=None,
     replace=None,
     tests=None,
+    test_descriptions=None,
     max_retries=3,
     verbose=None,
     output=False,
@@ -193,11 +194,32 @@ def spec(
 
                             if tests:
                                 with (
+                                    log("[Pythoness] Generating tests...")
+                                    if verbose
+                                    else nullcontext()
+                                ):
+                                    tests_to_run, property_tests = (
+                                        testing.generate_tests(
+                                            function_info,
+                                            tests,
+                                            test_descriptions,
+                                            client,
+                                            log,
+                                            verbose,
+                                        )
+                                    )
+
+                            if tests_to_run:
+                                with (
                                     log("[Pythoness] Validating tests...")
                                     if verbose
                                     else nullcontext()
                                 ):
-                                    testing.validate_tests(function_info, tests, log)
+                                    testing.validate_tests(
+                                        function_info,
+                                        tests_to_run,
+                                        log,
+                                    )
 
                             # Validated. Cache the function and persist it
                             if exec is None:
@@ -208,7 +230,7 @@ def spec(
                                         "[Pythoness] Adding execution-time testing framework..."
                                     )
                                 function_info = execution_testing.add_execution_testing(
-                                    function_info, cdb
+                                    function_info, property_tests, cdb
                                 )
                                 cached_function = function_info["globals"][
                                     function_info["function_name"]
