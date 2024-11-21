@@ -6,6 +6,7 @@ from .util import logger
 from .util import testing
 from .util import prompt_helpers
 from .util import config
+from .util import execution_testing
 from contextlib import nullcontext
 from functools import wraps
 import sys
@@ -23,8 +24,10 @@ time = 0
 def spec(
     string,
     model="gpt-4o",
+    exec=None,
     replace=None,
     tests=None,
+    test_descriptions=None,
     max_retries=3,
     verbose=None,
     output=False,
@@ -151,10 +154,14 @@ def spec(
                                 else nullcontext()
                             ):
                                 function_info = helper_funcs.parse_func(
-                                    function_info, client, prompt, verbose, log
+                                    function_info,
+                                    client,
+                                    prompt,
+                                    verbose,
+                                    log,
                                 )
 
-                            # store code in databse so the tests can run it
+                            # store code in database so the tests can run it
                             cdb.insert_code(
                                 function_info["original_prompt"],
                                 function_info["function_def"],
@@ -187,18 +194,51 @@ def spec(
 
                             if tests:
                                 with (
+                                    log("[Pythoness] Generating tests...")
+                                    if verbose
+                                    else nullcontext()
+                                ):
+                                    tests_to_run, property_tests = (
+                                        testing.generate_tests(
+                                            function_info,
+                                            tests,
+                                            test_descriptions,
+                                            client,
+                                            log,
+                                            verbose,
+                                        )
+                                    )
+
+                            if tests_to_run:
+                                with (
                                     log("[Pythoness] Validating tests...")
                                     if verbose
                                     else nullcontext()
                                 ):
-                                    testing.validate_tests(function_info, tests, log)
+                                    testing.validate_tests(
+                                        function_info,
+                                        tests_to_run,
+                                        log,
+                                    )
 
                             # Validated. Cache the function and persist it
-                            cached_function = fn
-                            cdb.insert_code(
-                                function_info["original_prompt"],
-                                function_info["function_def"],
-                            )
+                            # if exec is None:
+                            if (
+                                False
+                            ):  # Change to above line to enable execution testing
+                                cached_function = fn
+                            else:
+                                if verbose:
+                                    log.log(
+                                        "[Pythoness] Adding execution-time testing framework..."
+                                    )
+                                function_info = execution_testing.add_execution_testing(
+                                    function_info, property_tests, cdb
+                                )
+                                cached_function = function_info["globals"][
+                                    function_info["function_name"]
+                                ]
+
                             if output:
                                 print(
                                     termcolor.colored(

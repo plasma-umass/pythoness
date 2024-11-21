@@ -32,6 +32,8 @@ def encode(input_string):
             "decode(encode(s)) == s",
         )
     ],
+    verbose=True,
+    output=True,
 )
 def decode(str: str):
     """"""

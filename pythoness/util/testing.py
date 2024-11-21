@@ -1,6 +1,7 @@
 from . import exceptions
 from . import logger
 from . import unittesting_helpers
+from . import assistant
 from collections.abc import Generator
 from typing import Callable
 from hypothesis import example, given
@@ -11,6 +12,7 @@ import inspect
 import traceback
 import sys
 import unittest
+import json
 import io
 import os
 import ast
@@ -88,7 +90,76 @@ def cleanup_tests(suite: unittest.TestSuite) -> unittest.TestSuite:
     return cleaned_suite
 
 
-def validate_tests(function_info: dict, tests: list, log: logger.Logger) -> None:
+def generate_tests(
+    function_info: dict,
+    tests: list,
+    test_descriptions: list,
+    client: assistant.Assistant,
+    log: logger.Logger,
+    verbose: bool,
+) -> list:
+    tests_to_run = []
+    property_tests = []
+
+    # Generate specified property-based tests
+    for t in tests:
+        try:
+            if isinstance(t, tuple):
+                test = generate_hypothesis_test(t, client)
+                tests_to_run.append(("property", compile(test, "<string>", "exec")))
+                property_tests.append(test)
+                if verbose:
+                    log.log(f"[Pythoness] Synthesized Hypothesis test:\n{test}")
+            else:
+                tests_to_run.append(t)
+        except:
+            if verbose:
+                log.log(f"[Pythoness] Failed to generate Hypothesis test: {t}")
+
+    # Generate property-based tests from NL descriptions
+    for td in test_descriptions:
+        try:
+            prompt = f"""Produce a JSON object as a field 'code' with code for a property-based Hypothesis
+            test for the {function_info["function_name"]} function with the following description: '{td}'.
+            Only produce output that can be parsed as JSON and only produce the Hypothesis test."""
+            result = client.query(prompt)
+            the_json = json.loads(result)
+            test = the_json["code"]
+            tests_to_run.append(("property", compile(test, "<string>", "exec")))
+            property_tests.append(test)
+            if verbose:
+                log.log(f"[Pythoness] Synthesized Hypothesis test:\n{test}")
+        except:
+            if verbose:
+                log.log(f"[Pythoness] Failed to generate Hypothesis test: {td}")
+
+    # Query LLM for additional tests
+    # try:
+    #     prompt = f"""Produce a JSON object as a field 'code' with a list of additional tests that have not already been generated to evaluate the correct functionality for the {function_info["function_name"]} function.
+    #     These can either be single-line unit tests as code assertions, or the full functions for Hypothesis property-based tests.
+    #     Only produce output that can be parsed as JSON."""
+    #     result = client.query(prompt)
+    #     the_json = json.loads(result)
+    #     test_list = the_json["code"]
+    #     print(the_json)
+    # except:
+    #     if verbose:
+    #         log.log(f"[Pythoness] Failed to generate any additional tests.")
+
+    # for tllm in test_list:
+    #     try:
+    #         print("NEW TEST:", tllm)
+    #     except:
+    #         pass
+
+    return tests_to_run, property_tests
+
+
+def validate_tests(
+    function_info: dict,
+    tests: list,
+    log: logger.Logger,
+) -> None:
     """Validates that all provided tests pass, prints out which ones, if any, fail"""
     failing_tests = []
     failing_unittests = None
@@ -96,11 +167,11 @@ def validate_tests(function_info: dict, tests: list, log: logger.Logger) -> None
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
+    # Run user-specified tests
     for t in tests:
         try:
             if isinstance(t, tuple):
-                compiled_hypothesis_test = create_hypothesis_test(t)
-                exec(compiled_hypothesis_test, function_info["globals"])
+                exec(t[1], function_info["globals"])
             # unittest-ing
             elif inspect.ismodule(t):
                 suite.addTest(loader.loadTestsFromModule(t))
@@ -180,29 +251,16 @@ def get_falsifying_example(exception_info: Generator[str, None, None]) -> str:
     return result
 
 
-def create_hypothesis_test(t: tuple):
+def generate_hypothesis_test(t: tuple, client: assistant.Assistant):
     """Creates hypothesis tests"""
-    if isinstance(t[0], dict):
-        assertion = t[1]
-        given_input = ",".join(t[0].values())
-        parameter_input = ",".join(list(t[0].keys()))
+    prompt = f"""Produce a JSON object as a field 'code' with code for the function declaration for an empty Hypothesis
+    test given the range '{t[0]}' on the function input. Only produce output that can be parsed as JSON."""
+    result = client.query(prompt)
+    the_json = json.loads(result)
+    code = the_json["code"]
 
-        hypothesis_test = textwrap.dedent(
-            f"""
-        from hypothesis import example, given
-        from hypothesis.strategies import *
-        try:
-            @given({given_input})
-            def test({parameter_input}):
-                assert({assertion})                                
-            test()
-        except KeyboardInterrupt:
-            pass
-            """
-        )
-
-    else:
-        raise Exception(
-            f"The following test does not have a dictionary in it ({t}). Please use correct syntax"
-        )
-    return compile(hypothesis_test, "<string>", "exec")
+    # Replace the placeholder 'pass' with the user's assertion
+    parts = code.rsplit("pass", 1)
+    if len(parts) > 1:
+        code = t[1].join(parts)
+    return code
