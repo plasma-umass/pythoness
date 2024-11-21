@@ -192,7 +192,8 @@ def spec(
                             ):
                                 testing.validate_types(func, fn, function_info)
 
-                            if tests:
+                            tests_to_run = None
+                            if tests or test_descriptions:
                                 with (
                                     log("[Pythoness] Generating tests...")
                                     if verbose
