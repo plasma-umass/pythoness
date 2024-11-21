@@ -102,36 +102,38 @@ def generate_tests(
     property_tests = []
 
     # Generate specified property-based tests
-    for t in tests:
-        try:
-            if isinstance(t, tuple):
-                test = generate_hypothesis_test(t, client)
+    if tests:
+        for t in tests:
+            try:
+                if isinstance(t, tuple):
+                    test = generate_hypothesis_test(t, client)
+                    tests_to_run.append(("property", compile(test, "<string>", "exec")))
+                    property_tests.append(test)
+                    if verbose:
+                        log.log(f"[Pythoness] Synthesized Hypothesis test:\n{test}")
+                else:
+                    tests_to_run.append(t)
+            except:
+                if verbose:
+                    log.log(f"[Pythoness] Failed to generate Hypothesis test: {t}")
+
+    # Generate property-based tests from NL descriptions
+    if test_descriptions:
+        for td in test_descriptions:
+            try:
+                prompt = f"""Produce a JSON object as a field 'code' with code for a property-based Hypothesis
+                test for the {function_info["function_name"]} function with the following description: '{td}'.
+                Only produce output that can be parsed as JSON and only produce the Hypothesis test."""
+                result = client.query(prompt)
+                the_json = json.loads(result)
+                test = the_json["code"]
                 tests_to_run.append(("property", compile(test, "<string>", "exec")))
                 property_tests.append(test)
                 if verbose:
                     log.log(f"[Pythoness] Synthesized Hypothesis test:\n{test}")
-            else:
-                tests_to_run.append(t)
-        except:
-            if verbose:
-                log.log(f"[Pythoness] Failed to generate Hypothesis test: {t}")
-
-    # Generate property-based tests from NL descriptions
-    for td in test_descriptions:
-        try:
-            prompt = f"""Produce a JSON object as a field 'code' with code for a property-based Hypothesis
-            test for the {function_info["function_name"]} function with the following description: '{td}'.
-            Only produce output that can be parsed as JSON and only produce the Hypothesis test."""
-            result = client.query(prompt)
-            the_json = json.loads(result)
-            test = the_json["code"]
-            tests_to_run.append(("property", compile(test, "<string>", "exec")))
-            property_tests.append(test)
-            if verbose:
-                log.log(f"[Pythoness] Synthesized Hypothesis test:\n{test}")
-        except:
-            if verbose:
-                log.log(f"[Pythoness] Failed to generate Hypothesis test: {td}")
+            except:
+                if verbose:
+                    log.log(f"[Pythoness] Failed to generate Hypothesis test: {td}")
 
     # Query LLM for additional tests
     # try:

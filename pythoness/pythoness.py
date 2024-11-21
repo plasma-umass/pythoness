@@ -192,7 +192,8 @@ def spec(
                             ):
                                 testing.validate_types(func, fn, function_info)
 
-                            if tests:
+                            tests_to_run = None
+                            if tests or test_descriptions:
                                 with (
                                     log("[Pythoness] Generating tests...")
                                     if verbose
@@ -223,9 +224,7 @@ def spec(
 
                             # Validated. Cache the function and persist it
                             # if exec is None:
-                            if (
-                                False
-                            ):  # Change to above line to enable execution testing
+                            if True:  # Change to above line to enable execution testing
                                 cached_function = fn
                             else:
                                 if verbose:
