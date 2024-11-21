@@ -12,9 +12,10 @@ import pythoness
         "myfib(n) should be the sum of calling myfib on the previous 2 numbers",
         "myfib(n) should produce a positive integer",
     ],
-    max_retries=5,
-    model="gpt-4o",
-    timeout_seconds=60,
+    max_retries=3,
+    # exec=True,
+    regenerate=True,
+    verbose=True,
 )
 def myfib(n: int) -> int:
     """"""
