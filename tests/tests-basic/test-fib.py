@@ -22,5 +22,4 @@ def myfib(n: int) -> int:
 
 
 for i in range(20):
-    print(i)
-    print(myfib(i))
+    print(i, ": ", myfib(i))

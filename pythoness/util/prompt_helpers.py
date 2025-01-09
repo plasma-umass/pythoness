@@ -6,6 +6,81 @@ import os
 import unittest
 
 
+def specified_property_prompt(t: tuple, num: int) -> str:
+    """Prompt for LLM to generate Hypothesis function from user-specified property-based tests"""
+
+    return f"""Generate a hypothesis function for a property-based test using the following range {t[0]} and assertion {t[1]}.
+Assume you have the following imports:
+```
+from hypothesis import given, strategies as st
+```
+Respond in JSON output with a 'code' field, filling in the following function format:
+```
+@given(...)
+def property_test_{num}:
+    ...
+```"""
+
+
+def nl_property_prompt(name: str, descrip: str, num: int) -> str:
+    """Prompt for LLM to generate Hypothesis function from user-provided NL description of property-based test"""
+
+    return f"""Generate a hypothesis function for a property-based test for {name} using the following description: '{descrip}'.
+Assume you have the following imports:
+```
+from hypothesis import given, strategies as st
+```
+Respond in JSON output with a 'code' field, filling in the following function format:
+```
+@given(...)
+def property_test_{num}:
+    ...
+```"""
+
+
+def llm_new_property_prompt(name: str, existing: str, num: int) -> str:
+    """Prompt for LLM to generate new Hypothesis functions based off of existing list"""
+
+    return f"""Generate hypothesis functions for property-based tests to evaluate the correct behavior of {name}.
+Assume you have the following imports:
+```
+from hypothesis import given, strategies as st
+```
+Respond in JSON output with a 'code' field, filling in the following functions list format:
+```
+@given(...)
+def property_test_{num}:
+    ...
+
+@given(...)
+def property_test_{num + 1}:
+    ...
+
+# Continue for as many or as few tests as needed
+```
+Here is a list of existing property-based tests. Do not generate any property-based tests that are functionally equivalent to them:
+```
+{existing}
+```"""
+
+
+def llm_new_unit_prompt(name: str, existing: str) -> str:
+    """Prompt for LLM to generate new unit tests based off of existing list"""
+
+    return f"""Generate simple unit tests to evaluate the correct behavior of {name}.
+Respond in JSON output with a 'code' field, filling in the following assertion format:
+```
+assert ...
+assert ...
+# Include as many or as few assertions as needed
+```
+Here is a list of existing unit test assertions and property-based hypothesis tests.
+Do not generate any unit tests that are functionally equivalent or whose behavior is already captured by them:
+```
+{existing}
+```"""
+
+
 def test_case_predicate(obj) -> bool:
     """Returns true if obj is a unittest.TestCase"""
 
