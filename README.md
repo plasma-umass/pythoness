@@ -4,7 +4,7 @@
 
 _Pythoness: The priestess of the oracle of Apollo at Delphi._
 
-Pythoness by [Emery Berger](https://emeryberger.com), extension by Kyle Gwilt and Stephen Freund
+Pythoness by [Emery Berger](https://emeryberger.com) and [Kyla Levin](https://khlevin.github.io/KylaHLevin/index.html), extension by Kyle Gwilt and Stephen Freund
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/pythoness.svg)](https://pypi.org/project/pythoness/)[![Downloads](https://static.pepy.tech/badge/pythoness)](https://pepy.tech/project/pythoness) [![Downloads](https://static.pepy.tech/badge/pythoness/month)](https://pepy.tech/project/pythoness) ![Python versions](https://img.shields.io/pypi/pyversions/pythoness.svg?style=flat-square)
 
