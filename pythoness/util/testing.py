@@ -4,9 +4,7 @@ from . import unittesting_helpers
 from . import assistant
 from collections.abc import Generator
 from typing import Callable
-from hypothesis import example, given
 from hypothesis.strategies import *
-import textwrap
 import logging
 import inspect
 import traceback
@@ -14,8 +12,11 @@ import sys
 import unittest
 import json
 import io
-import os
 import ast
+import random
+
+from bigO import check
+
 
 
 def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
@@ -266,3 +267,14 @@ def generate_hypothesis_test(t: tuple, client: assistant.Assistant):
     if len(parts) > 1:
         code = t[1].join(parts)
     return code
+
+def validate_runtime(function_info: dict, generate_func: int, length_func: Callable, time_bound: str):
+    """Uses generate_func to run check() a single time and verify time_bound"""
+
+    function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound, frequency = 25)(function_info["globals"][function_info["function_name"]])
+    for i in range(25):
+        print(f"iter: {i}")
+        args, kwargs = generate_func.__call__()
+        function_info["globals"][function_info["function_name"]].__call__(*args, **kwargs)
+
+    return 

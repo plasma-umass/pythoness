@@ -64,7 +64,7 @@ def prep_unit_tests(tests: list) -> str:
     ret = ""
 
     if src:
-        ret += "The function should also pass the following unit tests. Included is their name and source code. Do not write these tests\n\n"
+        ret += "\nThe function should also pass the following unit tests. Included is their name and source code. Do not write these tests\n\n"
 
         for func in src:
             for line in func[0]:
@@ -353,6 +353,7 @@ def create_prompt(
     function_info: dict,
     string: str,
     tests: list,
+    time_bound: str,
     func,
     related_objs: list,
     no_print: list,
@@ -362,14 +363,18 @@ def create_prompt(
         Produce a JSON object with code for a Python function
         named {function_info['function_name']} that performs the following task as
         a field \"code\". Only produce output that can be parsed as
-        JSON. \n\n"""
+        JSON. \n"""
+    
+    if time_bound:
+        prompt += f"""
+        The function must have {time_bound} runtime or faster.\n"""
 
     if related_objs:
         # handle duplicates
         related_objs = list(set(related_objs))
         prompt += prep_related_objs(func, related_objs, no_print)
 
-    prompt += """\
+    prompt += """
         Task:
         """
 
@@ -384,7 +389,7 @@ def create_prompt(
 
     if tests:
         prompt += prep_tests(tests)
-        prompt += f"\n{prep_unit_tests(tests)}"
+        prompt += f"{prep_unit_tests(tests)}"
 
     prompt += f"""
         Return only a single method or function definition. Use this template for your response:

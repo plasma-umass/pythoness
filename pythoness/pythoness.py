@@ -12,6 +12,7 @@ from functools import wraps
 import sys
 import signal
 import termcolor
+from bigO import check
 
 # exec() pushes function to the global scope
 # globals_no_print ensures they aren't included twice in the prompt
@@ -34,6 +35,12 @@ def spec(
     regenerate=False,
     related_objs=None,
     timeout_seconds=0,
+
+    length_func = None,
+    time_bound = None,
+    # mem_bound = None;
+    generate_func = None,
+
 ):
     """Main logic of Pythoness"""
 
@@ -53,6 +60,9 @@ def spec(
             func.__doc__ += string
         else:
             func.__doc__ = string
+
+        # if time_bound:
+        #     func = bigO.check(length_func, time_bound = time_bound)(func)
 
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -92,6 +102,7 @@ def spec(
                         function_info,
                         string,
                         tests,
+                        time_bound,
                         func,
                         related_objs,
                         globals_no_print,
@@ -128,9 +139,11 @@ def spec(
                                 helper_funcs.replace_func(func, function_def)
 
                         globals_no_print.append(function_info["function_name"])
-                        return helper_funcs.database_compile(
-                            function_info, function_def, *args, **kwargs
+                        fn = helper_funcs.database_compile(
+                            function_info, function_def, length_func, time_bound
                         )
+
+                        return fn(*args, **kwargs)
 
                 with (
                     log("[Pythoness] Generating code...") if verbose else nullcontext()
@@ -181,6 +194,9 @@ def spec(
                             ):
                                 function_info = helper_funcs.execute_func(function_info)
 
+                            if time_bound:
+                                function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
+
                             fn = function_info["globals"][
                                 function_info["function_name"]
                             ]
@@ -222,6 +238,19 @@ def spec(
                                         log,
                                     )
 
+                            if time_bound:
+                                with(
+                                    log("[Pythoness] Validating time bound...")
+                                    if verbose
+                                    else nullcontext()
+                                ):
+                                    testing.validate_runtime(
+                                        function_info,
+                                        generate_func,
+                                        length_func,
+                                        time_bound
+                                    )
+
                             # Validated. Cache the function and persist it
                             # if exec is None:
                             if True:  # Change to above line to enable execution testing
@@ -247,6 +276,7 @@ def spec(
                                     file=sys.stdout,
                                 )
 
+                            # TODO: this won't have the check() wrapper
                             if replace:
                                 with (
                                     log("[Pythoness] Replacing...")
@@ -296,7 +326,21 @@ def spec(
                 # ensure that nothing is in the DB to interfere with a future call
                 cdb.delete_code(function_info["original_prompt"])
                 raise Exception(f"Maximum number of retries exceeded ({max_retries}).")
-
+            
         return wrapper
 
     return decorator
+
+
+
+
+# try to trigger a pythoness rerun when there is an error
+# try to get the llm to generate stuff
+     # chatgpt gice me a fucntion that generates arrays of size 1 to 1 million
+
+     #TODO:
+     # figure out pythoness rereuns on error
+     # get some examples going
+
+# could ask people for a random datatype generator as input
+# (another lambda, it's pretty easy to do inline)

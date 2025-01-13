@@ -2,7 +2,7 @@ from . import assistant
 from . import logger
 from . import exceptions
 from . import timeout
-from . import prompt_helpers
+from bigO import check
 import ast_comments as ast
 import inspect
 import json
@@ -90,13 +90,13 @@ def replace_func(func, function_def: str) -> None:
         f.write(new_source)
 
 
-def database_compile(function_info: dict, function_def: str, *args, **kwargs):
+def database_compile(function_info: dict, function_def: str, length_func, time_bound):
     """Compiles and executes a function with information from the CodeDatabase"""
     compiled = compile(function_def, "generated_func", "exec")
     exec(compiled, function_info["globals"])
-    fn = function_info["globals"][function_info["function_name"]]
+    function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
 
-    return fn(*args, **kwargs)
+    return function_info["globals"][function_info["function_name"]]
 
 
 def setup_info(function_info: dict, func, string: str, prompt: str) -> dict:
@@ -116,7 +116,7 @@ def setup_info(function_info: dict, func, string: str, prompt: str) -> dict:
 
 
 def parse_func(
-    function_info: dict,
+    function_info: dict, 
     client: assistant.Assistant,
     prompt: str,
     verbose: bool,
@@ -130,7 +130,9 @@ def parse_func(
     except:
         # JSON parse failure: retry
         raise exceptions.JSONException()
+
     function_def = the_json["code"]
+
     if verbose:
         log.log("[Pythoness] Synthesized function: \n", function_def)
     function_info["function_def"] = function_def
@@ -151,7 +153,9 @@ def compile_func(function_info: dict) -> dict:
 def execute_func(function_info: dict) -> dict:
     """Executes the function stored in info"""
     try:
+
         exec(function_info["compiled"], function_info["globals"])
+
         # need to remove the compiled version in order to avoid JSON logging issues
         function_info["compiled"] = None
         return function_info
@@ -221,14 +225,21 @@ def exception_handler(
                 to_add += f"This was the output from a unittest test suite, which includes a failure and/or error:\n{e.unittests_failed}"
 
         case KeyError():
-            to_add = "the function or method failed to execute. Ensure that only a single function or method is defined"
+            to_add = "the function or method failed to execute. Ensure that only a single function or method is defined. "
 
         case exceptions.DefWithinException():
             to_add = f"you added a class or function definition within the generated function.\n\n"
-            to_add += (
-                f"{prompt_helpers.prep_related_objs(func, related_objs, no_print)}"
-            )
+            # to_add += (
+            #     f"{prompt_helpers.prep_related_objs(func, related_objs, no_print)}"
+            # )
             to_add = textwrap.dedent(to_add)
+
+        case ValueError():
+            # time bound error
+            if verbose:
+                log.log("[Pythoness] Incorrect time bound.")
+                log.log(f"{e}")
+            to_add = f"The function has a slower time complexity than specified. \n{'\n'.join(e.args[0].split('\n')[1:6])}\n```\n"
 
         case _:
             # if verbose:
@@ -237,5 +248,8 @@ def exception_handler(
     # if verbose:
     # log.log(f"{type(e)} {e}")
     traceback.print_exception(e)
-    prompt = f"        Your previous attempt failed because {to_add}Try again."
+    prompt = f"        Your previous attempt failed because {to_add} Try again."
+
+    print(prompt)
+
     return prompt
