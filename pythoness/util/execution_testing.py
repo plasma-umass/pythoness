@@ -1,4 +1,6 @@
 from . import helper_funcs
+import ast
+import sys
 
 
 def add_execution_testing(
@@ -6,8 +8,9 @@ def add_execution_testing(
     property_tests: list,
     cdb,
 ) -> dict:
-    for p in property_tests:
-        print(p)
+    if property_tests:
+        for p in property_tests:
+            print(p)
 
     function_info["function_def"] = _execution_decorator(function_info, property_tests)
     function_info = helper_funcs.compile_func(function_info)
@@ -27,8 +30,8 @@ def add_execution_testing(
 def _execution_decorator(function_info: dict, property_tests: list) -> str:
     """Executes the function stored in info"""
     # Create the wrapper function code
-    name = function_info["function_name"]
-    renamed_tests = [s.replace(name, "func") for s in property_tests]
+    # name = function_info["function_name"]
+    # renamed_tests = [s.replace(name, "func") for s in property_tests]
 
     wrapped_code = [
         f"def decorator(func):",
