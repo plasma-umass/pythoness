@@ -1,7 +1,8 @@
-import textwrap
-import time
+import copy
 import litellm
 import openai
+import textwrap
+import time
 
 
 class AssistantError(Exception):
@@ -12,13 +13,19 @@ class AssistantError(Exception):
 
 
 class Assistant:
+
+    total_cost = 0
+    total_time = 0
+
     def __init__(
         self,
         model="gpt-4o",
+        stats={},
+        history=[],
     ):
         self._model = model
-        self._stats = {}
-        self._history = []
+        self._stats = stats
+        self._history = history
         # streaming will be enabled later
         self._check_model()
 
@@ -50,6 +57,7 @@ class Assistant:
             elapsed = time.time() - start
 
             self._stats["time"] = elapsed
+            Assistant.total_time += elapsed
             self._stats["model"] = self._model
             self._stats["completed"] = True
 
@@ -97,6 +105,7 @@ class Assistant:
         """Gets cost and returns the string from a completion"""
         completion = self._completion(prompt)
         self._stats["cost"] += litellm.completion_cost(completion)
+        Assistant.total_cost += litellm.completion_cost(completion)
 
         response_message = completion.choices[0].message.content
 
@@ -114,3 +123,9 @@ class Assistant:
             {"role": "assistant", "content": completion.choices[0].message.content}
         )
         return completion
+
+    def fork(self):
+        """Forks the assistant, returning a new assistant with the same model"""
+        return Assistant(
+            self._model, copy.deepcopy(self._stats), copy.deepcopy(self._history)
+        )

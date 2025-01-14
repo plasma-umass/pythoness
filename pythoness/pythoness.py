@@ -192,15 +192,15 @@ def spec(
                             ):
                                 testing.validate_types(func, fn, function_info)
 
-                            tests_to_run = None
+                            all_tests = []
                             if tests or test_descriptions:
                                 with (
                                     log("[Pythoness] Generating tests...")
                                     if verbose
                                     else nullcontext()
                                 ):
-                                    tests_to_run, property_tests = (
-                                        testing.generate_tests(
+                                    all_tests, property_tests = (
+                                        testing.generate_user_tests(
                                             function_info,
                                             tests,
                                             test_descriptions,
@@ -209,8 +209,22 @@ def spec(
                                             verbose,
                                         )
                                     )
+                            else:
+                                with (
+                                    log("[Pythoness] Generating tests...")
+                                    if verbose
+                                    else nullcontext()
+                                ):
+                                    all_tests, property_tests = (
+                                        testing.generate_llm_tests(
+                                            function_info,
+                                            client,
+                                            log,
+                                            verbose,
+                                        )
+                                    )
 
-                            if tests_to_run:
+                            if all_tests:
                                 with (
                                     log("[Pythoness] Validating tests...")
                                     if verbose
@@ -218,12 +232,14 @@ def spec(
                                 ):
                                     testing.validate_tests(
                                         function_info,
-                                        tests_to_run,
+                                        all_tests,
                                         log,
+                                        verbose,
                                     )
 
                             # Validated. Cache the function and persist it
-                            if exec is None:
+                            # if exec is None:
+                            if True:  # Change to above line to enable execution testing
                                 cached_function = fn
                             else:
                                 if verbose:
@@ -286,8 +302,8 @@ def spec(
                             signal.alarm(0)
                             if verbose:
                                 global cost, time
-                                cost += client.get_stats("cost")
-                                time += client.get_stats("time")
+                                cost += assistant.Assistant.total_cost
+                                time += assistant.Assistant.total_time
                                 log.log(f"\n[Total cost so far: ~${cost:.2f} USD]")
                                 log.log(f"\n[Total time so far: {time}]")
 

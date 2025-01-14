@@ -133,8 +133,8 @@ def parse_func(
     function_def = the_json["code"]
     if verbose:
         log.log("[Pythoness] Synthesized function: \n", function_def)
-
     function_info["function_def"] = function_def
+
     return function_info
 
 
