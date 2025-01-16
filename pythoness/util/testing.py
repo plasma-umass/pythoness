@@ -268,13 +268,64 @@ def generate_hypothesis_test(t: tuple, client: assistant.Assistant):
         code = t[1].join(parts)
     return code
 
-def validate_runtime(function_info: dict, generate_func: int, length_func: Callable, time_bound: str):
+def validate_runtime(function_info: dict, generate_func: int, length_func: Callable, time_bound: str, log: logger.Logger, verbose: bool):
     """Uses generate_func to run check() a single time and verify time_bound"""
 
     function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound, frequency = 25)(function_info["globals"][function_info["function_name"]])
+    
     for i in range(25):
-        print(f"iter: {i}")
+        if verbose:
+            log.log(f"iter: {i}")
         args, kwargs = generate_func.__call__()
-        function_info["globals"][function_info["function_name"]].__call__(*args, **kwargs)
+        function_info["globals"][function_info["function_name"]].__call__(*args, **kwargs)    
 
     return 
+
+# mess with input sizes more and more inputs
+
+def generate_generator_func(
+    spec: str,
+    main_func: callable,
+    function_info: dict,
+    model: str,
+    log: logger.Logger,
+    verbose: bool,
+):
+    
+    client = assistant.Assistant(model=model)
+
+    prompt = f"""   Produce a JSON object as a field 'code' with code for a Python function that generates
+    a variety of random inputs. This function must return a tuple of a list, where each element in this list 
+    represents a single argument in *args, and a dictionary representing the **kwargs.
+    If a list is being included in an argument for *args, *args must be wrapped by an additional list.
+    
+    The generator must adhere to the following specification:
+
+        {spec}
+
+    The generator is creating input for a function matching this signature:
+        {function_info["function_name"]}{inspect.signature(main_func)}:
+            ...
+
+    Only produce output that can be parsed as JSON and only return a single function. Use this template 
+    for your response:
+    
+        def generator_func():
+            ...
+    """
+
+    if verbose:
+        log.log(f"[Pythoness] Generating a generator function...")
+        log.log(f"[Pythoness] Prompt:\n", prompt)
+
+    result = client.query(prompt)
+    the_json = json.loads(result)
+    func_def = the_json["code"]
+
+    if verbose:
+        log.log("[Pythoness] Synthesized generator function: \n", func_def)
+    
+    compiled = compile(func_def, "generator_func", "exec")
+    exec(compiled, function_info["globals"])
+
+    return function_info["globals"]["generator_func"]

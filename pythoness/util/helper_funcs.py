@@ -94,7 +94,7 @@ def database_compile(function_info: dict, function_def: str, length_func, time_b
     """Compiles and executes a function with information from the CodeDatabase"""
     compiled = compile(function_def, "generated_func", "exec")
     exec(compiled, function_info["globals"])
-    function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
+    # function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
 
     return function_info["globals"][function_info["function_name"]]
 
@@ -244,12 +244,12 @@ def exception_handler(
         case _:
             # if verbose:
             #     log.log(f'[Pythoness] Unknown error: {type(e)} {e}')
-            to_add = f"of an unknown error: {type(e)} {e}."
+            to_add = f"of an error: {type(e)} {e}."
     # if verbose:
     # log.log(f"{type(e)} {e}")
-    traceback.print_exception(e)
+    # traceback.print_exception(e)
     prompt = f"        Your previous attempt failed because {to_add} Try again."
 
-    print(prompt)
+    # print(prompt)
 
     return prompt

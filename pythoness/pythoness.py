@@ -160,6 +160,8 @@ def spec(
                                 log.log(
                                     f'[Pythoness] Attempt {function_info["retries"]}'
                                 )
+                                if function_info["retries"] > 0:
+                                    log.log(f"[Pythoness] New prompt:\n\n{prompt}\n")
 
                             with (
                                 log("[Pythoness] Parsing...")
@@ -194,8 +196,8 @@ def spec(
                             ):
                                 function_info = helper_funcs.execute_func(function_info)
 
-                            if time_bound:
-                                function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
+                            # if time_bound:
+                            #     function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
 
                             fn = function_info["globals"][
                                 function_info["function_name"]
@@ -244,11 +246,27 @@ def spec(
                                     if verbose
                                     else nullcontext()
                                 ):
+                                    
+                                    # interpreter gets weird when I reassign generate_func
+                                    if isinstance(generate_func, str):
+                                        generator = testing.generate_generator_func(
+                                            generate_func,
+                                            fn,
+                                            function_info,
+                                            model,
+                                            log,
+                                            verbose
+                                        )
+                                    else:
+                                        generator = generate_func
+
                                     testing.validate_runtime(
                                         function_info,
-                                        generate_func,
+                                        generator,
                                         length_func,
-                                        time_bound
+                                        time_bound,
+                                        log,
+                                        verbose
                                     )
 
                             # Validated. Cache the function and persist it
@@ -342,5 +360,34 @@ def spec(
      # figure out pythoness rereuns on error
      # get some examples going
 
-# could ask people for a random datatype generator as input
-# (another lambda, it's pretty easy to do inline)
+# TODO: 1/13
+
+# make the programmer include a generator
+# so write a function that has a formatted prompt
+# ^ this is supposed to say write an LLM generator -> done (kinda finicky, need to test)
+
+# the bigger the bound is, the more likely the dominate cost will reveal itself
+# rather than picking random inputs, start with the biggest ones and move down to the smaller ones
+# or perhaps generate a bunch and take only a handful of the biggest ones
+# stash a version of code that is tricked with the wrong bounds and see what we can do to guide it to the correct bounds
+
+# or perhaps, sample uniformly
+
+# grab the code and stick it somewhere when something is interesting; this gives a good environment to more effectively explore bigO
+
+# I can perhaps lower frequency
+
+# is there a way we can assess the quality of the test case?
+
+# gather some plots and save them
+    # plots only generate on exception -> solved
+
+# read that Katie paper
+
+# keep in mind: how we generate inputs impacts how we can interpret the results
+
+# for the writing at the end of the month: what sub-goal are we trying to accomplish with each component of our system?
+
+
+
+
