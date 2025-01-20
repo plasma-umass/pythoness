@@ -40,6 +40,7 @@ def spec(
     time_bound = None,
     # mem_bound = None;
     generate_func = None,
+    range = None,
 
 ):
     """Main logic of Pythoness"""
@@ -264,6 +265,7 @@ def spec(
                                         function_info,
                                         generator,
                                         length_func,
+                                        range,
                                         time_bound,
                                         log,
                                         verbose

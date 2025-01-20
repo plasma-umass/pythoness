@@ -14,6 +14,7 @@ import json
 import io
 import ast
 import random
+import numpy as np
 
 from bigO import check
 
@@ -268,15 +269,28 @@ def generate_hypothesis_test(t: tuple, client: assistant.Assistant):
         code = t[1].join(parts)
     return code
 
-def validate_runtime(function_info: dict, generate_func: int, length_func: Callable, time_bound: str, log: logger.Logger, verbose: bool):
+def validate_runtime(function_info: dict, generate_func: int, length_func: Callable, range: tuple, time_bound: str, log: logger.Logger, verbose: bool):
     """Uses generate_func to run check() a single time and verify time_bound"""
 
     function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound, frequency = 25)(function_info["globals"][function_info["function_name"]])
     
-    for i in range(25):
+    lower_bound = range[0]
+    upper_bound = range[1]
+
+    sample_size = 25
+
+    if sample_size > (upper_bound - lower_bound):
+        raise ValueError("Sample size k cannot be greater than the upper bound n.")
+    
+    sample = np.linspace(lower_bound, upper_bound - 1, sample_size, dtype=int)
+
+    i = 0
+    for num in sample:
         if verbose:
-            log.log(f"iter: {i}")
-        args, kwargs = generate_func.__call__()
+            log.log(f"iter: {i} len: {num}")
+            i += 1
+
+        args, kwargs = generate_func.__call__(num)
         function_info["globals"][function_info["function_name"]].__call__(*args, **kwargs)    
 
     return 
