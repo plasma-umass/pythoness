@@ -81,6 +81,20 @@ Do not generate any unit tests that are functionally equivalent or whose behavio
 ```"""
 
 
+def runtime_testing_prompt(tests: str) -> str:
+    """Prompt for LLM to generate runtime tests based off of property-based tests list"""
+
+    return f"""Convert each of the following list of property-based Hypothesis tests into a code snippet assertion gated by the preconditions.
+```
+{tests}
+```
+Respond in JSON output with a 'code' field, using the following assertion format for each Hypothesis test:
+```
+if (...):
+    assert ...
+```"""
+
+
 def test_case_predicate(obj) -> bool:
     """Returns true if obj is a unittest.TestCase"""
 

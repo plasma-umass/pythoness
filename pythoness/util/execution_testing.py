@@ -1,18 +1,28 @@
+from . import assistant
 from . import helper_funcs
+from . import logger
+from . import prompt_helpers
 import ast
-import sys
+import astor
+import json
 
 
 def add_execution_testing(
     function_info: dict,
     property_tests: list,
+    client: assistant.Assistant,
+    func,
+    log: logger.Logger,
+    verbose: bool,
     cdb,
 ) -> dict:
     if property_tests:
-        for p in property_tests:
-            print(p)
+        property_tests = "\n".join(property_tests)
 
-    function_info["function_def"] = _execution_decorator(function_info, property_tests)
+    function_info["function_def"] = _execution_decorator(
+        function_info, property_tests, client, func, log, verbose
+    )
+
     function_info = helper_funcs.compile_func(function_info)
     function_info = helper_funcs.execute_func(function_info)
 
@@ -27,20 +37,47 @@ def add_execution_testing(
     return function_info
 
 
-def _execution_decorator(function_info: dict, property_tests: list) -> str:
-    """Executes the function stored in info"""
-    # Create the wrapper function code
-    # name = function_info["function_name"]
-    # renamed_tests = [s.replace(name, "func") for s in property_tests]
+def _execution_decorator(
+    function_info: dict,
+    property_tests: str,
+    client: assistant.Assistant,
+    func,
+    log: logger.Logger,
+    verbose: bool,
+) -> str:
+    """Creates the decorator around the generated function that runs runtime tests."""
+    name = function_info["function_name"]
+    arg_names = [arg.split(": ")[1] for arg, _ in function_info["arg_types"]]
+    partial_sig = f"({', '.join(arg_names)})"
 
-    wrapped_code = [
-        f"def decorator(func):",
-        f"  def wrapper(*args, **kwargs):",
-        f"    result = func(*args, **kwargs)",
-        f"    print('Result of running func:', result)",
-        f"    return result",
-        f"  return wrapper",
-        f"\n@decorator\n{function_info['function_def']}",
-    ]
+    result = client.fork().query(prompt_helpers.runtime_testing_prompt(property_tests))
+    code_snippet = json.loads(result)["code"]
 
-    return "\n".join(wrapped_code)
+    wrapped_code = "\n".join(
+        [
+            f"def decorator(func):",
+            f"  def wrapper{prompt_helpers.prep_signature(func)}:",
+            f"    result = {name}{partial_sig}",
+            f"    print('Result of running {name}:', result)",
+            f"    try:",
+            f"      pass",
+            f"    except AssertionError:",
+            f"      print('Property test failed')",
+            f"    return result",
+            f"  return wrapper",
+            f"\n@decorator\n{function_info['function_def']}",
+        ]
+    )
+
+    # Parse wrapper code and LLM result
+    wrapper_ast = ast.parse(wrapped_code)
+    snippet_ast = ast.parse(code_snippet).body
+
+    # Modify the AST
+    class PassReplacer(ast.NodeTransformer):
+        def visit_Pass(self, node):
+            return snippet_ast
+
+    wrapper_ast = PassReplacer().visit(wrapper_ast)
+
+    return astor.to_source(wrapper_ast)
