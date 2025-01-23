@@ -64,7 +64,6 @@ def _execution_decorator(
             f"      pass",
             f"    except AssertionError:",
             f"      print('Property test failed')",
-            f"    print('All property tests passed')",
             f"    return runtime_result",
             f"  return wrapper",
             f"\n@decorator\n{function_info['function_def']}",
