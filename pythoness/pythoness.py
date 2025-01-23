@@ -241,24 +241,20 @@ def spec(
 
                             # Validated. Cache the function and persist it
                             if exec is None:
-                                # if True:  # Change to above line to enable execution testing
                                 cached_function = fn
                             else:
-                                # cached_function = fn
                                 if verbose:
                                     log.log(
                                         "[Pythoness] Adding execution-time testing framework..."
                                     )
-                                function_info["function_def"] = (
-                                    execution_testing.add_execution_testing(
-                                        function_info,
-                                        property_tests,
-                                        client,
-                                        func,
-                                        log,
-                                        verbose,
-                                        cdb,
-                                    )
+                                function_info = execution_testing.add_execution_testing(
+                                    function_info,
+                                    property_tests,
+                                    client,
+                                    func,
+                                    log,
+                                    verbose,
+                                    cdb,
                                 )
                                 cached_function = function_info["globals"][
                                     function_info["function_name"]

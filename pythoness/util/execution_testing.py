@@ -5,6 +5,7 @@ from . import prompt_helpers
 import ast
 import astor
 import json
+import sys
 
 
 def add_execution_testing(
@@ -55,15 +56,16 @@ def _execution_decorator(
 
     wrapped_code = "\n".join(
         [
-            f"def decorator(func):",
+            f"def decorator({name}):",
             f"  def wrapper{prompt_helpers.prep_signature(func)}:",
-            f"    result = {name}{partial_sig}",
-            f"    print('Result of running {name}:', result)",
+            f"    runtime_result = {name}{partial_sig}",
+            f"    print('Result of running {name}:', runtime_result)",
             f"    try:",
             f"      pass",
             f"    except AssertionError:",
             f"      print('Property test failed')",
-            f"    return result",
+            f"    print('All property tests passed')",
+            f"    return runtime_result",
             f"  return wrapper",
             f"\n@decorator\n{function_info['function_def']}",
         ]
