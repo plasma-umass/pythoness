@@ -84,14 +84,18 @@ Do not generate any unit tests that are functionally equivalent or whose behavio
 def runtime_testing_prompt(tests: str) -> str:
     """Prompt for LLM to generate runtime tests based off of property-based tests list"""
 
-    return f"""Convert each of the following list of property-based Hypothesis tests into a code snippet assertion gated by the preconditions.
+    return f"""Convert each of the following list of property-based Hypothesis tests into an if-condition where the preconditions and the property must both be satisfied.
+    If they are true, increment arrays 'property_passes' and 'iteration' by 1 at the index matching the property number. The first property will increment at index 0, the second at index 1, and so on.
+    If the preconditions are true but the property fails, increment only the 'iteration' array. If the precondition is not satisfied, do not increment either array.
 ```
 {tests}
 ```
-Respond in JSON output with a 'code' field, using the following assertion format for each Hypothesis test:
+Respond in JSON output with a 'code' field, using the following format for each Hypothesis test:
 ```
-if (...):
-    assert ...
+if (precondition):
+    iteration[...] += 1
+    if (property):
+        property_passes[...] += 1
 ```"""
 
 

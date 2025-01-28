@@ -11,17 +11,24 @@ import sys
 def add_execution_testing(
     function_info: dict,
     property_tests: list,
+    pythoness_args: str,
+    tolerance: float,
     client: assistant.Assistant,
     func,
     log: logger.Logger,
     verbose: bool,
     cdb,
 ) -> dict:
-    if property_tests:
-        property_tests = "\n".join(property_tests)
 
     function_info["function_def"] = _execution_decorator(
-        function_info, property_tests, client, func, log, verbose
+        function_info,
+        property_tests,
+        pythoness_args,
+        tolerance,
+        client,
+        func,
+        log,
+        verbose,
     )
 
     function_info = helper_funcs.compile_func(function_info)
@@ -41,6 +48,8 @@ def add_execution_testing(
 def _execution_decorator(
     function_info: dict,
     property_tests: str,
+    pythoness_args: str,
+    tolerance: float,
     client: assistant.Assistant,
     func,
     log: logger.Logger,
@@ -50,21 +59,31 @@ def _execution_decorator(
     name = function_info["function_name"]
     arg_names = [arg.split(": ")[1] for arg, _ in function_info["arg_types"]]
     partial_sig = f"({', '.join(arg_names)})"
+    num_properties = len(property_tests)
+    if property_tests:
+        property_tests = "\n".join(property_tests)
 
     result = client.fork().query(prompt_helpers.runtime_testing_prompt(property_tests))
     code_snippet = json.loads(result)["code"]
 
+    # print(code_snippet)
+
     wrapped_code = "\n".join(
         [
+            f"from functools import wraps\n",
             f"def decorator({name}):",
+            f"  iteration = [2] * {num_properties}",
+            f"  property_passes = [2] * {num_properties}\n",
+            f"  @wraps({name})",
             f"  def wrapper{prompt_helpers.prep_signature(func)}:",
-            f"    runtime_result = {name}{partial_sig}",
-            f"    print('Result of running {name}:', runtime_result)",
-            f"    try:",
-            f"      pass",
-            f"    except AssertionError:",
-            f"      print('Property test failed')",
-            f"    return runtime_result",
+            f"    pass",
+            f"    for i in range(len(property_passes)):",
+            f"      result = property_passes[i] / iteration[i]",
+            f"      if result < {tolerance}:",
+            f"        print('Threshold not met. Running again.')",
+            f"        return pythoness.spec{pythoness_args}({name}){partial_sig}",
+            f"    print('Properties passed.')",
+            f"    return {name}{partial_sig}",
             f"  return wrapper",
             f"\n@decorator\n{function_info['function_def']}",
         ]

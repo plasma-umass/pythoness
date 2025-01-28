@@ -9,6 +9,7 @@ from .util import config
 from .util import execution_testing
 from contextlib import nullcontext
 from functools import wraps
+import inspect
 import sys
 import signal
 import termcolor
@@ -25,6 +26,7 @@ def spec(
     string,
     model="gpt-4o",
     exec=None,
+    tolerance=1,
     replace=None,
     tests=None,
     test_descriptions=None,
@@ -36,12 +38,23 @@ def spec(
     timeout_seconds=0,
 ):
     """Main logic of Pythoness"""
-
     if verbose is None:
         verbose = config.config.verbose_flag
 
     if replace is None:
         replace = config.config.replace_flag
+
+    # Store Pythoness settings to propagate in generated function
+    all_params = locals()
+    default_params = inspect.signature(spec).parameters
+    pythoness_args = []
+    for name, param in default_params.items():
+        if name in all_params and all_params[name] != param.default:
+            if isinstance(all_params[name], str):
+                pythoness_args.append(f"{name}='{all_params[name]}'")
+            else:
+                pythoness_args.append(f"{name}={all_params[name]}")
+    pythoness_args = "(" + ", ".join(pythoness_args) + ")"
 
     def decorator(func):
         cached_function = None
@@ -168,7 +181,7 @@ def spec(
                             )
 
                             with (
-                                log("[Pythoness] Compiling...")
+                                log("[Pythoness] Compiling and executing...")
                                 if verbose
                                 else nullcontext()
                             ):
@@ -240,22 +253,26 @@ def spec(
                                     )
 
                             # Validated. Cache the function and persist it
-                            if exec is None:
+                            if exec is None or not property_tests:
                                 cached_function = fn
                             else:
                                 if verbose:
                                     log.log(
                                         "[Pythoness] Adding execution-time testing framework..."
                                     )
+
                                 function_info = execution_testing.add_execution_testing(
                                     function_info,
                                     property_tests,
+                                    pythoness_args,
+                                    tolerance,
                                     client,
                                     func,
                                     log,
                                     verbose,
                                     cdb,
                                 )
+
                                 cached_function = function_info["globals"][
                                     function_info["function_name"]
                                 ]

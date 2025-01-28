@@ -161,6 +161,28 @@ def generate_user_tests(
         generated_tests,
     )
 
+    # all_tests.append(
+    #     (
+    #         "property",
+    #         f'''@given(st.integers(min_value=0))
+    #   def property_test_4(n):
+    #       """
+    #       Hypothesis test for symmetry: myfib(n) should be equal
+    #       to myfib(n) when computed twice, ensuring deterministic behavior.
+    #       """
+    #       assert myfib(n) == myfib(n)''',
+    #     )
+    # )
+    # property_tests.append(
+    #     f'''@given(st.integers(min_value=0))
+    #   def property_test_4(n):
+    #       """
+    #       Hypothesis test for symmetry: myfib(n) should be equal
+    #       to myfib(n) when computed twice, ensuring deterministic behavior.
+    #       """
+    #       assert myfib(n) == myfib(n)'''
+    # )
+
     return all_tests, property_tests
 
 
