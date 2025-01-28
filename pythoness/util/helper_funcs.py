@@ -131,21 +131,7 @@ def parse_func(
         # JSON parse failure: retry
         raise exceptions.JSONException()
     function_def = the_json["code"]
-    # function_def = f'''def myfib(n: int) ->int:
-    # """
-    # Compute the nth number in the Fibonacci series.
-    # """
-    # if n < 0:
-    #     raise ValueError('Input must be a non-negative integer.')
-    # if n == 0:
-    #     return 0
-    # elif n == 1:
-    #     return 1
-    # else:
-    #     a, b = 0, 1
-    #     for _ in range(2, n + 1):
-    #         a, b = b, a + b
-    #     return b'''
+
     if verbose:
         log.log("[Pythoness] Synthesized function: \n", function_def)
     function_info["function_def"] = function_def
