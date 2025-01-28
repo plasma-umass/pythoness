@@ -6,7 +6,7 @@ from .util import logger
 from .util import testing
 from .util import prompt_helpers
 from .util import config
-from .util import execution_testing
+from .util import runtime_testing
 from contextlib import nullcontext
 from functools import wraps
 import inspect
@@ -25,7 +25,7 @@ time = 0
 def spec(
     string,
     model="gpt-4o",
-    exec=None,
+    runtime=False,
     tolerance=1,
     replace=None,
     tests=None,
@@ -36,6 +36,7 @@ def spec(
     regenerate=False,
     related_objs=None,
     timeout_seconds=0,
+    pure=True,
 ):
     """Main logic of Pythoness"""
     if verbose is None:
@@ -207,7 +208,8 @@ def spec(
 
                             all_tests = []
                             property_tests = []
-                            if tests or test_descriptions:
+                            # If tests are provided, generate them
+                            if (tests or test_descriptions) and pure:
                                 with (
                                     log("[Pythoness] Generating tests...")
                                     if verbose
@@ -223,8 +225,8 @@ def spec(
                                             verbose,
                                         )
                                     )
-
-                            else:
+                            # If tests are not provided, but function is pure, ask LLM to generate
+                            elif pure:
                                 with (
                                     log("[Pythoness] Generating tests...")
                                     if verbose
@@ -238,7 +240,7 @@ def spec(
                                             verbose,
                                         )
                                     )
-
+                            # Vaildate all tests, if any generated
                             if all_tests:
                                 with (
                                     log("[Pythoness] Validating tests...")
@@ -252,16 +254,17 @@ def spec(
                                         verbose,
                                     )
 
-                            # Validated. Cache the function and persist it
-                            if exec is None or not property_tests:
+                            # Do not add runtime testing if not turned on, if no property tests, or if impure
+                            if not runtime or not property_tests or not pure:
+                                # Validated. Cache the function and persist it
                                 cached_function = fn
                             else:
                                 if verbose:
                                     log.log(
-                                        "[Pythoness] Adding execution-time testing framework..."
+                                        "[Pythoness] Adding runtime testing framework..."
                                     )
 
-                                function_info = execution_testing.add_execution_testing(
+                                function_info = runtime_testing.add_runtime_testing(
                                     function_info,
                                     property_tests,
                                     pythoness_args,

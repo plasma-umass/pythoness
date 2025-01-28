@@ -5,10 +5,9 @@ from . import prompt_helpers
 import ast
 import astor
 import json
-import sys
 
 
-def add_execution_testing(
+def add_runtime_testing(
     function_info: dict,
     property_tests: list,
     pythoness_args: str,
@@ -20,7 +19,7 @@ def add_execution_testing(
     cdb,
 ) -> dict:
 
-    function_info["function_def"] = _execution_decorator(
+    function_info["function_def"] = _runtime_decorator(
         function_info,
         property_tests,
         pythoness_args,
@@ -45,7 +44,7 @@ def add_execution_testing(
     return function_info
 
 
-def _execution_decorator(
+def _runtime_decorator(
     function_info: dict,
     property_tests: str,
     pythoness_args: str,
@@ -80,7 +79,6 @@ def _execution_decorator(
             f"    for i in range(len(property_passes)):",
             f"      result = property_passes[i] / iteration[i]",
             f"      if result < {tolerance}:",
-            f"        print('Threshold not met. Running again.')",
             f"        return pythoness.spec{pythoness_args}({name}){partial_sig}",
             f"    print('Properties passed.')",
             f"    return {name}{partial_sig}",

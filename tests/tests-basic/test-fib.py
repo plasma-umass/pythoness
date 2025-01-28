@@ -13,7 +13,7 @@ import pythoness
         "myfib(n) should produce a positive integer",
     ],
     max_retries=3,
-    exec=True,
+    runtime=True,
     # output=True,
     tolerance=0.9,
     regenerate=True,
