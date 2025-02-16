@@ -272,12 +272,12 @@ def generate_hypothesis_test(t: tuple, client: assistant.Assistant):
 def validate_runtime(function_info: dict, generate_func: int, length_func: Callable, range: tuple, time_bound: str, log: logger.Logger, verbose: bool):
     """Uses generate_func to run check() a single time and verify time_bound"""
 
-    function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound, frequency = 25)(function_info["globals"][function_info["function_name"]])
+    function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound, frequency = 50)(function_info["globals"][function_info["function_name"]])
     
     lower_bound = range[0]
     upper_bound = range[1]
 
-    sample_size = 25
+    sample_size = 50
 
     if sample_size > (upper_bound - lower_bound):
         raise ValueError("Sample size k cannot be greater than the upper bound n.")
@@ -321,11 +321,14 @@ def generate_generator_func(
         {function_info["function_name"]}{inspect.signature(main_func)}:
             ...
 
+    The function must take 'len' as an argument, where 'len' is an int that describes how long the input should be.
+
     Only produce output that can be parsed as JSON and only return a single function. Use this template 
     for your response:
     
-        def generator_func():
+        def generator_func(len):
             ...
+            return ([...], {"{...}"})
     """
 
     if verbose:

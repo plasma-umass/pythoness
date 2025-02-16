@@ -364,10 +364,6 @@ def create_prompt(
         named {function_info['function_name']} that performs the following task as
         a field \"code\". Only produce output that can be parsed as
         JSON. \n"""
-    
-    if time_bound:
-        prompt += f"""
-        The function must have {time_bound} runtime or faster.\n"""
 
     if related_objs:
         # handle duplicates
@@ -386,6 +382,10 @@ def create_prompt(
         entirely self-contained, with all imports, code, and data, except
         for the above helper functions. Do not define any other functions, classes,
         or methods inside the function you are writing.\n"""
+
+    if time_bound:
+        prompt += f"""
+        The function must have {time_bound} runtime or faster.\n"""
 
     if tests:
         prompt += prep_tests(tests)

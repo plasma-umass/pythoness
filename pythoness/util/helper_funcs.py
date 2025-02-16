@@ -239,7 +239,7 @@ def exception_handler(
             if verbose:
                 log.log("[Pythoness] Incorrect time bound.")
                 log.log(f"{e}")
-            to_add = f"The function has a slower time complexity than specified. \n{'\n'.join(e.args[0].split('\n')[1:6])}\n```\n"
+            to_add = f"the function has a slower time complexity than specified. \n{'\n'.join(e.args[0].split('\n')[1:6])}\n```\n"
 
         case _:
             # if verbose:
