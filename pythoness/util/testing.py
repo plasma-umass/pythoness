@@ -16,8 +16,7 @@ import ast
 import random
 import numpy as np
 
-from bigO import check
-
+import bigO
 
 
 def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
@@ -269,33 +268,57 @@ def generate_hypothesis_test(t: tuple, client: assistant.Assistant):
         code = t[1].join(parts)
     return code
 
-def validate_runtime(function_info: dict, generate_func: int, length_func: Callable, range: tuple, time_bound: str, log: logger.Logger, verbose: bool):
+
+def validate_runtime(
+    function_info: dict,
+    generate_func: Callable,
+    length_func: Callable,
+    range: tuple,
+    time_bound: str,
+    log: logger.Logger,
+    verbose: bool,
+):
     """Uses generate_func to run check() a single time and verify time_bound"""
 
-    function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound, frequency = 50)(function_info["globals"][function_info["function_name"]])
-    
-    lower_bound = range[0]
-    upper_bound = range[1]
+    fn = function_info["globals"][function_info["function_name"]]
+
+    # checked_fn is a wrapper around the checked and tracked function.
+    # don't put f in the global scope, so recursive calls don't trigger
+    # additional tracking steps.
+    checked_fn = bigO.bounds(length_func, time=time_bound, interval=None)(fn)
+
+    lower_bound, upper_bound = range
 
     sample_size = 50
 
-    if sample_size > (upper_bound - lower_bound):
-        raise ValueError("Sample size k cannot be greater than the upper bound n.")
-    
-    sample = np.linspace(lower_bound, upper_bound - 1, sample_size, dtype=int)
+    sample = np.linspace(
+        lower_bound,
+        upper_bound - 1,
+        min(sample_size, upper_bound - lower_bound),
+        dtype=int,
+    )
 
-    i = 0
-    for num in sample:
-        if verbose:
-            log.log(f"iter: {i} len: {num}")
-            i += 1
+    # make it be exactly sample_size samples...
+    while len(sample) < sample_size:
+        sample = np.append(sample, sample)
+    sample = sample[0:sample_size]
 
-        args, kwargs = generate_func.__call__(num)
-        function_info["globals"][function_info["function_name"]].__call__(*args, **kwargs)    
+    with log("[Pythoness] Validating runtime..."):
 
-    return 
+        with log("Running bigO checks..."):
+            for i, num in enumerate(sample):
+                if verbose:
+                    log.log(f"iter: {i} len: {num}")
+
+                args, kwargs = generate_func(num)
+                checked_fn(*args, **kwargs)
+
+        with log("Checking bigO results..."):
+            bigO.bigO.check(fn)
+
 
 # mess with input sizes more and more inputs
+
 
 def generate_generator_func(
     spec: str,
@@ -305,7 +328,7 @@ def generate_generator_func(
     log: logger.Logger,
     verbose: bool,
 ):
-    
+
     client = assistant.Assistant(model=model)
 
     prompt = f"""   Produce a JSON object as a field 'code' with code for a Python function that generates
@@ -341,7 +364,7 @@ def generate_generator_func(
 
     if verbose:
         log.log("[Pythoness] Synthesized generator function: \n", func_def)
-    
+
     compiled = compile(func_def, "generator_func", "exec")
     exec(compiled, function_info["globals"])
 

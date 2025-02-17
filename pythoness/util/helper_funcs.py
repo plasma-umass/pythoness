@@ -2,7 +2,8 @@ from . import assistant
 from . import logger
 from . import exceptions
 from . import timeout
-from bigO import check
+from bigO import bigO
+from bigO.bigO import BigOError
 import ast_comments as ast
 import inspect
 import json
@@ -116,7 +117,7 @@ def setup_info(function_info: dict, func, string: str, prompt: str) -> dict:
 
 
 def parse_func(
-    function_info: dict, 
+    function_info: dict,
     client: assistant.Assistant,
     prompt: str,
     verbose: bool,
@@ -224,6 +225,13 @@ def exception_handler(
             if e.unittests_failed:
                 to_add += f"This was the output from a unittest test suite, which includes a failure and/or error:\n{e.unittests_failed}"
 
+        case BigOError():
+            if verbose:
+                log.log("[Pythoness] Big O check failed.")
+                log.log(f"[Pythoness] {e}")
+            args = "\n".join(e.args)
+            to_add = f"the function has a slower time complexity than specified.  Error message:\n```\n{args}\n```\n"
+
         case KeyError():
             to_add = "the function or method failed to execute. Ensure that only a single function or method is defined. "
 
@@ -234,12 +242,13 @@ def exception_handler(
             # )
             to_add = textwrap.dedent(to_add)
 
-        case ValueError():
-            # time bound error
-            if verbose:
-                log.log("[Pythoness] Incorrect time bound.")
-                log.log(f"{e}")
-            to_add = f"the function has a slower time complexity than specified. \n{'\n'.join(e.args[0].split('\n')[1:6])}\n```\n"
+        # case ValueError():
+        #     # time bound error
+        #     if verbose:
+        #         log.log("[Pythoness] Incorrect time bound.")
+        #         log.log(f"{e}")
+        #     args = "\n".join(e.args[0].split("\n")[1:6])
+        #     to_add = f"the function has a slower time complexity than specified. \n{args}\n```\n"
 
         case _:
             # if verbose:

@@ -12,7 +12,6 @@ from functools import wraps
 import sys
 import signal
 import termcolor
-from bigO import check
 
 # exec() pushes function to the global scope
 # globals_no_print ensures they aren't included twice in the prompt
@@ -35,13 +34,11 @@ def spec(
     regenerate=False,
     related_objs=None,
     timeout_seconds=0,
-
-    length_func = None,
-    time_bound = None,
+    length_func=None,
+    time_bound=None,
     # mem_bound = None;
-    generate_func = None,
-    range = None,
-
+    generate_func=None,
+    range=None,
 ):
     """Main logic of Pythoness"""
 
@@ -242,12 +239,12 @@ def spec(
                                     )
 
                             if time_bound:
-                                with(
+                                with (
                                     log("[Pythoness] Validating time bound...")
                                     if verbose
                                     else nullcontext()
                                 ):
-                                    
+
                                     # interpreter gets weird when I reassign generate_func
                                     if isinstance(generate_func, str):
                                         generator = testing.generate_generator_func(
@@ -256,7 +253,7 @@ def spec(
                                             function_info,
                                             model,
                                             log,
-                                            verbose
+                                            verbose,
                                         )
                                     else:
                                         generator = generate_func
@@ -268,7 +265,7 @@ def spec(
                                         range,
                                         time_bound,
                                         log,
-                                        verbose
+                                        verbose,
                                     )
 
                             # Validated. Cache the function and persist it
@@ -312,6 +309,7 @@ def spec(
                             return cached_function(*args, **kwargs)
 
                         except Exception as e:
+                            print(e)
                             try:
                                 func.__globals__.pop(function_info["function_name"])
                             except:
@@ -346,8 +344,7 @@ def spec(
                 # ensure that nothing is in the DB to interfere with a future call
                 cdb.delete_code(function_info["original_prompt"])
                 raise Exception(f"Maximum number of retries exceeded ({max_retries}).")
-            
+
         return wrapper
 
     return decorator
-
