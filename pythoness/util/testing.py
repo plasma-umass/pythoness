@@ -2,6 +2,7 @@ from . import exceptions
 from . import logger
 from . import unittesting_helpers
 from . import assistant
+from . import prompt_helpers
 from collections.abc import Generator
 from typing import Callable
 from hypothesis.strategies import *
@@ -17,6 +18,7 @@ import random
 import numpy as np
 
 import bigO
+import re
 
 
 def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
@@ -91,7 +93,7 @@ def cleanup_tests(suite: unittest.TestSuite) -> unittest.TestSuite:
     return cleaned_suite
 
 
-def generate_tests(
+def generate_user_tests(
     function_info: dict,
     tests: list,
     test_descriptions: list,
@@ -99,21 +101,34 @@ def generate_tests(
     log: logger.Logger,
     verbose: bool,
 ) -> list:
-    tests_to_run = []
+    """Generates tests from the user's specifications and descriptions, and any additional tests authored by LLM"""
+
+    # List of all tests, including code for property tests
+    all_tests = []
+    # For runtime testing - list of property assertions
     property_tests = []
+    # So that LLM doesn't generate dups
+    generated_tests = ""
+    ptests_count = 1
 
     # Generate specified property-based tests
     if tests:
         for t in tests:
             try:
+
                 if isinstance(t, tuple):
-                    test = generate_hypothesis_test(t, client)
-                    tests_to_run.append(("property", compile(test, "<string>", "exec")))
+                    result = client.fork().query(
+                        prompt_helpers.specified_property_prompt(t, ptests_count)
+                    )
+                    ptests_count += 1
+                    test = json.loads(result)["code"]
+                    all_tests.append(("property", test))
                     property_tests.append(test)
+                    generated_tests += test + "\n\n"
                     if verbose:
                         log.log(f"[Pythoness] Synthesized Hypothesis test:\n{test}")
                 else:
-                    tests_to_run.append(t)
+                    all_tests.append(t)
             except:
                 if verbose:
                     log.log(f"[Pythoness] Failed to generate Hypothesis test: {t}")
@@ -122,58 +137,141 @@ def generate_tests(
     if test_descriptions:
         for td in test_descriptions:
             try:
-                prompt = f"""Produce a JSON object as a field 'code' with code for a property-based Hypothesis
-                test for the {function_info["function_name"]} function with the following description: '{td}'.
-                Only produce output that can be parsed as JSON and only produce the Hypothesis test."""
-                result = client.query(prompt)
-                the_json = json.loads(result)
-                test = the_json["code"]
-                tests_to_run.append(("property", compile(test, "<string>", "exec")))
+                result = client.fork().query(
+                    prompt_helpers.nl_property_prompt(
+                        function_info["function_name"], td, ptests_count
+                    )
+                )
+                ptests_count += 1
+                test = json.loads(result)["code"]
+                all_tests.append(("property", test))
                 property_tests.append(test)
+                generated_tests += test + "\n\n"
                 if verbose:
                     log.log(f"[Pythoness] Synthesized Hypothesis test:\n{test}")
             except:
                 if verbose:
                     log.log(f"[Pythoness] Failed to generate Hypothesis test: {td}")
 
-    # Query LLM for additional tests
-    # try:
-    #     prompt = f"""Produce a JSON object as a field 'code' with a list of additional tests that have not already been generated to evaluate the correct functionality for the {function_info["function_name"]} function.
-    #     These can either be single-line unit tests as code assertions, or the full functions for Hypothesis property-based tests.
-    #     Only produce output that can be parsed as JSON."""
-    #     result = client.query(prompt)
-    #     the_json = json.loads(result)
-    #     test_list = the_json["code"]
-    #     print(the_json)
-    # except:
-    #     if verbose:
-    #         log.log(f"[Pythoness] Failed to generate any additional tests.")
+    all_tests, property_tests = generate_llm_tests(
+        function_info,
+        client,
+        log,
+        verbose,
+        all_tests,
+        property_tests,
+        ptests_count,
+        generated_tests,
+    )
 
-    # for tllm in test_list:
-    #     try:
-    #         print("NEW TEST:", tllm)
-    #     except:
-    #         pass
+    # all_tests.append(
+    #     (
+    #         "property",
+    #         f'''@given(st.integers(min_value=0))
+    #   def property_test_4(n):
+    #       """
+    #       Hypothesis test for symmetry: myfib(n) should be equal
+    #       to myfib(n) when computed twice, ensuring deterministic behavior.
+    #       """
+    #       assert myfib(n) == myfib(n)''',
+    #     )
+    # )
+    # property_tests.append(
+    #     f'''@given(st.integers(min_value=0))
+    #   def property_test_4(n):
+    #       """
+    #       Hypothesis test for symmetry: myfib(n) should be equal
+    #       to myfib(n) when computed twice, ensuring deterministic behavior.
+    #       """
+    #       assert myfib(n) == myfib(n)'''
+    # )
 
-    return tests_to_run, property_tests
+    return all_tests, property_tests
+
+
+def generate_llm_tests(
+    function_info: dict,
+    client: assistant.Assistant,
+    log: logger.Logger,
+    verbose: bool,
+    all_tests: list = [],
+    property_tests: list = [],
+    ptests_count: int = 1,
+    generated_tests: str = "",
+) -> list:
+    """Generates tests from the user's specifications and descriptions, and any additional tests authored by LLM"""
+    # Query LLM for additional property-based tests
+    try:
+        prompt = prompt_helpers.llm_new_property_prompt(
+            function_info["function_name"], generated_tests[:-2], ptests_count
+        )
+        result = client.fork().query(prompt)
+        code = json.loads(result)["code"]
+        new_tests = code.split("\n\n")
+        for nt in new_tests:
+            all_tests.append(("property", nt))
+            property_tests.append(nt)
+            if verbose:
+                log.log(f"[Pythoness] LLM-Synthesized Hypothesis test:\n{nt}")
+    except:
+        if verbose:
+            log.log(f"[Pythoness] Failed to generate additional property-based tests.")
+
+    # Query LLM for additional unit tests
+    try:
+        existing_tests = [t for t in all_tests if isinstance(t, str)]
+        existing_tests = "\n\n".join(existing_tests)
+        existing_tests += "\n\n" + generated_tests
+        prompt = prompt_helpers.llm_new_unit_prompt(
+            function_info["function_name"], existing_tests[:-2]
+        )
+        result = client.fork().query(prompt)
+        new_tests = json.loads(result)["code"]
+        new_tests = re.split(r"\n+", new_tests)
+        new_tests = [s for s in new_tests if s]
+        all_tests.append(new_tests)
+
+        if verbose:
+            log.log(f"[Pythoness] LLM-Synthesized Unit tests:\n{new_tests}")
+    except Exception as e:
+        if verbose:
+            log.log(f"[Pythoness] Failed to generate additional unit tests.")
+
+    return all_tests, property_tests
 
 
 def validate_tests(
     function_info: dict,
-    tests: list,
+    all_tests: list,
     log: logger.Logger,
+    verbose: bool,
 ) -> None:
     """Validates that all provided tests pass, prints out which ones, if any, fail"""
     failing_tests = []
     failing_unittests = None
+    invalid_test_indices = []
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
+    # Load hypothesis modules
+    exec("from hypothesis import given, strategies as st", function_info["globals"])
+
+    # Store test names for easy failure reporting
+    test_names = []
+    for t in all_tests:
+        if isinstance(t, tuple):
+            match = re.search(r"def (\w+)\(", t[1])
+            if match:
+                test_names.append(match.group(1))
+        else:
+            test_names.append(t)
+
     # Run user-specified tests
-    for t in tests:
+    for i, t in enumerate(all_tests):
         try:
             if isinstance(t, tuple):
+                compile(t[1], "<string>", "exec")
                 exec(t[1], function_info["globals"])
             # unittest-ing
             elif inspect.ismodule(t):
@@ -187,9 +285,9 @@ def validate_tests(
                 # TODO: maybe print something out if there is one? Throw an error?
                 # just clear it out now just in case
                 if not eval(t, function_info["globals"]):
-                    failing_tests.append(t)
+                    failing_tests.append(test_names[i])
 
-        except AssertionError:
+        except AssertionError as e:
             exc_type, exc_value, exc_tb = sys.exc_info()
             tb = traceback.TracebackException(exc_type, exc_value, exc_tb)
             exception_info = tb.format_exception_only()
@@ -199,18 +297,21 @@ def validate_tests(
                 logging.DEBUG(str(line_number) + " " + exception_line)
                 line_number += 1
             log.log("Falsifying example is " + falsifying_example)
-            if isinstance(t, tuple):
-                # Convert the dict in first element of tuple to string
-                # and add this newly modified tuple to failing_tests
-                new_l = list(t)
-                string_input = str(t[0])
-                new_l[0] = string_input
-                new_t = tuple(new_l)
-                failing_tests.append(new_t)
-            else:
-                failing_tests.append(t)
+            print(e)
+            failing_tests.append(test_names[i])
+        except SyntaxError as e:
+            invalid_test_indices.append(i)
+            if verbose:
+                log.log(
+                    f"Test {test_names[i]} contains syntax errors and will be discarded."
+                )
         except:
             raise exceptions.TestsException(t)
+
+    # Remove invalid tests from tests lists
+    for i in reversed(invalid_test_indices):
+        all_tests.pop(i)
+        test_names.pop(i)
 
     if suite.countTestCases() > 0:
         captured_output = io.StringIO()
