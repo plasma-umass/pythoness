@@ -375,18 +375,21 @@ def validate_runtime(
     generate_func: Callable,
     length_func: Callable,
     range: tuple,
-    time_bound: str,
+    time_bound: str | None,
+    mem_bound: str | None,
     log: logger.Logger,
     verbose: bool,
 ):
-    """Uses generate_func to run check() a single time and verify time_bound"""
+    """Uses generate_func to run check() a single time and verify time_bound/mem_bound"""
 
     fn = function_info["globals"][function_info["function_name"]]
 
     # checked_fn is a wrapper around the checked and tracked function.
     # don't put f in the global scope, so recursive calls don't trigger
     # additional tracking steps.
-    checked_fn = bigO.bounds(length_func, time=time_bound, interval=None)(fn)
+    checked_fn = bigO.bounds(
+        length_func, time=time_bound, mem=mem_bound, interval=None
+    )(fn)
 
     lower_bound, upper_bound = range
 
@@ -416,6 +419,9 @@ def validate_runtime(
 
         with log("Checking bigO results..."):
             bigO.bigO.check(fn)
+
+    # Do we want this here???
+    # function_info["globals"][function_info["function_name"]] = checked_fn
 
 
 # mess with input sizes more and more inputs

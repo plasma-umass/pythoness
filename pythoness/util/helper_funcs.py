@@ -91,11 +91,13 @@ def replace_func(func, function_def: str) -> None:
         f.write(new_source)
 
 
-def database_compile(function_info: dict, function_def: str, length_func, time_bound):
+def database_compile(
+    function_info: dict, function_def: str, length_func, time_bound, mem_bound
+):
     """Compiles and executes a function with information from the CodeDatabase"""
     compiled = compile(function_def, "generated_func", "exec")
     exec(compiled, function_info["globals"])
-    # function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
+    # function_info["globals"][function_info["function_name"]] = check(length_func, time = time_bound, mem=mem_bound)(function_info["globals"][function_info["function_name"]])
 
     return function_info["globals"][function_info["function_name"]]
 

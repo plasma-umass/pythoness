@@ -38,7 +38,7 @@ def spec(
     timeout_seconds=0,
     length_func=None,
     time_bound=None,
-    # mem_bound = None;
+    mem_bound=None,
     generate_func=None,
     range=None,
     pure=True,
@@ -115,6 +115,7 @@ def spec(
                         string,
                         tests,
                         time_bound,
+                        mem_bound,
                         func,
                         related_objs,
                         globals_no_print,
@@ -152,7 +153,11 @@ def spec(
 
                         globals_no_print.append(function_info["function_name"])
                         fn = helper_funcs.database_compile(
-                            function_info, function_def, length_func, time_bound
+                            function_info,
+                            function_def,
+                            length_func,
+                            time_bound,
+                            mem_bound,
                         )
 
                         return fn(*args, **kwargs)
@@ -270,9 +275,9 @@ def spec(
                                         verbose,
                                     )
 
-                            if time_bound:
+                            if time_bound or mem_bound:
                                 with (
-                                    log("[Pythoness] Validating time bound...")
+                                    log("[Pythoness] Validating time/mem bound...")
                                     if verbose
                                     else nullcontext()
                                 ):
@@ -296,6 +301,7 @@ def spec(
                                         length_func,
                                         range,
                                         time_bound,
+                                        mem_bound,
                                         log,
                                         verbose,
                                     )

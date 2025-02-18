@@ -446,7 +446,8 @@ def create_prompt(
     function_info: dict,
     string: str,
     tests: list,
-    time_bound: str,
+    time_bound: str | None,
+    mem_bound: str | None,
     func,
     related_objs: list,
     no_print: list,
@@ -479,6 +480,10 @@ def create_prompt(
     if time_bound:
         prompt += f"""
         The function must have {time_bound} runtime or faster.\n"""
+
+    if mem_bound:
+        prompt += f"""
+        The function must use {mem_bound} memory or less.\n"""
 
     if tests:
         prompt += prep_tests(tests)
