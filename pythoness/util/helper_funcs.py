@@ -8,6 +8,7 @@ import inspect
 import json
 import os
 import textwrap
+import time
 import traceback
 
 
@@ -150,15 +151,21 @@ def compile_func(function_info: dict) -> dict:
         raise exceptions.CompileException()
 
 
-def execute_func(function_info: dict) -> dict:
+def execute_func(function_info: dict, max_runtime: int) -> dict:
     """Executes the function stored in info"""
     try:
+        start = time.perf_counter_ns()
         exec(function_info["compiled"], function_info["globals"])
-        # need to remove the compiled version in order to avoid JSON logging issues
-        function_info["compiled"] = None
-        return function_info
+        end = time.perf_counter_ns()
     except:
         raise exceptions.ExecException()
+
+    time_ns = (end - start) / 1e6
+    if isinstance(max_runtime, (int, float)) and time_ns > max_runtime:
+        raise exceptions.RuntimeExceededException(time)
+        # need to remove the compiled version in order to avoid JSON logging issues
+    function_info["compiled"] = None
+    return function_info
 
 
 # NOTE: Requires Python 3.10+

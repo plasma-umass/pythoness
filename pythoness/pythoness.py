@@ -30,6 +30,7 @@ def spec(
     replace=None,
     tests=None,
     test_descriptions=None,
+    max_runtime=None,  # ms
     max_retries=3,
     verbose=None,
     output=False,
@@ -187,13 +188,9 @@ def spec(
                                 else nullcontext()
                             ):
                                 function_info = helper_funcs.compile_func(function_info)
-
-                            with (
-                                log("[Pythoness] Executing...")
-                                if verbose
-                                else nullcontext()
-                            ):
-                                function_info = helper_funcs.execute_func(function_info)
+                                function_info = helper_funcs.execute_func(
+                                    function_info, max_runtime
+                                )
 
                             fn = function_info["globals"][
                                 function_info["function_name"]
@@ -269,6 +266,7 @@ def spec(
                                     property_tests,
                                     pythoness_args,
                                     tolerance,
+                                    max_runtime,
                                     client,
                                     func,
                                     log,

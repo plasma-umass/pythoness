@@ -12,6 +12,7 @@ def add_runtime_testing(
     property_tests: list,
     pythoness_args: str,
     tolerance: float,
+    max_runtime: int,
     client: assistant.Assistant,
     func,
     log: logger.Logger,
@@ -24,6 +25,7 @@ def add_runtime_testing(
         property_tests,
         pythoness_args,
         tolerance,
+        max_runtime,
         client,
         func,
         log,
@@ -31,7 +33,7 @@ def add_runtime_testing(
     )
 
     function_info = helper_funcs.compile_func(function_info)
-    function_info = helper_funcs.execute_func(function_info)
+    function_info = helper_funcs.execute_func(function_info, max_runtime)
 
     # Remove and replace the code being stored in the database
     cdb.delete_code(
@@ -49,6 +51,7 @@ def _runtime_decorator(
     property_tests: str,
     pythoness_args: str,
     tolerance: float,
+    max_runtime: int,
     client: assistant.Assistant,
     func,
     log: logger.Logger,
@@ -63,13 +66,14 @@ def _runtime_decorator(
         property_tests = "\n".join(property_tests)
 
     result = client.fork().query(prompt_helpers.runtime_testing_prompt(property_tests))
-    code_snippet = json.loads(result)["code"]
+    llm_code = json.loads(result)["code"]
 
     # print(code_snippet)
 
     wrapped_code = "\n".join(
         [
             f"from functools import wraps\n",
+            f"import time\n",
             f"def decorator({name}):",
             f"  iteration = [2] * {num_properties}",
             f"  property_passes = [2] * {num_properties}\n",
@@ -80,22 +84,48 @@ def _runtime_decorator(
             f"      result = property_passes[i] / iteration[i]",
             f"      if result < {tolerance}:",
             f"        return pythoness.spec{pythoness_args}({name}){partial_sig}",
-            f"    print('Properties passed.')",
+            f"    pass",
+            # f"    print('Properties passed.')",
             f"    return {name}{partial_sig}",
             f"  return wrapper",
             f"\n@decorator\n{function_info['function_def']}",
         ]
     )
 
+    timing_code = ""
+    if isinstance(max_runtime, (int, float)):
+        timing_code = "\n".join(
+            [
+                f"start = time.perf_counter_ns()",
+                f"result = {name}{partial_sig}",
+                f"end = time.perf_counter_ns()",
+                f"if (end - start) / 1e6 > {max_runtime}:",
+                f"  print('Input exceeded allowed runtime.')",
+                f"  return pythoness.spec{pythoness_args}({name}){partial_sig}",
+            ]
+        )
+
     # Parse wrapper code and LLM result
     wrapper_ast = ast.parse(wrapped_code)
-    snippet_ast = ast.parse(code_snippet).body
+    llm_ast = ast.parse(llm_code)
+    timing_ast = ast.parse(timing_code)
 
-    # Modify the AST
+    # Modify the AST to replace code placeholders
     class PassReplacer(ast.NodeTransformer):
+        def __init__(self):
+            self.which = 0
+
         def visit_Pass(self, node):
-            return snippet_ast
+            if self.which == 0:
+                self.which = 1
+                return llm_ast
+            else:
+                return timing_ast
 
     wrapper_ast = PassReplacer().visit(wrapper_ast)
 
-    return astor.to_source(wrapper_ast)
+    full_code = ast.unparse(wrapper_ast)
+
+    print(full_code)
+
+    return full_code
