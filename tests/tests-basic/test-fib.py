@@ -4,7 +4,7 @@ import pythoness
 @pythoness.spec(
     "Compute the nth number in the Fibonacci series.",
     tests=[
-        "myfib(0) == 0",
+        "myfib(0) == 1",
         "myfib(1) == 1",
         ("n>0", "myfib(n+2) == myfib(n+1)+myfib(n)"),
     ],
@@ -13,7 +13,10 @@ import pythoness
         "myfib(n) should produce a positive integer",
     ],
     max_retries=3,
-    # exec=True,
+    max_runtime=100,
+    runtime=True,
+    # output=True,
+    tolerance=0.9,
     regenerate=True,
     verbose=True,
 )

@@ -150,7 +150,7 @@ def generate_user_tests(
                 if verbose:
                     log.log(f"[Pythoness] Failed to generate Hypothesis test: {td}")
 
-    more_tests, more_property_tests = generate_llm_tests(
+    all_tests, property_tests = generate_llm_tests(
         function_info,
         client,
         log,
@@ -161,7 +161,29 @@ def generate_user_tests(
         generated_tests,
     )
 
-    return all_tests.extend(more_tests), property_tests.extend(more_property_tests)
+    # all_tests.append(
+    #     (
+    #         "property",
+    #         f'''@given(st.integers(min_value=0))
+    #   def property_test_4(n):
+    #       """
+    #       Hypothesis test for symmetry: myfib(n) should be equal
+    #       to myfib(n) when computed twice, ensuring deterministic behavior.
+    #       """
+    #       assert myfib(n) == myfib(n)''',
+    #     )
+    # )
+    # property_tests.append(
+    #     f'''@given(st.integers(min_value=0))
+    #   def property_test_4(n):
+    #       """
+    #       Hypothesis test for symmetry: myfib(n) should be equal
+    #       to myfib(n) when computed twice, ensuring deterministic behavior.
+    #       """
+    #       assert myfib(n) == myfib(n)'''
+    # )
+
+    return all_tests, property_tests
 
 
 def generate_llm_tests(
@@ -175,7 +197,6 @@ def generate_llm_tests(
     generated_tests: str = "",
 ) -> list:
     """Generates tests from the user's specifications and descriptions, and any additional tests authored by LLM"""
-
     # Query LLM for additional property-based tests
     try:
         prompt = prompt_helpers.llm_new_property_prompt(
@@ -203,7 +224,10 @@ def generate_llm_tests(
         )
         result = client.fork().query(prompt)
         new_tests = json.loads(result)["code"]
+        new_tests = re.split(r"\n+", new_tests)
+        new_tests = [s for s in new_tests if s]
         all_tests.append(new_tests)
+
         if verbose:
             log.log(f"[Pythoness] LLM-Synthesized Unit tests:\n{new_tests}")
     except Exception as e:
