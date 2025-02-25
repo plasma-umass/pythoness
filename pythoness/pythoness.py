@@ -1,3 +1,4 @@
+from bigO import bigO
 from .util import assistant
 from .util import database
 from .util import timeout
@@ -30,6 +31,7 @@ def spec(
     replace=None,
     tests=None,
     test_descriptions=None,
+    max_runtime=None,  # ms
     max_retries=3,
     verbose=None,
     output=False,
@@ -74,7 +76,7 @@ def spec(
             func.__doc__ = string
 
         # if time_bound:
-        #     func = bigO.check(length_func, time_bound = time_bound)(func)
+        #     func = bigO.bounds(length_func, time=time_bound)(func)
 
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -205,16 +207,18 @@ def spec(
                                 else nullcontext()
                             ):
                                 function_info = helper_funcs.compile_func(function_info)
+                                function_info = helper_funcs.execute_func(
+                                    function_info, max_runtime
+                                )
 
-                            with (
-                                log("[Pythoness] Executing...")
-                                if verbose
-                                else nullcontext()
-                            ):
-                                function_info = helper_funcs.execute_func(function_info)
-
-                            # if time_bound:
-                            #     function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
+                            if time_bound:
+                                function_info["globals"][
+                                    function_info["function_name"]
+                                ] = check(length_func, time_bound=time_bound)(
+                                    function_info["globals"][
+                                        function_info["function_name"]
+                                    ]
+                                )
 
                             fn = function_info["globals"][
                                 function_info["function_name"]
@@ -321,6 +325,7 @@ def spec(
                                     property_tests,
                                     pythoness_args,
                                     tolerance,
+                                    max_runtime,
                                     client,
                                     func,
                                     log,

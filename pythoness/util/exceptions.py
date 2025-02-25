@@ -34,6 +34,13 @@ class TestsException(Exception):
     pass
 
 
+class RuntimeExceededException(Exception):
+    """Exception raised when code runs too long"""
+
+    def __init__(self, run_time):
+        self.run_time = run_time
+
+
 class TestsFailedException(Exception):
     """Exception raised when tests fail"""
 

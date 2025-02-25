@@ -16,7 +16,7 @@ import pythoness
     time_bound="O(n)",
     length_func=lambda n: int(n),
     generate_func=lambda n: ([int(n)], {}),
-    range=(0, 18),
+    range=(0, 25),
     regenerate=True,
     verbose=True,
 )
