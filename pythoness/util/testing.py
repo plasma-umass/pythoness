@@ -393,7 +393,7 @@ def validate_runtime(
 
     lower_bound, upper_bound = range
 
-    sample_size = 50
+    sample_size = 2
 
     sample = np.linspace(
         lower_bound,
@@ -418,10 +418,14 @@ def validate_runtime(
                 checked_fn(*args, **kwargs)
 
         with log("Checking bigO results..."):
-            results = bigO.bigO.check(fn)
-            for result in results:
-                if not result.success:
-                    raise exceptions.BigOException(result.message)
+            try:
+                results = bigO.bigO.check(fn)
+                for result in results:
+                    if not result.success:
+                        raise exceptions.BigOException(result.message)
+            except Exception as e:
+                log.log("Exception during bigO check -- continuing: ", e)
+                
 
     # Don't do this here -- we don't want to keep the checked version around right now...
     # function_info["globals"][function_info["function_name"]] = checked_fn

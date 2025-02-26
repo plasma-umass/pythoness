@@ -444,13 +444,14 @@ def prep_signature(func) -> str:
 
 def create_prompt(
     function_info: dict,
-    string: str,
+    spec_string: str,
     tests: list,
     time_bound: str | None,
     mem_bound: str | None,
     func,
     related_objs: list,
     no_print: list,
+    generation_reason: str | None = None
 ) -> str:
     """Creates a prompt string to send to the LLM"""
     prompt = f"""
@@ -458,6 +459,11 @@ def create_prompt(
         named {function_info['function_name']} that performs the following task as
         a field \"code\". Only produce output that can be parsed as
         JSON. \n"""
+
+    if generation_reason:
+        prompt += "Be sure to avoid this issue from an earlier version:"
+        prompt += string_reformat(generation_reason)
+        prompt += "\n"
 
     if related_objs:
         # handle duplicates
@@ -468,7 +474,7 @@ def create_prompt(
         Task:
         """
 
-    prompt += string_reformat(string)
+    prompt += string_reformat(spec_string)
 
     prompt += """
         Include a docstring containing the task description above

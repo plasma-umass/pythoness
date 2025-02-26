@@ -1,4 +1,7 @@
+import pprint
+import traceback
 from bigO import bigO
+from pythoness.util import runtime_bounds_testing
 from .util import assistant
 from .util import database
 from .util import timeout
@@ -24,7 +27,7 @@ time = 0
 
 
 def spec(
-    string,
+    spec_string,
     model="gpt-4o",
     runtime=False,
     tolerance=1,
@@ -38,48 +41,65 @@ def spec(
     regenerate=False,
     related_objs=None,
     timeout_seconds=0,
+    pure=True,
     length_func=None,
     time_bound=None,
     mem_bound=None,
     generate_func=None,
     range=None,
-    pure=True,
+    generation_reason : str | None = None
 ):
+    
     """Main logic of Pythoness"""
+
+    print("BBBBB")
+
     if verbose is None:
         verbose = config.config.verbose_flag
 
     if replace is None:
         replace = config.config.replace_flag
 
+    # These options conflict with each other when it comes to inserting
+    # run-time checks for the function.
+    if max_runtime is not None and time_bound is not None:
+        raise ValueError("Cannot specify both max_runtime and time_bound")
+
     # Store Pythoness settings to propagate in generated function
     all_params = locals()
-    default_params = inspect.signature(spec).parameters
-    pythoness_args = []
-    for name, param in default_params.items():
-        if name in all_params and all_params[name] != param.default:
-            if isinstance(all_params[name], str):
-                pythoness_args.append(f"{name}='{all_params[name]}'")
-            else:
-                pythoness_args.append(f"{name}={all_params[name]}")
-    pythoness_args = "(" + ", ".join(pythoness_args) + ")"
+    initial_pythoness_args = { k: v for k, v in all_params.items() }
+
+    print(initial_pythoness_args)
+
+    def pythoness_args_as_string(**updated_kwargs):
+        return "(" + (", ".join(
+            f"{k}={repr(v)}" if isinstance(v, str) else f"{k}={v}"
+            for k, v in {**initial_pythoness_args, **updated_kwargs}.items()
+        )) + ")"
 
     def decorator(func):
         cached_function = None
 
+        print("BOOP")
+
         log = logger.Logger(quiet=config.config.quiet_flag)
+
+        print("BOOP3")
 
         # enables interrelated function generation
         if func.__doc__:
-            func.__doc__ += string
+            print("--")
+            print(spec_string)
+            func.__doc__ += spec_string
         else:
-            func.__doc__ = string
+            print("++")
+            func.__doc__ = spec_string
 
-        # if time_bound:
-        #     func = bigO.bounds(length_func, time=time_bound)(func)
+        print("BOOP2")
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+            print("BORP")
             with log("Start") if verbose else nullcontext():
 
                 nonlocal cached_function
@@ -114,16 +134,17 @@ def spec(
                 ):
                     prompt = prompt_helpers.create_prompt(
                         function_info,
-                        string,
+                        spec_string,
                         tests,
                         time_bound,
                         mem_bound,
                         func,
                         related_objs,
                         globals_no_print,
+                        generation_reason
                     )
                     function_info = helper_funcs.setup_info(
-                        function_info, func, string, prompt
+                        function_info, func, spec_string, prompt
                     )
 
                     # See if we already have code corresponding with that prompt in the database.
@@ -210,9 +231,6 @@ def spec(
                                 function_info = helper_funcs.execute_func(
                                     function_info, max_runtime
                                 )
-
-                            # if time_bound:
-                            #     function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
 
                             fn = function_info["globals"][
                                 function_info["function_name"]
@@ -303,6 +321,25 @@ def spec(
                                         log,
                                         verbose,
                                     )
+                                
+                                if runtime:
+                                    with (
+                                        log("[Pythoness] Adding runtime bounds checks...")
+                                        if verbose
+                                        else nullcontext()
+                                    ):
+                                        function_info = runtime_bounds_testing.add_runtime_bounds_testing(
+                                            function_info,
+                                            initial_pythoness_args,
+                                            fn,
+                                            log,
+                                            verbose,
+                                            cdb,
+                                        )
+
+                                        function_info["globals"][
+                                            function_info["function_name"]
+                                        ] = function_info["compiled"]
 
                             # Do not add runtime testing if not turned on, if no property tests, or if impure
                             if not runtime or not property_tests or not pure:
@@ -317,7 +354,7 @@ def spec(
                                 function_info = runtime_testing.add_runtime_testing(
                                     function_info,
                                     property_tests,
-                                    pythoness_args,
+                                    pythoness_args_as_string(),
                                     tolerance,
                                     max_runtime,
                                     client,
@@ -356,7 +393,8 @@ def spec(
                             return cached_function(*args, **kwargs)
 
                         except Exception as e:
-                            print(e)
+                            print("Exception", str(e))
+                            traceback.print_exc()
                             try:
                                 func.__globals__.pop(function_info["function_name"])
                             except:
@@ -391,6 +429,8 @@ def spec(
                 # ensure that nothing is in the DB to interfere with a future call
                 cdb.delete_code(function_info["original_prompt"])
                 raise Exception(f"Maximum number of retries exceeded ({max_retries}).")
+
+        print("BOOP3")
 
         return wrapper
 
