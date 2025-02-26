@@ -234,7 +234,7 @@ def exception_handler(
             if e.unittests_failed:
                 to_add += f"This was the output from a unittest test suite, which includes a failure and/or error:\n{e.unittests_failed}"
 
-        case BigOError():
+        case exceptions.BigOException():
             if verbose:
                 log.log("[Pythoness] Big O check failed.")
                 log.log(f"[Pythoness] {e}")

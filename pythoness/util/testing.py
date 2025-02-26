@@ -418,9 +418,12 @@ def validate_runtime(
                 checked_fn(*args, **kwargs)
 
         with log("Checking bigO results..."):
-            bigO.bigO.check(fn)
+            results = bigO.bigO.check(fn)
+            for result in results:
+                if not result.success:
+                    raise exceptions.BigOException(result.message)
 
-    # Do we want this here???
+    # Don't do this here -- we don't want to keep the checked version around right now...
     # function_info["globals"][function_info["function_name"]] = checked_fn
 
 

@@ -211,14 +211,8 @@ def spec(
                                     function_info, max_runtime
                                 )
 
-                            if time_bound:
-                                function_info["globals"][
-                                    function_info["function_name"]
-                                ] = check(length_func, time_bound=time_bound)(
-                                    function_info["globals"][
-                                        function_info["function_name"]
-                                    ]
-                                )
+                            # if time_bound:
+                            #     function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
 
                             fn = function_info["globals"][
                                 function_info["function_name"]
