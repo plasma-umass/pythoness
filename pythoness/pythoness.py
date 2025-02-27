@@ -47,12 +47,9 @@ def spec(
     mem_bound=None,
     generate_func=None,
     range=None,
-    generation_reason : str | None = None
+    generation_reason: str | None = None,
 ):
-    
     """Main logic of Pythoness"""
-
-    print("BBBBB")
 
     if verbose is None:
         verbose = config.config.verbose_flag
@@ -67,39 +64,37 @@ def spec(
 
     # Store Pythoness settings to propagate in generated function
     all_params = locals()
-    initial_pythoness_args = { k: v for k, v in all_params.items() }
-
-    print(initial_pythoness_args)
+    initial_pythoness_args = {k: v for k, v in all_params.items()}
 
     def pythoness_args_as_string(**updated_kwargs):
-        return "(" + (", ".join(
-            f"{k}={repr(v)}" if isinstance(v, str) else f"{k}={v}"
-            for k, v in {**initial_pythoness_args, **updated_kwargs}.items()
-        )) + ")"
+        return (
+            "("
+            + (
+                ", ".join(
+                    f"{k}={repr(v)}" if isinstance(v, str) else f"{k}={v}"
+                    for k, v in {**initial_pythoness_args, **updated_kwargs}.items()
+                )
+            )
+            + ")"
+        )
 
     def decorator(func):
-        cached_function = None
 
-        print("BOOP")
+        print(func.__name__)
+        print(func.__doc__)
+
+        cached_function = None
 
         log = logger.Logger(quiet=config.config.quiet_flag)
 
-        print("BOOP3")
-
         # enables interrelated function generation
         if func.__doc__:
-            print("--")
-            print(spec_string)
             func.__doc__ += spec_string
         else:
-            print("++")
             func.__doc__ = spec_string
-
-        print("BOOP2")
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            print("BORP")
             with log("Start") if verbose else nullcontext():
 
                 nonlocal cached_function
@@ -124,8 +119,13 @@ def spec(
                     if verbose
                     else nullcontext()
                 ):
-                    # function_info = helper_funcs.get_function_info(func, *args, **kwargs)
-                    function_info = helper_funcs.get_function_info(func)
+                    try:
+                        # function_info = helper_funcs.get_function_info(func, *args, **kwargs)
+                        function_info = helper_funcs.get_function_info(func)
+                    except Exception as e:
+                        print("Exception", str(e))
+                        traceback.print_exc()
+                        raise e
 
                 with (
                     log("[Pythoness] Creating prompt and checking the DB...")
@@ -141,7 +141,7 @@ def spec(
                         func,
                         related_objs,
                         globals_no_print,
-                        generation_reason
+                        generation_reason,
                     )
                     function_info = helper_funcs.setup_info(
                         function_info, func, spec_string, prompt
@@ -321,10 +321,12 @@ def spec(
                                         log,
                                         verbose,
                                     )
-                                
+
                                 if runtime:
                                     with (
-                                        log("[Pythoness] Adding runtime bounds checks...")
+                                        log(
+                                            "[Pythoness] Adding runtime bounds checks..."
+                                        )
                                         if verbose
                                         else nullcontext()
                                     ):
@@ -429,8 +431,6 @@ def spec(
                 # ensure that nothing is in the DB to interfere with a future call
                 cdb.delete_code(function_info["original_prompt"])
                 raise Exception(f"Maximum number of retries exceeded ({max_retries}).")
-
-        print("BOOP3")
 
         return wrapper
 

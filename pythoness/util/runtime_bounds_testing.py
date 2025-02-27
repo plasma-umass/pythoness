@@ -7,6 +7,8 @@ import pythoness
 from . import logger
 from bigO import bigO
 
+in_call = False
+
 
 # func should already be tracked
 def check_and_call(
@@ -14,7 +16,7 @@ def check_and_call(
     function_info: dict,
     log: logger.Logger,
     verbose: bool,
-    check_frequency=500,
+    check_frequency=5,
 ) -> Callable:
 
     length_function = pythoness_args["length_func"]
@@ -22,34 +24,46 @@ def check_and_call(
     mem = pythoness_args["mem_bound"]
 
     def decorator(func: Callable) -> Callable:
+
         tracked = bigO.bounds(length_function, time=time, mem=mem)(func)
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            log("Checking runtime bounds")
-            if random.random() < 1 / check_frequency:
-                with log("Checking runtime bounds") if verbose else nullcontext():
-                    try:
-                        results = bigO.check(tracked)
-                        for result in results:
-                            if not result.success:
-                                with (
-                                    log("Runtime bounds check failed")
-                                    if verbose
-                                    else nullcontext()
-                                ):
-                                    return pythoness.spec(
-                                        **(pythoness_args
-                                        | {"generation_reason": result.message,
-                                           "regenerate": True})
-                                    )(function_info['function_def'])(*args, **kwargs)
-                    except Exception as e:
-                        log(f"Exception during runtime bounds check: {e}")
-            else:
-                if verbose:
-                    log("Skipping runtime bounds check")
+            global in_call
+            if in_call:
+                return func(*args, **kwargs)
+            in_call = True
+            try:
+                log("Checking runtime bounds")
+                if random.random() < 1 / check_frequency:
+                    with log("Checking runtime bounds") if verbose else nullcontext():
+                        try:
+                            results = bigO.check(tracked)
+                            for result in results:
+                                if not result.success:
+                                    with (
+                                        log("Runtime bounds check failed")
+                                        if verbose
+                                        else nullcontext()
+                                    ):
+                                        return pythoness.spec(
+                                            **(
+                                                pythoness_args
+                                                | {
+                                                    "generation_reason": result.message,
+                                                    "regenerate": True,
+                                                }
+                                            )
+                                        )(func)(*args, **kwargs)
+                        except Exception as e:
+                            log(f"Exception during runtime bounds check: {e}")
+                else:
+                    if verbose:
+                        log("Skipping runtime bounds check")
 
-            return tracked(*args, **kwargs)
+                return tracked(*args, **kwargs)
+            finally:
+                in_call = False
 
         return wrapper
 
