@@ -393,7 +393,7 @@ def validate_runtime(
 
     lower_bound, upper_bound = range
 
-    sample_size = 2
+    sample_size = 10
 
     sample = np.linspace(
         lower_bound,

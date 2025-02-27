@@ -1,14 +1,15 @@
 from contextlib import nullcontext
 from functools import wraps
 import random
+import threading
 from typing import Any, Callable, Dict
 
 import pythoness
 from . import logger
 from bigO import bigO
 
-in_call = False
-
+thread_local = threading.local()
+thread_local.in_call = False
 
 # func should already be tracked
 def check_and_call(
@@ -29,11 +30,10 @@ def check_and_call(
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            global in_call
-            if in_call:
-                return func(*args, **kwargs)
-            in_call = True
             try:
+                if thread_local.in_call:
+                    return func(*args, **kwargs)
+                thread_local.in_call = True
                 log("Checking runtime bounds")
                 if random.random() < 1 / check_frequency:
                     with log("Checking runtime bounds") if verbose else nullcontext():
@@ -63,7 +63,7 @@ def check_and_call(
 
                 return tracked(*args, **kwargs)
             finally:
-                in_call = False
+                thread_local.in_call = False
 
         return wrapper
 

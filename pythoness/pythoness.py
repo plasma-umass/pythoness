@@ -80,9 +80,6 @@ def spec(
 
     def decorator(func):
 
-        print(func.__name__)
-        print(func.__doc__)
-
         cached_function = None
 
         log = logger.Logger(quiet=config.config.quiet_flag)

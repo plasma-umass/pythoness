@@ -18,9 +18,14 @@ def random_array(n):
     range=(0, 5000),
     regenerate=True,
     verbose=True,
+    runtime=True,
+    pure=False  # stop making tests!
 )
 def merge_sort(a: list) -> list:
     """"""
 
 
-merge_sort([1, 2, 3, 1, 2, 1])
+
+for i in range(100):
+    print(i)
+    merge_sort(random_array(random.randint(0, 5000)))

@@ -79,9 +79,12 @@ def _runtime_decorator(
             f"  @wraps({name})",
             f"  def wrapper{prompt_helpers.prep_signature(func)}:",
             f"    pass",
+            f"    import random",  # TODO: Remove this line 
             f"    for i in range(len(property_passes)):",
             f"      result = property_passes[i] / iteration[i]",
             f"      if result < {tolerance}:",
+            f"        return pythoness.spec{pythoness_args}({name}){partial_sig}",
+            f"      if random.random() < 0.01:",
             f"        return pythoness.spec{pythoness_args}({name}){partial_sig}",
             f"    pass",
             # f"    print('Properties passed.')",

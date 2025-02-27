@@ -18,9 +18,13 @@ def random_array(n):
     range=(0, 50000),
     regenerate=True,
     verbose=True,
+    runtime=True,
+    pure=False  # stop making tests!
 )
 def reverse(a: np.ndarray) -> np.ndarray:
     """"""
 
 
-reverse(random_array(10))
+for i in range(100):
+    print(i)
+    reverse(random_array(1000000))

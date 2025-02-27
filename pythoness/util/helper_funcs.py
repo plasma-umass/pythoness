@@ -134,9 +134,7 @@ def parse_func(
     except:
         # JSON parse failure: retry
         raise exceptions.JSONException()
-
     function_def = the_json["code"]
-
     if verbose:
         log.log("[Pythoness] Synthesized function: \n", function_def)
     function_info["function_def"] = function_def
