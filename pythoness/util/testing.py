@@ -97,6 +97,7 @@ def generate_user_tests(
     client: assistant.Assistant,
     log: logger.Logger,
     verbose: bool,
+    llm_tests: bool,
 ) -> list:
     """Generates tests from the user's specifications and descriptions, and any additional tests authored by LLM"""
 
@@ -150,38 +151,17 @@ def generate_user_tests(
                 if verbose:
                     log.log(f"[Pythoness] Failed to generate Hypothesis test: {td}")
 
-    all_tests, property_tests = generate_llm_tests(
-        function_info,
-        client,
-        log,
-        verbose,
-        all_tests,
-        property_tests,
-        ptests_count,
-        generated_tests,
-    )
-
-    # all_tests.append(
-    #     (
-    #         "property",
-    #         f'''@given(st.integers(min_value=0))
-    #   def property_test_4(n):
-    #       """
-    #       Hypothesis test for symmetry: myfib(n) should be equal
-    #       to myfib(n) when computed twice, ensuring deterministic behavior.
-    #       """
-    #       assert myfib(n) == myfib(n)''',
-    #     )
-    # )
-    # property_tests.append(
-    #     f'''@given(st.integers(min_value=0))
-    #   def property_test_4(n):
-    #       """
-    #       Hypothesis test for symmetry: myfib(n) should be equal
-    #       to myfib(n) when computed twice, ensuring deterministic behavior.
-    #       """
-    #       assert myfib(n) == myfib(n)'''
-    # )
+    if llm_tests:
+        all_tests, property_tests = generate_llm_tests(
+            function_info,
+            client,
+            log,
+            verbose,
+            all_tests,
+            property_tests,
+            ptests_count,
+            generated_tests,
+        )
 
     return all_tests, property_tests
 
@@ -191,6 +171,7 @@ def generate_llm_tests(
     client: assistant.Assistant,
     log: logger.Logger,
     verbose: bool,
+    llm_tests: bool,
     all_tests: list = [],
     property_tests: list = [],
     ptests_count: int = 1,
@@ -198,6 +179,9 @@ def generate_llm_tests(
 ) -> list:
     """Generates tests from the user's specifications and descriptions, and any additional tests authored by LLM"""
     # Query LLM for additional property-based tests
+    if not llm_tests:
+        return all_tests, property_tests
+
     try:
         prompt = prompt_helpers.llm_new_property_prompt(
             function_info["function_name"], generated_tests[:-2], ptests_count

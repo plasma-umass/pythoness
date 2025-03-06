@@ -38,6 +38,7 @@ def spec(
     related_objs=None,
     timeout_seconds=0,
     pure=True,
+    llm_tests=True,
 ):
     """Main logic of Pythoness"""
     if verbose is None:
@@ -220,6 +221,7 @@ def spec(
                                             client,
                                             log,
                                             verbose,
+                                            llm_tests,
                                         )
                                     )
                             # If tests are not provided, but function is pure, ask LLM to generate
@@ -235,6 +237,7 @@ def spec(
                                             client,
                                             log,
                                             verbose,
+                                            llm_tests,
                                         )
                                     )
                             # Vaildate all tests, if any generated
