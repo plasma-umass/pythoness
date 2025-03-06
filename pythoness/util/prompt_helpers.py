@@ -50,11 +50,11 @@ Respond in JSON output with a 'code' field, filling in the following functions l
 ```
 @given(...)
 def property_test_{num}:
-    ...
+    assert ...
 
 @given(...)
 def property_test_{num + 1}:
-    ...
+    assert ...
 
 # Continue for as many or as few tests as needed
 ```
