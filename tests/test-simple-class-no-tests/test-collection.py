@@ -13,22 +13,22 @@ class Node:
         self.right = None
 
     @pythoness.spec(
-        "gets val from a Node", related_objs=[__init__], verbose=True, replace=True
+        "gets val from a Node", related_objs=[__init__], verbose=True, replace=False
     )
     def get_val(self):
         """"""
 
     @pythoness.spec(
-        "Sets a val for a node", related_objs=[__init__], verbose=True, replace=True
+        "Sets a val for a node", related_objs=[__init__], verbose=True, replace=False
     )
     def set_val(self, val):
         """"""
 
-    @pythoness.spec("gets the left child of a node", verbose=True, replace=True)
+    @pythoness.spec("gets the left child of a node", verbose=True, replace=False)
     def get_left_child(self):
         """"""
 
-    @pythoness.spec("gets the right child of a node", verbose=True, replace=True)
+    @pythoness.spec("gets the right child of a node", verbose=True, replace=False)
     def get_right_child(self):
         """"""
 
@@ -46,7 +46,7 @@ class Balanced_Binary_Tree:
         "gets the height of the binary tree",
         related_objs=[Node, "cls"],
         verbose=True,
-        replace=True,
+        replace=False,
     )
     def get_height(self):
         """"""
@@ -55,7 +55,7 @@ class Balanced_Binary_Tree:
         "adds node to the proper place in the balanced binary tree",
         related_objs=[Node, "cls"],
         verbose=True,
-        replace=True,
+        replace=False,
     )
     def add_node(self, node):
         """"""

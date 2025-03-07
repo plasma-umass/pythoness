@@ -3,7 +3,6 @@ from . import helper_funcs
 from . import logger
 from . import prompt_helpers
 import ast
-import astor
 import json
 
 
@@ -83,7 +82,6 @@ def _runtime_decorator(
             f"      if result < {tolerance}:",
             f"        return pythoness.spec{pythoness_args}({name}){partial_sig}",
             f"    pass",
-            # f"    print('Properties passed.')",
             f"    return {name}{partial_sig}",
             f"  return wrapper",
             f"\n@decorator\n{function_info['function_def']}",
