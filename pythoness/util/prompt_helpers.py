@@ -451,7 +451,7 @@ def create_prompt(
     func,
     related_objs: list,
     no_print: list,
-    generation_reason: str | None = None
+    generation_reason: str | None = None,
 ) -> str:
     """Creates a prompt string to send to the LLM"""
     prompt = f"""
@@ -482,6 +482,15 @@ def create_prompt(
         entirely self-contained, with all imports, code, and data, except
         for the above helper functions. Do not define any other functions, classes,
         or methods inside the function you are writing.\n"""
+
+    if "..." in function_info["initial_code"]:
+        start = function_info["initial_code"].find("\ndef")
+        prompt += f"""
+        Fill in the function definition below with your implementation. Do not change the function name or signature.\n
+        ```
+        {function_info["initial_code"][start:]}
+        ```
+        """
 
     if time_bound:
         prompt += f"""

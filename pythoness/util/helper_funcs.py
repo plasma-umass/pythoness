@@ -28,6 +28,7 @@ def get_function_info(func) -> dict:
             spec_list.append(f"Default: {param.default}")
         ret["arg_types"].append(spec_list)
     ret["return_type"] = func.__annotations__.get("return", "")
+    ret["initial_code"] = inspect.getsource(func)
     return ret
 
 
