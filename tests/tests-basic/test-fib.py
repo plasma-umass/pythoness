@@ -19,6 +19,7 @@ import pythoness
     tolerance=0.9,
     regenerate=True,
     verbose=True,
+    llm_tests=False,
 )
 def myfib(n: int) -> int:
     """"""
