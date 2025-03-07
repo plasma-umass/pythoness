@@ -124,6 +124,4 @@ def _runtime_decorator(
 
     full_code = ast.unparse(wrapper_ast)
 
-    print(full_code)
-
     return full_code

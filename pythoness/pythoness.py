@@ -47,7 +47,10 @@ def spec(
     mem_bound=None,
     generate_func=None,
     range=None,
+    # the next fields are really for recursive calls from run-time test failures
+    # TODO: move these to a separate data structure, perhaps stored in the db...
     generation_reason: str | None = None,
+    function_template: str | None = None
 ):
     """Main logic of Pythoness"""
 
@@ -124,6 +127,17 @@ def spec(
                         traceback.print_exc()
                         raise e
 
+                    nonlocal initial_pythoness_args
+                    if initial_pythoness_args.get("function_template", None) is None:
+                        function_template = inspect.getsource(func)
+                        start = function_template.find("\ndef ")
+                        if start == -1:
+                            raise ValueError("Function must be defined with 'def'")
+                        function_template = function_template[start:]
+                        if "..." not in function_template:
+                            function_template = ""
+                        initial_pythoness_args["function_template"] = function_template
+
                 with (
                     log("[Pythoness] Creating prompt and checking the DB...")
                     if verbose
@@ -139,6 +153,7 @@ def spec(
                         related_objs,
                         globals_no_print,
                         generation_reason,
+                        initial_pythoness_args["function_template"]                        
                     )
                     function_info = helper_funcs.setup_info(
                         function_info, func, spec_string, prompt
