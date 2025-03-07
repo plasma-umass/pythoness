@@ -67,8 +67,6 @@ def _runtime_decorator(
     result = client.fork().query(prompt_helpers.runtime_testing_prompt(property_tests))
     llm_code = json.loads(result)["code"]
 
-    # print(code_snippet)
-
     wrapped_code = "\n".join(
         [
             f"from functools import wraps\n",

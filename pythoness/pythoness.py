@@ -51,6 +51,7 @@ def spec(
     # TODO: move these to a separate data structure, perhaps stored in the db...
     generation_reason: str | None = None,
     function_template: str | None = None
+    llm_tests=True,
 ):
     """Main logic of Pythoness"""
 
@@ -272,6 +273,7 @@ def spec(
                                             client,
                                             log,
                                             verbose,
+                                            llm_tests,
                                         )
                                     )
                             # If tests are not provided, but function is pure, ask LLM to generate
@@ -287,6 +289,7 @@ def spec(
                                             client,
                                             log,
                                             verbose,
+                                            llm_tests,
                                         )
                                     )
                             # Vaildate all tests, if any generated
