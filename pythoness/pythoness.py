@@ -17,6 +17,7 @@ import inspect
 import sys
 import signal
 import termcolor
+import re
 
 # exec() pushes function to the global scope
 # globals_no_print ensures they aren't included twice in the prompt
@@ -50,7 +51,7 @@ def spec(
     # the next fields are really for recursive calls from run-time test failures
     # TODO: move these to a separate data structure, perhaps stored in the db...
     generation_reason: str | None = None,
-    function_template: str | None = None
+    function_template: str | None = None,
     llm_tests=True,
 ):
     """Main logic of Pythoness"""
@@ -96,19 +97,20 @@ def spec(
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+
+            nonlocal cached_function
+            if regenerate:
+                # Clear the cached function if we are regenerating.
+
+                cached_function = None
+
+            # If we've already built this function and cached it, just
+            # run it
+
+            if cached_function:
+                return cached_function(*args, **kwargs)
+
             with log("Start") if verbose else nullcontext():
-
-                nonlocal cached_function
-                if regenerate:
-                    # Clear the cached function if we are regenerating.
-
-                    cached_function = None
-
-                # If we've already built this function and cached it, just
-                # run it
-
-                if cached_function:
-                    return cached_function(*args, **kwargs)
 
                 client = assistant.Assistant(model=model)
 
@@ -129,15 +131,20 @@ def spec(
                         raise e
 
                     nonlocal initial_pythoness_args
-                    if initial_pythoness_args.get("function_template", None) is None:
+                    nonlocal function_template
+                    if function_template is None:
                         function_template = inspect.getsource(func)
-                        start = function_template.find("\ndef ")
+                        match = re.search(r'\n\s*def ', function_template)
+                        if match:
+                            start = match.start()
+                        else:
+                            start = -1
                         if start == -1:
                             raise ValueError("Function must be defined with 'def'")
-                        function_template = function_template[start:]
+                        t = function_template[start:]
                         if "..." not in function_template:
-                            function_template = ""
-                        initial_pythoness_args["function_template"] = function_template
+                            t = ""
+                        initial_pythoness_args["function_template"] = t
 
                 with (
                     log("[Pythoness] Creating prompt and checking the DB...")

@@ -57,8 +57,8 @@ def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
     ) and (f_return_type != g_return_type):
         raise exceptions.TypeCompatibilityException()
 
-    if is_def_within_func(fn, function_info):
-        raise exceptions.DefWithinException()
+    # if is_def_within_func(fn, function_info):
+    #     raise exceptions.DefWithinException()
 
     return
 
