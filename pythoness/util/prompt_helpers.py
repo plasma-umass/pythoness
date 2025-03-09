@@ -4,6 +4,7 @@ import re
 import ast
 import os
 import unittest
+from pythoness.util import symbols
 
 
 def specified_property_prompt(t: tuple, num: int) -> str:
@@ -442,6 +443,20 @@ def prep_signature(func) -> str:
     return cleaned_sig_str
 
 
+def prep_imports(func) -> str:
+    return textwrap.indent(
+        f"""
+Below is a list of classes and functions that may be used in the implementation.
+Included is their name, signature, and docstring. Do not declare
+these functions or classes and do not import anything to use them.
+```
+{symbols.gather_module_docs(func)}
+```
+""",
+        " " * 8,
+    )
+
+
 def create_prompt(
     function_info: dict,
     spec_string: str,
@@ -465,10 +480,12 @@ def create_prompt(
         prompt += string_reformat(generation_reason)
         prompt += "\n"
 
-    if related_objs:
-        # handle duplicates
-        related_objs = list(set(related_objs))
-        prompt += prep_related_objs(func, related_objs, no_print)
+    # if related_objs:
+    #     # handle duplicates
+    #     related_objs = list(set(related_objs))
+    #     prompt += prep_related_objs(func, related_objs, no_print)
+
+    prompt += prep_imports(func)
 
     prompt += """
         Task:

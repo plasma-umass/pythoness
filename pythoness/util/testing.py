@@ -57,8 +57,8 @@ def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
     ) and (f_return_type != g_return_type):
         raise exceptions.TypeCompatibilityException()
 
-    if is_def_within_func(fn, function_info):
-        raise exceptions.DefWithinException()
+    # if is_def_within_func(fn, function_info):
+    #     raise exceptions.DefWithinException()
 
     return
 
@@ -302,9 +302,7 @@ def validate_tests(
         except SyntaxError as e:
             invalid_test_indices.append(i)
             if verbose:
-                log.log(
-                    f"Test {test_names[i]} contains syntax errors and will be discarded."
-                )
+                log.log(f"Test {i} contains syntax errors and will be discarded.")
         except:
             raise exceptions.TestsException(t)
 
@@ -425,7 +423,6 @@ def validate_runtime(
                         raise exceptions.BigOException(result.message)
             except Exception as e:
                 log.log("Exception during bigO check -- continuing: ", e)
-                
 
     # Don't do this here -- we don't want to keep the checked version around right now...
     # function_info["globals"][function_info["function_name"]] = checked_fn

@@ -55,7 +55,7 @@ def ast_class_search(func, cur_class_node: ast.ClassDef, class_names: list) -> t
         search_for = class_names[0]
         for node in cur_class_node.body:
             if isinstance(node, ast.ClassDef) and node.name == search_for:
-                return ast_class_search(func, class_names[1::])
+                return ast_class_search(func, cur_class_node, class_names[1::])
     return None
 
 

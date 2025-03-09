@@ -4,6 +4,8 @@ import pythoness
 class Node:
     """A node which stores a value"""
 
+    __slots__ = ["val", "left", "right"]
+
     def __init__(self, val):
         """
         Initializes a node with value val with left and right children
@@ -13,22 +15,22 @@ class Node:
         self.right = None
 
     @pythoness.spec(
-        "gets val from a Node", related_objs=[__init__], verbose=True, replace=True
+        "gets val from a Node", related_objs=[__init__], verbose=True, replace=False
     )
     def get_val(self):
         """"""
 
     @pythoness.spec(
-        "Sets a val for a node", related_objs=[__init__], verbose=True, replace=True
+        "Sets a val for a node", related_objs=[__init__], verbose=True, replace=False
     )
     def set_val(self, val):
         """"""
 
-    @pythoness.spec("gets the left child of a node", verbose=True, replace=True)
+    @pythoness.spec("gets the left child of a node", verbose=True, replace=False)
     def get_left_child(self):
         """"""
 
-    @pythoness.spec("gets the right child of a node", verbose=True, replace=True)
+    @pythoness.spec("gets the right child of a node", verbose=True, replace=False)
     def get_right_child(self):
         """"""
 
@@ -46,7 +48,7 @@ class Balanced_Binary_Tree:
         "gets the height of the binary tree",
         related_objs=[Node, "cls"],
         verbose=True,
-        replace=True,
+        replace=False,
     )
     def get_height(self):
         """"""
@@ -55,16 +57,25 @@ class Balanced_Binary_Tree:
         "adds node to the proper place in the balanced binary tree",
         related_objs=[Node, "cls"],
         verbose=True,
-        replace=True,
+        replace=False,
     )
     def add_node(self, node):
+        """"""
+
+    @pythoness.spec(
+        "rebalances the binary tree",
+        related_objs=[Node, "cls"],
+        verbose=True,
+        replace=False,
+    )
+    def rebalance(self):
         """"""
 
     @pythoness.spec(
         "prints the balanced binary tree s.t. each line represents a single level of depth, and each value appears in the order it is stored. Also, write R if the node is a right child and L if it is a left child.",
         related_objs=[Node, "cls"],
         verbose=True,
-        replace=True,
+        replace=False,
     )
     def print_tree(self):
         """"""
