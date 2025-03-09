@@ -32,6 +32,7 @@ api_instance = leetcode.DefaultApi(leetcode.ApiClient(configuration))
 # )
 
 # print(api_instance.graphql_post(body=graphql_request))
+# print("\n")
 
 graphql_request = leetcode.GraphqlQuery(
     query="""
@@ -96,17 +97,19 @@ graphql_request = leetcode.GraphqlQuery(
 )
 
 print(api_instance.graphql_post(body=graphql_request))
+print("\n")
 
 # Get stats
 api_response = api_instance.api_problems_topic_get(topic="shell")
 
 print("Stats of this session")
 print(api_response)
+print("\n")
 
 # Try to test your solution
 code = """
 class Solution:
-    def twoSum(self, nums, target):
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
         print("stdout")
         return [1]
 """
@@ -139,6 +142,7 @@ while True:
 
 print("Got test result:")
 print(test_submission_result)
+print("\n")
 
 print(leetcode.TestSubmissionResult(**test_submission_result))
 
