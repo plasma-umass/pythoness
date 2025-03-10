@@ -59,3 +59,7 @@ class MaxRetriesException(Exception):
     """Exception raised when the number of retries exceeds the specified max retries"""
 
     pass
+
+
+class BigOException(Exception):
+    """Exception raised when the Big O check fails"""
