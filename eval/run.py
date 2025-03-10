@@ -37,7 +37,7 @@ def get_function_name(code):
         return None
 
 
-def leetcode_to_pythoness(list_problems, config):
+def generate_problem(list_problems, config):
     i = 0
     tot = len(list_problems)
     for id, name in list_problems.items():
@@ -109,33 +109,35 @@ def leetcode_to_pythoness(list_problems, config):
 
         sleep(3)
 
-        # print("Running...")
-        # result = subprocess.run(["python3", "test.py"], capture_output=True, text=True)
 
-        # with open("output.txt", "w") as f:
-        #     f.write(result.stdout)
+def run_pythoness(name):
+        print("Running...")
+        result = subprocess.run(["python3", "test.py"], capture_output=True, text=True)
 
-        # Open the file for writing the output
-        # with open(f"./results/{id}.out", "w") as file:
-        #     # Run the process and capture stdout
-        #     process = subprocess.Popen(
-        #         ["python3", f"./results/{id}.py"],  # Replace with your command
-        #         stdout=subprocess.PIPE,  # Capture stdout
-        #         stderr=subprocess.PIPE,  # Capture stderr if needed
-        #         text=True,  # Ensure output is in text format (not bytes)
-        #     )
+        with open("output.txt", "w") as f:
+            f.write(result.stdout)
 
-        #     # Read and print the output line by line
-        #     for line in process.stdout:
-        #         print(line, end="")  # Print to terminal
-        #         file.write(line)  # Write to the file
+        Open the file for writing the output
+        with open(f"./results/{id}.out", "w") as file:
+            # Run the process and capture stdout
+            process = subprocess.Popen(
+                ["python3", f"./results/{id}.py"],  # Replace with your command
+                stdout=subprocess.PIPE,  # Capture stdout
+                stderr=subprocess.PIPE,  # Capture stderr if needed
+                text=True,  # Ensure output is in text format (not bytes)
+            )
 
-        #     # Wait for the process to finish
-        #     process.stdout.close()
-        #     process.wait()
+            # Read and print the output line by line
+            for line in process.stdout:
+                print(line, end="")  # Print to terminal
+                file.write(line)  # Write to the file
 
-        # submit_solution(name, id)
+            # Wait for the process to finish
+            process.stdout.close()
+            process.wait()
 
+def check_solution(name, id):
+    submit_solution(name, id)
 
 def main():
     list_problems = {
@@ -160,7 +162,10 @@ def main():
     template_2 = "\n    llm_prop=False,"
     template_3 = ""
     template_4 = "\n    runtime=True,"
-    leetcode_to_pythoness(list_problems, template_1)
+    generate_problem(list_problems, template_1)
+    run_pythoness()
+    # check_solution()
+
 
 
 if __name__ == "__main__":
