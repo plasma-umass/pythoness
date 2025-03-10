@@ -91,17 +91,13 @@ def generate_problem(list_problems, config):
         matches = re.findall(pattern, prompt)
         if len(matches) > 0:
             if len(matches) == 1:
-                # print(prompt)
-                # print(matches[0])
                 print("One runtime bound match")
                 content = content.replace(
                     "time_bound=None,",
                     f'time_bound="{matches[0]}"',
                 )
             else:
-                for match in matches:
-                    print(prompt)
-                    print(match)
+                print("Multiple runtime bound match")
 
         # Write full program to test.py
         with open(f"./results/{id}.py", "w") as target_file:
