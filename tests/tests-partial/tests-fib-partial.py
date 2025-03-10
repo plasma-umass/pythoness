@@ -21,7 +21,10 @@ import pythoness
     verbose=True,
 )
 def myfib(n: int) -> int:
-    """"""
+    if n == 0 or ...:
+        return ...
+    else:
+        ...
 
 
 for i in range(20):

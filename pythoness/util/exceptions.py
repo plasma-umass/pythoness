@@ -34,6 +34,13 @@ class TestsException(Exception):
     pass
 
 
+class RuntimeExceededException(Exception):
+    """Exception raised when code runs too long"""
+
+    def __init__(self, run_time):
+        self.run_time = run_time
+
+
 class TestsFailedException(Exception):
     """Exception raised when tests fail"""
 
@@ -52,3 +59,7 @@ class MaxRetriesException(Exception):
     """Exception raised when the number of retries exceeds the specified max retries"""
 
     pass
+
+
+class BigOException(Exception):
+    """Exception raised when the Big O check fails"""

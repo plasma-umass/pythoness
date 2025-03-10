@@ -5,6 +5,101 @@ import ast
 import os
 import unittest
 
+# from pythoness.util import symbols
+
+
+def specified_property_prompt(t: tuple, num: int) -> str:
+    """Prompt for LLM to generate Hypothesis function from user-specified property-based tests"""
+
+    return f"""Generate a hypothesis function for a property-based test using the following range {t[0]} and assertion {t[1]}.
+Assume you have the following imports:
+```
+from hypothesis import given, strategies as st
+```
+Respond in JSON output with a 'code' field, filling in the following function format:
+```
+@given(...)
+def property_test_{num}:
+    ...
+```"""
+
+
+def nl_property_prompt(name: str, descrip: str, num: int) -> str:
+    """Prompt for LLM to generate Hypothesis function from user-provided NL description of property-based test"""
+
+    return f"""Generate a hypothesis function for a property-based test for {name} using the following description: '{descrip}'.
+Assume you have the following imports:
+```
+from hypothesis import given, strategies as st
+```
+Respond in JSON output with a 'code' field, filling in the following function format:
+```
+@given(...)
+def property_test_{num}:
+    ...
+```"""
+
+
+def llm_new_property_prompt(name: str, existing: str, num: int) -> str:
+    """Prompt for LLM to generate new Hypothesis functions based off of existing list"""
+
+    return f"""Generate hypothesis functions for property-based tests to evaluate the correct behavior of {name}.
+Assume you have the following imports:
+```
+from hypothesis import given, strategies as st
+```
+Respond in JSON output with a 'code' field, filling in the following functions list format:
+```
+@given(...)
+def property_test_{num}:
+    ...
+
+@given(...)
+def property_test_{num + 1}:
+    ...
+
+# Continue for as many or as few tests as needed
+```
+Here is a list of existing property-based tests. Do not generate any property-based tests that are functionally equivalent to them:
+```
+{existing}
+```"""
+
+
+def llm_new_unit_prompt(name: str, existing: str) -> str:
+    """Prompt for LLM to generate new unit tests based off of existing list"""
+
+    return f"""Generate simple unit tests to evaluate the correct behavior of {name}.
+Respond in JSON output with a 'code' field, filling in the following assertion format:
+```
+assert ...
+assert ...
+# Include as many or as few assertions as needed
+```
+Here is a list of existing unit test assertions and property-based hypothesis tests.
+Do not generate any unit tests that are functionally equivalent or whose behavior is already captured by them:
+```
+{existing}
+```"""
+
+
+def runtime_testing_prompt(tests: str) -> str:
+    """Prompt for LLM to generate runtime tests based off of property-based tests list"""
+
+    return f"""Convert each of the following list of property-based Hypothesis tests into an if-condition where the preconditions and the property must both be satisfied.
+    If they are true, increment arrays 'property_passes' and 'iteration' by 1 at the index matching the property number. The first property will increment at index 0, the second at index 1, and so on.
+    If the preconditions are true but the property fails, increment only the 'iteration' array. If the precondition is not satisfied, do not increment either array.
+```
+{tests}
+```
+Respond in JSON output with a 'code' field, using the following format for each Hypothesis test:
+```
+if (precondition):
+    iteration[...] += 1
+    if (property):
+        property_passes[...] += 1
+```"""
+
 
 def test_case_predicate(obj) -> bool:
     """Returns true if obj is a unittest.TestCase"""
@@ -349,14 +444,31 @@ def prep_signature(func) -> str:
     return cleaned_sig_str
 
 
+def prep_imports(func) -> str:
+    return textwrap.indent(
+        f"""
+Below is a list of classes and functions that may be used in the implementation.
+Included is their name, signature, and docstring. Do not declare
+these functions or classes and do not import anything to use them.
+```
+{symbols.gather_module_docs(func)}
+```
+""",
+        " " * 8,
+    )
+
+
 def create_prompt(
     function_info: dict,
-    string: str,
+    spec_string: str,
     tests: list,
-    time_bound: str,
+    time_bound: str | None,
+    mem_bound: str | None,
     func,
     related_objs: list,
     no_print: list,
+    generation_reason: str | None = None,
+    function_template: str | None = None,
 ) -> str:
     """Creates a prompt string to send to the LLM"""
     prompt = f"""
@@ -364,21 +476,24 @@ def create_prompt(
         named {function_info['function_name']} that performs the following task as
         a field \"code\". Only produce output that can be parsed as
         JSON. \n"""
-    
-    if time_bound:
-        prompt += f"""
-        The function must have {time_bound} runtime or faster.\n"""
+
+    if generation_reason:
+        prompt += "Be sure to avoid this issue from an earlier version:"
+        prompt += string_reformat(generation_reason)
+        prompt += "\n"
 
     if related_objs:
         # handle duplicates
         related_objs = list(set(related_objs))
         prompt += prep_related_objs(func, related_objs, no_print)
 
+    # prompt += prep_imports(func)
+
     prompt += """
         Task:
         """
 
-    prompt += string_reformat(string)
+    prompt += string_reformat(spec_string)
 
     prompt += """
         Include a docstring containing the task description above
@@ -387,14 +502,33 @@ def create_prompt(
         for the above helper functions. Do not define any other functions, classes,
         or methods inside the function you are writing.\n"""
 
+    # if function_template:
+    #     prompt += f"""
+    #     Fill in the function definition below with your implementation.
+    #     Do not change the function name or signature.
+    #     ```
+    #     {textwrap.indent(function_template, '        ')}
+    #     ```
+    #     """
+
+    if time_bound:
+        prompt += f"""
+        The function must have {time_bound} runtime or faster.\n"""
+
+    if mem_bound:
+        prompt += f"""
+        The function must use {mem_bound} memory or less.\n"""
+
     if tests:
         prompt += prep_tests(tests)
         prompt += f"{prep_unit_tests(tests)}"
 
+    assert function_template is not None, "Function template not present"
     prompt += f"""
         Return only a single method or function definition. Use this template for your response:
-            def {function_info['function_name']}{prep_signature(func)}:
-                ...
+        ```
+        {textwrap.indent(function_template, '        ')}
+        ```
         """
 
     return textwrap.dedent(prompt)

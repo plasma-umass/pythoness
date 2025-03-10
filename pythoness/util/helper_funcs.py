@@ -2,13 +2,15 @@ from . import assistant
 from . import logger
 from . import exceptions
 from . import timeout
-from bigO import check
 import ast_comments as ast
 import inspect
 import json
 import os
 import textwrap
+import time
 import traceback
+
+from bigO.bigO import BigOError
 
 
 def get_function_info(func) -> dict:
@@ -52,7 +54,7 @@ def ast_class_search(func, cur_class_node: ast.ClassDef, class_names: list) -> t
         search_for = class_names[0]
         for node in cur_class_node.body:
             if isinstance(node, ast.ClassDef) and node.name == search_for:
-                return ast_class_search(func, class_names[1::])
+                return ast_class_search(func, cur_class_node, class_names[1::])
     return None
 
 
@@ -90,11 +92,13 @@ def replace_func(func, function_def: str) -> None:
         f.write(new_source)
 
 
-def database_compile(function_info: dict, function_def: str, length_func, time_bound):
+def database_compile(
+    function_info: dict, function_def: str, length_func, time_bound, mem_bound
+):
     """Compiles and executes a function with information from the CodeDatabase"""
     compiled = compile(function_def, "generated_func", "exec")
     exec(compiled, function_info["globals"])
-    # function_info["globals"][function_info["function_name"]] = check(length_func, time_bound = time_bound)(function_info["globals"][function_info["function_name"]])
+    # function_info["globals"][function_info["function_name"]] = check(length_func, time = time_bound, mem=mem_bound)(function_info["globals"][function_info["function_name"]])
 
     return function_info["globals"][function_info["function_name"]]
 
@@ -116,7 +120,7 @@ def setup_info(function_info: dict, func, string: str, prompt: str) -> dict:
 
 
 def parse_func(
-    function_info: dict, 
+    function_info: dict,
     client: assistant.Assistant,
     prompt: str,
     verbose: bool,
@@ -130,12 +134,11 @@ def parse_func(
     except:
         # JSON parse failure: retry
         raise exceptions.JSONException()
-
     function_def = the_json["code"]
-
     if verbose:
         log.log("[Pythoness] Synthesized function: \n", function_def)
     function_info["function_def"] = function_def
+
     return function_info
 
 
@@ -150,17 +153,22 @@ def compile_func(function_info: dict) -> dict:
         raise exceptions.CompileException()
 
 
-def execute_func(function_info: dict) -> dict:
+def execute_func(function_info: dict, max_runtime: int) -> dict:
     """Executes the function stored in info"""
     try:
-
+        start = time.perf_counter_ns()
         exec(function_info["compiled"], function_info["globals"])
-
-        # need to remove the compiled version in order to avoid JSON logging issues
-        function_info["compiled"] = None
-        return function_info
+        end = time.perf_counter_ns()
     except:
         raise exceptions.ExecException()
+
+    time_ns = (end - start) / 1e6
+    if isinstance(max_runtime, (int, float)) and time_ns > max_runtime:
+        raise exceptions.RuntimeExceededException(time)
+
+    # need to remove the compiled version in order to avoid JSON logging issues
+    function_info["compiled"] = None
+    return function_info
 
 
 # NOTE: Requires Python 3.10+
@@ -224,6 +232,13 @@ def exception_handler(
             if e.unittests_failed:
                 to_add += f"This was the output from a unittest test suite, which includes a failure and/or error:\n{e.unittests_failed}"
 
+        case exceptions.BigOException():
+            if verbose:
+                log.log("[Pythoness] Big O check failed.")
+                log.log(f"[Pythoness] {e}")
+            args = "\n".join(e.args)
+            to_add = f"the function has a slower time complexity than specified.  Error message:\n```\n{args}\n```\n"
+
         case KeyError():
             to_add = "the function or method failed to execute. Ensure that only a single function or method is defined. "
 
@@ -234,12 +249,13 @@ def exception_handler(
             # )
             to_add = textwrap.dedent(to_add)
 
-        case ValueError():
-            # time bound error
-            if verbose:
-                log.log("[Pythoness] Incorrect time bound.")
-                log.log(f"{e}")
-            to_add = f"The function has a slower time complexity than specified. \n{'\n'.join(e.args[0].split('\n')[1:6])}\n```\n"
+        # case ValueError():
+        #     # time bound error
+        #     if verbose:
+        #         log.log("[Pythoness] Incorrect time bound.")
+        #         log.log(f"{e}")
+        #     args = "\n".join(e.args[0].split("\n")[1:6])
+        #     to_add = f"the function has a slower time complexity than specified. \n{args}\n```\n"
 
         case _:
             # if verbose:
