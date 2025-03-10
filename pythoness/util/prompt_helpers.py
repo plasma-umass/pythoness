@@ -4,6 +4,7 @@ import re
 import ast
 import os
 import unittest
+from pythoness.util import symbols
 
 
 def specified_property_prompt(t: tuple, num: int) -> str:
@@ -157,7 +158,7 @@ def prep_unit_tests(tests: list) -> str:
     ret = ""
 
     if src:
-        ret += "The function should also pass the following unit tests. Included is their name and source code. Do not write these tests\n\n"
+        ret += "\nThe function should also pass the following unit tests. Included is their name and source code. Do not write these tests\n\n"
 
         for func in src:
             for line in func[0]:
@@ -442,31 +443,56 @@ def prep_signature(func) -> str:
     return cleaned_sig_str
 
 
+def prep_imports(func) -> str:
+    return textwrap.indent(
+        f"""
+Below is a list of classes and functions that may be used in the implementation.
+Included is their name, signature, and docstring. Do not declare
+these functions or classes and do not import anything to use them.
+```
+{symbols.gather_module_docs(func)}
+```
+""",
+        " " * 8,
+    )
+
+
 def create_prompt(
     function_info: dict,
-    string: str,
+    spec_string: str,
     tests: list,
+    time_bound: str | None,
+    mem_bound: str | None,
     func,
     related_objs: list,
     no_print: list,
+    generation_reason: str | None = None,
+    function_template: str | None = None,
 ) -> str:
     """Creates a prompt string to send to the LLM"""
     prompt = f"""
         Produce a JSON object with code for a Python function
         named {function_info['function_name']} that performs the following task as
         a field \"code\". Only produce output that can be parsed as
-        JSON. \n\n"""
+        JSON. \n"""
 
-    if related_objs:
-        # handle duplicates
-        related_objs = list(set(related_objs))
-        prompt += prep_related_objs(func, related_objs, no_print)
+    if generation_reason:
+        prompt += "Be sure to avoid this issue from an earlier version:"
+        prompt += string_reformat(generation_reason)
+        prompt += "\n"
 
-    prompt += """\
+    # if related_objs:
+    #     # handle duplicates
+    #     related_objs = list(set(related_objs))
+    #     prompt += prep_related_objs(func, related_objs, no_print)
+
+    prompt += prep_imports(func)
+
+    prompt += """
         Task:
         """
 
-    prompt += string_reformat(string)
+    prompt += string_reformat(spec_string)
 
     prompt += """
         Include a docstring containing the task description above
@@ -475,14 +501,33 @@ def create_prompt(
         for the above helper functions. Do not define any other functions, classes,
         or methods inside the function you are writing.\n"""
 
+    # if function_template:
+    #     prompt += f"""
+    #     Fill in the function definition below with your implementation.
+    #     Do not change the function name or signature.
+    #     ```
+    #     {textwrap.indent(function_template, '        ')}
+    #     ```
+    #     """
+
+    if time_bound:
+        prompt += f"""
+        The function must have {time_bound} runtime or faster.\n"""
+
+    if mem_bound:
+        prompt += f"""
+        The function must use {mem_bound} memory or less.\n"""
+
     if tests:
         prompt += prep_tests(tests)
-        prompt += f"\n{prep_unit_tests(tests)}"
+        prompt += f"{prep_unit_tests(tests)}"
 
+    assert function_template is not None, "Function template not present"
     prompt += f"""
         Return only a single method or function definition. Use this template for your response:
-            def {function_info['function_name']}{prep_signature(func)}:
-                ...
+        ```
+        {textwrap.indent(function_template, '        ')}
+        ```
         """
 
     return textwrap.dedent(prompt)

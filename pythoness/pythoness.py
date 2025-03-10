@@ -1,3 +1,6 @@
+import inspect
+import traceback
+from pythoness.util import runtime_bounds_testing
 from .util import assistant
 from .util import database
 from .util import timeout
@@ -9,10 +12,10 @@ from .util import config
 from .util import runtime_testing
 from contextlib import nullcontext
 from functools import wraps
-import inspect
 import sys
 import signal
 import termcolor
+import re
 
 # exec() pushes function to the global scope
 # globals_no_print ensures they aren't included twice in the prompt
@@ -23,7 +26,7 @@ time = 0
 
 
 def spec(
-    string,
+    spec_string,
     model="gpt-4o",
     runtime=False,
     tolerance=1,
@@ -38,53 +41,74 @@ def spec(
     related_objs=None,
     timeout_seconds=0,
     pure=True,
+    length_func=None,
+    time_bound=None,
+    mem_bound=None,
+    generate_func=None,
+    range=None,
+    # the next fields are really for recursive calls from run-time test failures
+    # TODO: move these to a separate data structure, perhaps stored in the db...
+    generation_reason: str | None = None,
+    function_template: str | None = None,
     llm_tests=True,
 ):
     """Main logic of Pythoness"""
+
     if verbose is None:
         verbose = config.config.verbose_flag
 
     if replace is None:
         replace = config.config.replace_flag
 
+    # These options conflict with each other when it comes to inserting
+    # run-time checks for the function.
+    if max_runtime is not None and time_bound is not None:
+        raise ValueError("Cannot specify both max_runtime and time_bound")
+
     # Store Pythoness settings to propagate in generated function
     all_params = locals()
-    default_params = inspect.signature(spec).parameters
-    pythoness_args = []
-    for name, param in default_params.items():
-        if name in all_params and all_params[name] != param.default:
-            if isinstance(all_params[name], str):
-                pythoness_args.append(f"{name}='{all_params[name]}'")
-            else:
-                pythoness_args.append(f"{name}={all_params[name]}")
-    pythoness_args = "(" + ", ".join(pythoness_args) + ")"
+    initial_pythoness_args = {k: v for k, v in all_params.items()}
+
+    def pythoness_args_as_string(**updated_kwargs):
+        return (
+            "("
+            + (
+                ", ".join(
+                    f"{k}={repr(v)}" if isinstance(v, str) else f"{k}={v}"
+                    for k, v in {**initial_pythoness_args, **updated_kwargs}.items()
+                )
+            )
+            + ")"
+        )
 
     def decorator(func):
+
         cached_function = None
 
         log = logger.Logger(quiet=config.config.quiet_flag)
 
         # enables interrelated function generation
         if func.__doc__:
-            func.__doc__ += string
+            func.__doc__ += spec_string
         else:
-            func.__doc__ = string
+            func.__doc__ = spec_string
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+
+            nonlocal cached_function
+            if regenerate:
+                # Clear the cached function if we are regenerating.
+
+                cached_function = None
+
+            # If we've already built this function and cached it, just
+            # run it
+
+            if cached_function:
+                return cached_function(*args, **kwargs)
+
             with log("Start") if verbose else nullcontext():
-
-                nonlocal cached_function
-                if regenerate:
-                    # Clear the cached function if we are regenerating.
-
-                    cached_function = None
-
-                # If we've already built this function and cached it, just
-                # run it
-
-                if cached_function:
-                    return cached_function(*args, **kwargs)
 
                 client = assistant.Assistant(model=model)
 
@@ -96,8 +120,25 @@ def spec(
                     if verbose
                     else nullcontext()
                 ):
-                    # function_info = helper_funcs.get_function_info(func, *args, **kwargs)
-                    function_info = helper_funcs.get_function_info(func)
+                    try:
+                        # function_info = helper_funcs.get_function_info(func, *args, **kwargs)
+                        function_info = helper_funcs.get_function_info(func)
+                    except Exception as e:
+                        print("Exception", str(e))
+                        traceback.print_exc()
+                        raise e
+
+                    nonlocal initial_pythoness_args
+                    nonlocal function_template
+                    if function_template is None:
+                        function_template = inspect.getsource(func)
+                        match = re.search(r"\n\s*def ", function_template)
+                        if match:
+                            start = match.start()
+                        else:
+                            start = -1
+                        t = function_template[start:]
+                        initial_pythoness_args["function_template"] = t
 
                 with (
                     log("[Pythoness] Creating prompt and checking the DB...")
@@ -106,14 +147,18 @@ def spec(
                 ):
                     prompt = prompt_helpers.create_prompt(
                         function_info,
-                        string,
+                        spec_string,
                         tests,
+                        time_bound,
+                        mem_bound,
                         func,
                         related_objs,
                         globals_no_print,
+                        generation_reason,
+                        initial_pythoness_args["function_template"],
                     )
                     function_info = helper_funcs.setup_info(
-                        function_info, func, string, prompt
+                        function_info, func, spec_string, prompt
                     )
 
                     # See if we already have code corresponding with that prompt in the database.
@@ -144,9 +189,15 @@ def spec(
                                 helper_funcs.replace_func(func, function_def)
 
                         globals_no_print.append(function_info["function_name"])
-                        return helper_funcs.database_compile(
-                            function_info, function_def, *args, **kwargs
+                        fn = helper_funcs.database_compile(
+                            function_info,
+                            function_def,
+                            length_func,
+                            time_bound,
+                            mem_bound,
                         )
+
+                        return fn(*args, **kwargs)
 
                 with (
                     log("[Pythoness] Generating code...") if verbose else nullcontext()
@@ -163,6 +214,8 @@ def spec(
                                 log.log(
                                     f'[Pythoness] Attempt {function_info["retries"]}'
                                 )
+                                if function_info["retries"] > 0:
+                                    log.log(f"[Pythoness] New prompt:\n\n{prompt}\n")
 
                             with (
                                 log("[Pythoness] Parsing...")
@@ -254,6 +307,58 @@ def spec(
                                         verbose,
                                     )
 
+                            if time_bound or mem_bound:
+                                with (
+                                    log("[Pythoness] Validating time/mem bound...")
+                                    if verbose
+                                    else nullcontext()
+                                ):
+
+                                    # interpreter gets weird when I reassign generate_func
+                                    if isinstance(generate_func, str):
+                                        generator = testing.generate_generator_func(
+                                            generate_func,
+                                            fn,
+                                            function_info,
+                                            model,
+                                            log,
+                                            verbose,
+                                        )
+                                    else:
+                                        generator = generate_func
+
+                                    testing.validate_runtime(
+                                        function_info,
+                                        generator,
+                                        length_func,
+                                        range,
+                                        time_bound,
+                                        mem_bound,
+                                        log,
+                                        verbose,
+                                    )
+
+                                if runtime:
+                                    with (
+                                        log(
+                                            "[Pythoness] Adding runtime bounds checks..."
+                                        )
+                                        if verbose
+                                        else nullcontext()
+                                    ):
+                                        function_info = runtime_bounds_testing.add_runtime_bounds_testing(
+                                            function_info,
+                                            initial_pythoness_args,
+                                            fn,
+                                            log,
+                                            verbose,
+                                            cdb,
+                                        )
+
+                                        function_info["globals"][
+                                            function_info["function_name"]
+                                        ] = function_info["compiled"]
+
                             # Do not add runtime testing if not turned on, if no property tests, or if impure
                             if not runtime or not property_tests or not pure:
                                 # Validated. Cache the function and persist it
@@ -267,7 +372,7 @@ def spec(
                                 function_info = runtime_testing.add_runtime_testing(
                                     function_info,
                                     property_tests,
-                                    pythoness_args,
+                                    pythoness_args_as_string(),
                                     tolerance,
                                     max_runtime,
                                     client,
@@ -290,6 +395,7 @@ def spec(
                                     file=sys.stdout,
                                 )
 
+                            # TODO: this won't have the check() wrapper
                             if replace:
                                 with (
                                     log("[Pythoness] Replacing...")
@@ -305,6 +411,8 @@ def spec(
                             return cached_function(*args, **kwargs)
 
                         except Exception as e:
+                            print("Exception", str(e))
+                            traceback.print_exc()
                             try:
                                 func.__globals__.pop(function_info["function_name"])
                             except:

@@ -6,6 +6,8 @@ import time
 class Logger:
     """Logger to control verbose printing"""
 
+    
+
     def __init__(self, color="cyan", quiet=False, debug_messages=False):
         self.keys = [""]
         self.color = color

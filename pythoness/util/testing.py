@@ -5,7 +5,6 @@ from . import assistant
 from . import prompt_helpers
 from collections.abc import Generator
 from typing import Callable
-from hypothesis import example, given
 from hypothesis.strategies import *
 import logging
 import inspect
@@ -15,6 +14,10 @@ import unittest
 import json
 import io
 import ast
+import random
+import numpy as np
+
+import bigO
 import re
 
 
@@ -54,8 +57,8 @@ def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
     ) and (f_return_type != g_return_type):
         raise exceptions.TypeCompatibilityException()
 
-    if is_def_within_func(fn, function_info):
-        raise exceptions.DefWithinException()
+    # if is_def_within_func(fn, function_info):
+    #     raise exceptions.DefWithinException()
 
     return
 
@@ -283,9 +286,7 @@ def validate_tests(
         except SyntaxError as e:
             invalid_test_indices.append(i)
             if verbose:
-                log.log(
-                    f"Test {test_names[i]} contains syntax errors and will be discarded."
-                )
+                log.log(f"Test {i} contains syntax errors and will be discarded.")
         except:
             raise exceptions.TestsException(t)
 
@@ -334,3 +335,132 @@ def get_falsifying_example(exception_info: Generator[str, None, None]) -> str:
             if input_start:
                 result = result + exception_line.strip()
     return result
+
+
+def generate_hypothesis_test(t: tuple, client: assistant.Assistant):
+    """Creates hypothesis tests"""
+    prompt = f"""Produce a JSON object as a field 'code' with code for the function declaration for an empty Hypothesis
+    test given the range '{t[0]}' on the function input. Only produce output that can be parsed as JSON."""
+    result = client.query(prompt)
+    the_json = json.loads(result)
+    code = the_json["code"]
+
+    # Replace the placeholder 'pass' with the user's assertion
+    parts = code.rsplit("pass", 1)
+    if len(parts) > 1:
+        code = t[1].join(parts)
+    return code
+
+
+def validate_runtime(
+    function_info: dict,
+    generate_func: Callable,
+    length_func: Callable,
+    range: tuple,
+    time_bound: str | None,
+    mem_bound: str | None,
+    log: logger.Logger,
+    verbose: bool,
+):
+    """Uses generate_func to run check() a single time and verify time_bound/mem_bound"""
+
+    fn = function_info["globals"][function_info["function_name"]]
+
+    # checked_fn is a wrapper around the checked and tracked function.
+    # don't put f in the global scope, so recursive calls don't trigger
+    # additional tracking steps.
+    checked_fn = bigO.bounds(
+        length_func, time=time_bound, mem=mem_bound, interval=None
+    )(fn)
+
+    lower_bound, upper_bound = range
+
+    sample_size = 10
+
+    sample = np.linspace(
+        lower_bound,
+        upper_bound - 1,
+        min(sample_size, upper_bound - lower_bound),
+        dtype=int,
+    )
+
+    # make it be exactly sample_size samples...
+    while len(sample) < sample_size:
+        sample = np.append(sample, sample)
+    sample = sample[0:sample_size]
+
+    with log("[Pythoness] Validating runtime..."):
+
+        with log("Running bigO checks..."):
+            for i, num in enumerate(sample):
+                if verbose:
+                    log.log(f"iter: {i} len: {num}")
+
+                args, kwargs = generate_func(num)
+                checked_fn(*args, **kwargs)
+
+        with log("Checking bigO results..."):
+            try:
+                results = bigO.bigO.check(fn)
+                for result in results:
+                    if not result.success:
+                        raise exceptions.BigOException(result.message)
+            except Exception as e:
+                log.log("Exception during bigO check -- continuing: ", e)
+
+    # Don't do this here -- we don't want to keep the checked version around right now...
+    # function_info["globals"][function_info["function_name"]] = checked_fn
+
+
+# mess with input sizes more and more inputs
+
+
+def generate_generator_func(
+    spec: str,
+    main_func: callable,
+    function_info: dict,
+    model: str,
+    log: logger.Logger,
+    verbose: bool,
+):
+
+    client = assistant.Assistant(model=model)
+
+    prompt = f"""   Produce a JSON object as a field 'code' with code for a Python function that generates
+    a variety of random inputs. This function must return a tuple of a list, where each element in this list 
+    represents a single argument in *args, and a dictionary representing the **kwargs.
+    If a list is being included in an argument for *args, *args must be wrapped by an additional list.
+    
+    The generator must adhere to the following specification:
+
+        {spec}
+
+    The generator is creating input for a function matching this signature:
+        {function_info["function_name"]}{inspect.signature(main_func)}:
+            ...
+
+    The function must take 'len' as an argument, where 'len' is an int that describes how long the input should be.
+
+    Only produce output that can be parsed as JSON and only return a single function. Use this template 
+    for your response:
+    
+        def generator_func(len):
+            ...
+            return ([...], {"{...}"})
+    """
+
+    if verbose:
+        log.log(f"[Pythoness] Generating a generator function...")
+        log.log(f"[Pythoness] Prompt:\n", prompt)
+
+    result = client.query(prompt)
+    the_json = json.loads(result)
+    func_def = the_json["code"]
+
+    if verbose:
+        log.log("[Pythoness] Synthesized generator function: \n", func_def)
+
+    compiled = compile(func_def, "generator_func", "exec")
+    exec(compiled, function_info["globals"])
+
+    return function_info["globals"]["generator_func"]
