@@ -4,7 +4,8 @@ import re
 import ast
 import os
 import unittest
-from pythoness.util import symbols
+
+# from pythoness.util import symbols
 
 
 def specified_property_prompt(t: tuple, num: int) -> str:
