@@ -53,7 +53,7 @@ def spec(
     for name, param in default_params.items():
         if name in all_params and all_params[name] != param.default:
             if isinstance(all_params[name], str):
-                pythoness_args.append(f"{name}='{all_params[name]}'")
+                pythoness_args.append(f"{name}='''{all_params[name]}'''")
             else:
                 pythoness_args.append(f"{name}={all_params[name]}")
     pythoness_args = "(" + ", ".join(pythoness_args) + ")"

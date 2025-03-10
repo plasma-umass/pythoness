@@ -11,7 +11,7 @@ SESSION = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfYXV0aF91c2VyX2lkIjoiMTU2MjIx
 CSRF = "AgRlMyz6zKAphcqcgSNwf9JDtncqsAoLnCeYFYOYTfbh7WtQueK6lojOkjOaxIQU"
 
 
-def _get_problem_details(name: str) -> dict:
+def get_problem_details(name: str) -> dict:
 
     configuration = leetcode.Configuration()
 
@@ -150,7 +150,7 @@ def _get_problem_details(name: str) -> dict:
     return q_details
 
 
-def _submit_test(name: str, id: int, code: str) -> dict:
+def submit_test(name: str, id: int, code: str) -> dict:
 
     configuration = leetcode.Configuration()
 
@@ -228,7 +228,7 @@ def _submit_test(name: str, id: int, code: str) -> dict:
     return
 
 
-def _submit_solution(name: str, id: int, code: str) -> None:
+def submit_solution(name: str, id: int, code: str) -> dict:
     configuration = leetcode.Configuration()
 
     configuration.api_key["x-csrftoken"] = globals()["CSRF"]
@@ -305,29 +305,3 @@ def _submit_solution(name: str, id: int, code: str) -> None:
     with open("clean_3.json", "w") as json_file:
         json.dump(s_details, json_file, indent=4)
     return s_details
-
-
-def run(name: str, id: int) -> None:
-    # problem_details = _get_problem_details(name)
-
-    solution_code = """
-class Solution:
-    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
-        merged = sorted(nums1 + nums2)
-        if len(nums1) == 3:
-            return 0
-        total = len(merged)
-        half = int(total / 2)
-        if total % 2 == 0:
-            return (merged[half] + merged[half - 1]) / 2
-        else:
-            return merged[half]
-"""
-
-    # submission = _submit_test(name, id, solution_code)
-    submission = _submit_solution(name, id, solution_code)
-    return
-
-
-if __name__ == "__main__":
-    run("median-of-two-sorted-arrays", 4)

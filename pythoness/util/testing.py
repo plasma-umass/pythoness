@@ -25,6 +25,7 @@ def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
 
     # if the lengh is different, it doesn't match
     if len(f_sig.parameters) != len(g_sig.parameters):
+        print("Length different.", f_sig, g_sig)
         raise exceptions.TypeCompatibilityException()
 
     for f_param, g_param in zip(f_sig.parameters.values(), g_sig.parameters.values()):
@@ -38,6 +39,7 @@ def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
         if (
             f_type != inspect.Parameter.empty and g_type != inspect.Parameter.empty
         ) and (f_type != g_type):
+            print("Not same type", f_sig, g_sig)
             raise exceptions.TypeCompatibilityException()
 
         # make sure the defaults are exactly equal
@@ -52,9 +54,11 @@ def validate_types(func: Callable, fn: Callable, function_info: dict) -> None:
         f_return_type != inspect.Parameter.empty
         and g_return_type != inspect.Parameter.empty
     ) and (f_return_type != g_return_type):
+        print("Not same return type", f_sig, g_sig)
         raise exceptions.TypeCompatibilityException()
 
     if is_def_within_func(fn, function_info):
+        print("Def within function", f_sig, g_sig)
         raise exceptions.DefWithinException()
 
     return

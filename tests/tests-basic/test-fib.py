@@ -12,14 +12,13 @@ import pythoness
         "myfib(n) should be the sum of calling myfib on the previous 2 numbers",
         "myfib(n) should produce a positive integer",
     ],
-    max_retries=3,
     max_runtime=100,
     runtime=True,
     # output=True,
     tolerance=0.9,
     regenerate=True,
     verbose=True,
-    llm_tests=False,
+    replace=True,
 )
 def myfib(n: int) -> int:
     """"""
