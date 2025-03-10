@@ -41,6 +41,8 @@ def spec(
     related_objs=None,
     timeout_seconds=0,
     pure=True,
+    llm_unit=True,
+    llm_prop=True,
     length_func=None,
     time_bound=None,
     mem_bound=None,
@@ -275,6 +277,8 @@ def spec(
                                             log,
                                             verbose,
                                             llm_tests,
+                                            llm_unit,
+                                            llm_prop,
                                         )
                                     )
                             # If tests are not provided, but function is pure, ask LLM to generate
@@ -291,6 +295,8 @@ def spec(
                                             log,
                                             verbose,
                                             llm_tests,
+                                            llm_unit,
+                                            llm_prop,
                                         )
                                     )
                             # Vaildate all tests, if any generated

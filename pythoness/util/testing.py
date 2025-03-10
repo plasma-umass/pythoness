@@ -104,6 +104,8 @@ def generate_user_tests(
     log: logger.Logger,
     verbose: bool,
     llm_tests: bool,
+    llm_unit: bool,
+    llm_prop: bool,
 ) -> list:
     """Generates tests from the user's specifications and descriptions, and any additional tests authored by LLM"""
 
@@ -157,17 +159,19 @@ def generate_user_tests(
                 if verbose:
                     log.log(f"[Pythoness] Failed to generate Hypothesis test: {td}")
 
-    if llm_tests:
-        all_tests, property_tests = generate_llm_tests(
-            function_info,
-            client,
-            log,
-            verbose,
-            all_tests,
-            property_tests,
-            ptests_count,
-            generated_tests,
-        )
+    all_tests, property_tests = generate_llm_tests(
+        function_info,
+        client,
+        log,
+        verbose,
+        llm_unit,
+        llm_prop,
+        llm_tests,
+        all_tests,
+        property_tests,
+        ptests_count,
+        generated_tests,
+    )
 
     return all_tests, property_tests
 
@@ -177,6 +181,8 @@ def generate_llm_tests(
     client: assistant.Assistant,
     log: logger.Logger,
     verbose: bool,
+    llm_unit: bool,
+    llm_prop: bool,
     llm_tests: bool,
     all_tests: list = [],
     property_tests: list = [],
@@ -188,41 +194,45 @@ def generate_llm_tests(
     if not llm_tests:
         return all_tests, property_tests
 
-    try:
-        prompt = prompt_helpers.llm_new_property_prompt(
-            function_info["function_name"], generated_tests[:-2], ptests_count
-        )
-        result = client.fork().query(prompt)
-        code = json.loads(result)["code"]
-        new_tests = code.split("\n\n")
-        for nt in new_tests:
-            all_tests.append(("property", nt))
-            property_tests.append(nt)
+    if llm_prop:
+        try:
+            prompt = prompt_helpers.llm_new_property_prompt(
+                function_info["function_name"], generated_tests[:-2], ptests_count
+            )
+            result = client.fork().query(prompt)
+            code = json.loads(result)["code"]
+            new_tests = code.split("\n\n")
+            for nt in new_tests:
+                all_tests.append(("property", nt))
+                property_tests.append(nt)
+                if verbose:
+                    log.log(f"[Pythoness] LLM-Synthesized Hypothesis test:\n{nt}")
+        except:
             if verbose:
-                log.log(f"[Pythoness] LLM-Synthesized Hypothesis test:\n{nt}")
-    except:
-        if verbose:
-            log.log(f"[Pythoness] Failed to generate additional property-based tests.")
+                log.log(
+                    f"[Pythoness] Failed to generate additional property-based tests."
+                )
 
     # Query LLM for additional unit tests
-    try:
-        existing_tests = [t for t in all_tests if isinstance(t, str)]
-        existing_tests = "\n\n".join(existing_tests)
-        existing_tests += "\n\n" + generated_tests
-        prompt = prompt_helpers.llm_new_unit_prompt(
-            function_info["function_name"], existing_tests[:-2]
-        )
-        result = client.fork().query(prompt)
-        new_tests = json.loads(result)["code"]
-        new_tests = re.split(r"\n+", new_tests)
-        new_tests = [s for s in new_tests if s]
-        all_tests.append(new_tests)
+    if llm_unit:
+        try:
+            existing_tests = [t for t in all_tests if isinstance(t, str)]
+            existing_tests = "\n\n".join(existing_tests)
+            existing_tests += "\n\n" + generated_tests
+            prompt = prompt_helpers.llm_new_unit_prompt(
+                function_info["function_name"], existing_tests[:-2]
+            )
+            result = client.fork().query(prompt)
+            new_tests = json.loads(result)["code"]
+            new_tests = re.split(r"\n+", new_tests)
+            new_tests = [s for s in new_tests if s]
+            all_tests.append(new_tests)
 
-        if verbose:
-            log.log(f"[Pythoness] LLM-Synthesized Unit tests:\n{new_tests}")
-    except Exception as e:
-        if verbose:
-            log.log(f"[Pythoness] Failed to generate additional unit tests.")
+            if verbose:
+                log.log(f"[Pythoness] LLM-Synthesized Unit tests:\n{new_tests}")
+        except Exception as e:
+            if verbose:
+                log.log(f"[Pythoness] Failed to generate additional unit tests.")
 
     return all_tests, property_tests
 
