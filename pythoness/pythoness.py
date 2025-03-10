@@ -1,3 +1,4 @@
+import inspect
 import traceback
 from pythoness.util import runtime_bounds_testing
 from .util import assistant
@@ -131,16 +132,12 @@ def spec(
                     nonlocal function_template
                     if function_template is None:
                         function_template = inspect.getsource(func)
-                        match = re.search(r'\n\s*def ', function_template)
+                        match = re.search(r"\n\s*def ", function_template)
                         if match:
                             start = match.start()
                         else:
                             start = -1
-                        if start == -1:
-                            raise ValueError("Function must be defined with 'def'")
                         t = function_template[start:]
-                        if "..." not in function_template:
-                            t = ""
                         initial_pythoness_args["function_template"] = t
 
                 with (
@@ -158,7 +155,7 @@ def spec(
                         related_objs,
                         globals_no_print,
                         generation_reason,
-                        initial_pythoness_args["function_template"]                        
+                        initial_pythoness_args["function_template"],
                     )
                     function_info = helper_funcs.setup_info(
                         function_info, func, spec_string, prompt

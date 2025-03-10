@@ -467,7 +467,7 @@ def create_prompt(
     related_objs: list,
     no_print: list,
     generation_reason: str | None = None,
-    function_template: str | None = None
+    function_template: str | None = None,
 ) -> str:
     """Creates a prompt string to send to the LLM"""
     prompt = f"""
@@ -501,14 +501,14 @@ def create_prompt(
         for the above helper functions. Do not define any other functions, classes,
         or methods inside the function you are writing.\n"""
 
-    if function_template:
-        prompt += f"""
-        Fill in the function definition below with your implementation. 
-        Do not change the function name or signature.
-        ```
-        {textwrap.indent(function_template, '        ')}
-        ```
-        """
+    # if function_template:
+    #     prompt += f"""
+    #     Fill in the function definition below with your implementation.
+    #     Do not change the function name or signature.
+    #     ```
+    #     {textwrap.indent(function_template, '        ')}
+    #     ```
+    #     """
 
     if time_bound:
         prompt += f"""
@@ -522,10 +522,12 @@ def create_prompt(
         prompt += prep_tests(tests)
         prompt += f"{prep_unit_tests(tests)}"
 
+    assert function_template is not None, "Function template not present"
     prompt += f"""
         Return only a single method or function definition. Use this template for your response:
-            def {function_info['function_name']}{prep_signature(func)}:
-                ...
+        ```
+        {textwrap.indent(function_template, '        ')}
+        ```
         """
 
     return textwrap.dedent(prompt)
