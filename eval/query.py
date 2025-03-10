@@ -91,9 +91,6 @@ def get_problem_details(name: str) -> dict:
             "data"
         ]["question"]
 
-        with open("clean_1_raw.json", "w") as json_file:
-            json.dump(graphql_response, json_file, indent=4)
-
         q_details["name"] = graphql_response["title"]
         q_details["id"] = graphql_response["question_id"]
         q_details["frontend_id"] = graphql_response[
@@ -139,8 +136,6 @@ def get_problem_details(name: str) -> dict:
             "sample_test_case"
         ]  # Input args for sample
 
-        with open("clean_1.json", "w") as json_file:
-            json.dump(q_details, json_file, indent=4)
     except KeyError as e:
         print("Missing dictionary key: %s\n" % e)
     except json.JSONDecodeError as e:
@@ -190,9 +185,6 @@ def submit_test(name: str, id: int, code: str) -> dict:
         **test_submission_result
     ).to_dict()
 
-    with open("clean_2_raw.json", "w") as json_file:
-        json.dump(test_submission_result, json_file, indent=4)
-
     t_details = {}
     try:
         t_details["status_code"] = test_submission_result[
@@ -221,9 +213,6 @@ def submit_test(name: str, id: int, code: str) -> dict:
         print("Missing dictionary key: %s\n" % e)
     except Exception as e:
         print("An error occurred: %s\n" % e)
-
-    with open("clean_2.json", "w") as json_file:
-        json.dump(t_details, json_file, indent=4)
 
     return
 
@@ -264,8 +253,6 @@ def submit_solution(name: str, id: int, code: str) -> dict:
         sleep(1)  # Prevent excessive API calls
 
     submission_response = leetcode.SubmissionResult(**submission_result).to_dict()
-    with open("clean_3_raw.json", "w") as json_file:
-        json.dump(submission_response, json_file, indent=4)
 
     s_details = {}
     try:
@@ -302,6 +289,4 @@ def submit_solution(name: str, id: int, code: str) -> dict:
     except Exception as e:
         print("An error occurred: %s\n" % e)
 
-    with open("clean_3.json", "w") as json_file:
-        json.dump(s_details, json_file, indent=4)
     return s_details
