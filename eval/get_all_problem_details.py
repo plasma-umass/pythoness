@@ -5,6 +5,7 @@ from query import get_problem_details, submit_solution
 
 import re
 import subprocess
+import json
 
 # Get from browser cookies
 # SESSION = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfYXV0aF91c2VyX2lkIjoiMTU2MjIxMDEiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJhbGxhdXRoLmFjY291bnQuYXV0aF9iYWNrZW5kcy5BdXRoZW50aWNhdGlvbkJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiI0YzU1ODI3MmI4MWYyMGI2MTI5MGRjM2M1ODdmNzllYzkxZWYyMWM2N2YzZDI4ODQzNDY1OWRiMDUwNDhmYjJjIiwic2Vzc2lvbl91dWlkIjoiMjEwZjA1NDMiLCJpZCI6MTU2MjIxMDEsImVtYWlsIjoia3lsYS5sZXZpbkBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImtobGV2aW4iLCJ1c2VyX3NsdWciOiJraGxldmluIiwiYXZhdGFyIjoiaHR0cHM6Ly9hc3NldHMubGVldGNvZGUuY29tL3VzZXJzL2tobGV2aW4vYXZhdGFyXzE3MzE3MjQzMjgucG5nIiwicmVmcmVzaGVkX2F0IjoxNzQxMzY0MTA4LCJpcCI6IjEyOC4xMTkuNDAuMTk2IiwiaWRlbnRpdHkiOiI2ZGJiMTA5NTJhMzhjMTFkMTllMjY0ODAyM2Q1MDU1YiIsImRldmljZV93aXRoX2lwIjpbImFiNGM0Mjg3NGYzMDQzNGEwYmNhM2MxY2UxNTNkNmMyIiwiMTI4LjExOS40MC4xOTYiXX0.tNOvbMpoyc525wO3U9b7PA4d3xcWoaBzC1ZdKrOOqY4"
@@ -37,17 +38,18 @@ def get_function_name(code):
 
 
 def leetcode_to_pythoness(list_problems, config):
+    i = 0
+    tot = len(list_problems)
     for id, name in list_problems.items():
-        print(f"Creating {name}.py...")
+        i += 1
+        print(f"Creating {id} {name}.py... {i}/{tot}")
 
         # Get prompt and template code
         details = get_problem_details(name)
-        # details = {
-        #     "difficulty": "Hard",
-        #     "premium": "false",
-        #     "problem_statement": "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.\nThe overall run time complexity should be O(log (m+n)).\n\u00a0\nExample 1:\n\nInput: nums1 = [1,3], nums2 = [2]\nOutput: 2.00000\nExplanation: merged array = [1,2,3] and median is 2.\n\nExample 2:\n\nInput: nums1 = [1,2], nums2 = [3,4]\nOutput: 2.50000\nExplanation: merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.\n\n\u00a0\nConstraints:\n\nnums1.length == m\nnums2.length == n\n0 <= m <= 1000\n0 <= n <= 1000\n1 <= m + n <= 2000\n-10^6 <= nums1[i], nums2[i] <= 10^6\n\n",
-        #     "template_code_definition": "class Solution:\n    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:\n        pass",
-        # }
+
+        with open(f"./results/{id}_problem.json", "w") as json_file:
+            json.dump(details, json_file, indent=4)
+
         if details["difficulty"] != "Hard" or details["premium"]:
             print(
                 f"Problem is either not Hard or not free. Difficulty: {details['difficulty']}, Premium: {details['premium']}",
@@ -105,38 +107,40 @@ def leetcode_to_pythoness(list_problems, config):
         with open(f"./results/{id}.py", "w") as target_file:
             target_file.write(content)
 
-        print("Running...")
+        sleep(3)
+
+        # print("Running...")
         # result = subprocess.run(["python3", "test.py"], capture_output=True, text=True)
 
         # with open("output.txt", "w") as f:
         #     f.write(result.stdout)
 
         # Open the file for writing the output
-        with open(f"./results/{id}.out", "w") as file:
-            # Run the process and capture stdout
-            process = subprocess.Popen(
-                ["python3", f"./results/{id}.py"],  # Replace with your command
-                stdout=subprocess.PIPE,  # Capture stdout
-                stderr=subprocess.PIPE,  # Capture stderr if needed
-                text=True,  # Ensure output is in text format (not bytes)
-            )
+        # with open(f"./results/{id}.out", "w") as file:
+        #     # Run the process and capture stdout
+        #     process = subprocess.Popen(
+        #         ["python3", f"./results/{id}.py"],  # Replace with your command
+        #         stdout=subprocess.PIPE,  # Capture stdout
+        #         stderr=subprocess.PIPE,  # Capture stderr if needed
+        #         text=True,  # Ensure output is in text format (not bytes)
+        #     )
 
-            # Read and print the output line by line
-            for line in process.stdout:
-                print(line, end="")  # Print to terminal
-                file.write(line)  # Write to the file
+        #     # Read and print the output line by line
+        #     for line in process.stdout:
+        #         print(line, end="")  # Print to terminal
+        #         file.write(line)  # Write to the file
 
-            # Wait for the process to finish
-            process.stdout.close()
-            process.wait()
+        #     # Wait for the process to finish
+        #     process.stdout.close()
+        #     process.wait()
 
         # submit_solution(name, id)
 
 
 def main():
     list_problems = {
-        # "4": "median-of-two-sorted-arrays",
-        "10": "regular-expression-matching",
+        "4": "median-of-two-sorted-arrays",
+        # "10": "regular-expression-matching",
         # "23": "merge-k-sorted-lists",
         # "25": "reverse-nodes-in-k-group",
         # "30": "substring-with-concatenation-of-all-words",
@@ -146,6 +150,11 @@ def main():
         # "42": "trapping-rain-water",
         # "44": "wildcard-matching",
     }
+    # with open("short_questions_list.json", "r") as file:
+    #     list_problems = json.load(file)  # Load the JSON data into a dictionary
+
+    # Now, `data` is a Python dictionary
+    # print(list_problems)
 
     template_1 = "\n    llm_unit=False,\n    llm_prop=False,"
     template_2 = "\n    llm_prop=False,"
