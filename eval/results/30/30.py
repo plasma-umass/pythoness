@@ -1,6 +1,7 @@
 import pythoness
 from typing import List
 
+
 @pythoness.spec(
     """You are given a string s and an array of strings words. All the strings of words are of the same length.
 A concatenated string is a string that exactly contains all the strings of any permutation of words concatenated.
@@ -15,10 +16,15 @@ Constraints:
 1 <= words.length <= 5000
 1 <= words[i].length <= 30
 s and words[i] consist of lowercase English letters.""",
-    tests=['findSubstring(s = "barfoothefoobarman", words = ["foo","bar"]) == [0,9]', 'findSubstring(s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]) == []', 'findSubstring(s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]) == [6,9,12]'],
+    tests=[
+        'findSubstring(s = "barfoothefoobarman", words = ["foo","bar"]) == [0,9]',
+        'findSubstring(s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]) == []',
+        'findSubstring(s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]) == [6,9,12]',
+    ],
     llm_unit=False,
     llm_prop=False,
     regenerate=True,
+    replace=True,
     verbose=True,
     output=True,
     time_bound=None,
@@ -26,4 +32,5 @@ s and words[i] consist of lowercase English letters.""",
 def findSubstring(s: str, words: List[str]) -> List[int]:
     """"""
 
-findSubstring()
+
+findSubstring(s="barfoothefoobarman", words=["foo", "bar"])

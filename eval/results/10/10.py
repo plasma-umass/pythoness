@@ -1,6 +1,7 @@
 import pythoness
 from typing import List
 
+
 @pythoness.spec(
     """Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
 
@@ -16,10 +17,15 @@ Constraints:
 s contains only lowercase English letters.
 p contains only lowercase English letters, '.', and '*'.
 It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.""",
-    tests=['isMatch(s = "aa", p = "a") == false', 'isMatch(s = "aa", p = "a*") == true', 'isMatch(s = "ab", p = ".*") == true'],
+    tests=[
+        'isMatch(s = "aa", p = "a") == False',
+        'isMatch(s = "aa", p = "a*") == True',
+        'isMatch(s = "ab", p = ".*") == True',
+    ],
     llm_unit=False,
     llm_prop=False,
     regenerate=True,
+    replace=True,
     verbose=True,
     output=True,
     time_bound=None,
@@ -27,4 +33,5 @@ It is guaranteed for each appearance of the character '*', there will be a previ
 def isMatch(s: str, p: str) -> bool:
     """"""
 
-isMatch()
+
+isMatch(s="aa", p="a")

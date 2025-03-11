@@ -21,6 +21,7 @@ nums2.length == n
     llm_unit=False,
     llm_prop=False,
     regenerate=True,
+    replace=True,
     verbose=True,
     output=True,
 )
@@ -28,4 +29,4 @@ def findMedianSortedArrays(nums1: List[int], nums2: List[int]) -> float:
     """"""
 
 
-findMedianSortedArrays()
+findMedianSortedArrays(nums1=[1, 3], nums2=[2])

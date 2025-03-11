@@ -148,8 +148,9 @@ def compile_func(function_info: dict) -> dict:
         compiled = compile(function_info["function_def"], "generated_func", "exec")
         function_info["compiled"] = compiled
         return function_info
-    except:
+    except Exception as e:
         # Compilation failed: retry
+        print(e)
         raise exceptions.CompileException()
 
 
@@ -159,7 +160,8 @@ def execute_func(function_info: dict, max_runtime: int) -> dict:
         start = time.perf_counter_ns()
         exec(function_info["compiled"], function_info["globals"])
         end = time.perf_counter_ns()
-    except:
+    except Exception as e:
+        print(e)
         raise exceptions.ExecException()
 
     time_ns = (end - start) / 1e6
