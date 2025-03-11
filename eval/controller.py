@@ -54,7 +54,7 @@ def generate_json_problem(list_problems: dict, id) -> dict:
     return details
 
 
-def generate_py_problem(list_problems: dict, config: str) -> None:
+def generate_py_problem(list_problems: dict, config: int) -> None:
     i = 0
     tot = len(list_problems)
     for id, name in list_problems.items():
@@ -81,14 +81,24 @@ def generate_py_problem(list_problems: dict, config: str) -> None:
                 f"Problem is either not Hard or not free. Difficulty: {details['difficulty']}, Premium: {details['premium']}",
             )
             return
-        prompt = details["problem_statement"]
-        # print(prompt)
+        prompt = details["problem_statement"].replace("\xa0", "")
         template = details["template_code_definition"]
+
+        if config == 1:
+            template_insert = "\n    llm_unit=False,\n    llm_prop=False,"
+        elif config == 2:
+            template_insert = "\n    llm_prop=False,"
+        elif config == 4:
+            template_insert = "\n    runtime=True,"
+        else:
+            template_insert = ""
 
         # Overwrite test.py with template code and insert chosen config
         with open("pythoness_template.txt", "r") as template_file:
             content = template_file.read()
-        content = content.replace("tests=[],", "tests=[]," + config)
+
+        content = content.replace("tests=[],", "tests=[]," + template_insert)
+
         for line in template.splitlines():
             if line.lstrip().startswith(
                 "def "
@@ -106,6 +116,7 @@ def generate_py_problem(list_problems: dict, config: str) -> None:
         # print(unittests)
         all_unittests = ", ".join([f"'{i}'" for i in unittests])
         # print(all_unittests)
+
         prompt = re.sub(r"\nExample 1.*?(?=\nConstraints)", "", prompt, flags=re.DOTALL)
         content = re.sub(r"tests=\[\]", f"tests=[{all_unittests}]", content)
 
@@ -135,31 +146,37 @@ def generate_py_problem(list_problems: dict, config: str) -> None:
             else:
                 print("Multiple runtime bound match")
 
-        # Write full program to test.py
-        with open(f"./results/{id}/{id}.py", "w") as target_file:
+        # Write full program to id_config#.py
+        with open(f"./results/{id}/{id}_config{config}.py", "w") as target_file:
             target_file.write(content)
 
 
-def run_pythoness(ids: list, runs: int) -> None:
+def run_pythoness(ids: list, config: int, runs: int) -> None:
     for id in ids:
         i = 0
+
+        # Clear output contents if pre-existing
+        if os.path.exists(f"./results/{id}/{id}_config{config}.out"):
+            open(f"./results/{id}/{id}_config{config}.out", "w").close()
+
         while i < runs:
             i += 1
             print(f"Running iteration {i} of Pythoness on {id}.py...")
 
             # Create file for output Python code, replacing it if necessary
-            out_file = f"./results/{id}/{id}_{i}.py"
+            out_file = f"./results/{id}/{id}_config{config}_{i}.py"
             if os.path.exists(out_file):
                 os.remove(out_file)
-            shutil.copy(f"./results/{id}/{id}.py", out_file)
+            shutil.copy(f"./results/{id}/{id}_config{config}.py", out_file)
 
             # Open the file for writing the output
-            with open(f"./results/{id}/{id}.out", "w") as file:
+            with open(f"./results/{id}/{id}_config{config}.out", "a") as file:
+                file.write(f"\n\nRunning iteration {i} of Pythoness on {id}.py\n\n")
                 # Run the process and capture stdout
                 process = subprocess.Popen(
                     [
                         "python3",
-                        f"./results/{id}/{id}_{i}.py",
+                        f"./results/{id}/{id}_config{config}_{i}.py",
                     ],  # Replace with your command
                     stdout=subprocess.PIPE,  # Capture stdout
                     stderr=subprocess.PIPE,  # Capture stderr if needed
@@ -168,7 +185,7 @@ def run_pythoness(ids: list, runs: int) -> None:
 
                 # Read and print the output line by line
                 for line in process.stdout:
-                    print(line, end="")  # Print to terminal
+                    # print(line, end="")  # Print to terminal
                     file.write(line)  # Write to the file
 
                 # Wait for the process to finish
@@ -197,8 +214,8 @@ def check_solution(list_problems: dict) -> dict:
 
 def main():
     list_problems = {
-        "4": "median-of-two-sorted-arrays",
-        # "10": "regular-expression-matching",
+        # "4": "median-of-two-sorted-arrays",
+        "10": "regular-expression-matching",
         # "23": "merge-k-sorted-lists",
         # "25": "reverse-nodes-in-k-group",
         # "30": "substring-with-concatenation-of-all-words",
@@ -210,12 +227,12 @@ def main():
         # "51": "n-queens",
     }
 
-    template_1 = "\n    llm_unit=False,\n    llm_prop=False,"
-    template_2 = "\n    llm_prop=False,"
-    template_3 = ""
-    template_4 = "\n    runtime=True,"
-    # generate_py_problem(list_problems, template_1)
-    run_pythoness(list_problems.keys(), 5)
+    config = 1
+    # Generates the Python template for this problem and config
+    generate_py_problem(list_problems, config)
+    # Runs Pythoness X times
+    # run_pythoness(list_problems.keys(), config, 5)
+    # Checks solutions
     # check_solution()
 
 

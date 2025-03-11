@@ -5,6 +5,7 @@ from time import sleep
 
 import json
 import leetcode
+import unicodedata
 
 # Get from browser cookies
 SESSION = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfYXV0aF91c2VyX2lkIjoiMTU2MjIxMDEiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJhbGxhdXRoLmFjY291bnQuYXV0aF9iYWNrZW5kcy5BdXRoZW50aWNhdGlvbkJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiI0YzU1ODI3MmI4MWYyMGI2MTI5MGRjM2M1ODdmNzllYzkxZWYyMWM2N2YzZDI4ODQzNDY1OWRiMDUwNDhmYjJjIiwic2Vzc2lvbl91dWlkIjoiMjEwZjA1NDMiLCJpZCI6MTU2MjIxMDEsImVtYWlsIjoia3lsYS5sZXZpbkBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImtobGV2aW4iLCJ1c2VyX3NsdWciOiJraGxldmluIiwiYXZhdGFyIjoiaHR0cHM6Ly9hc3NldHMubGVldGNvZGUuY29tL3VzZXJzL2tobGV2aW4vYXZhdGFyXzE3MzE3MjQzMjgucG5nIiwicmVmcmVzaGVkX2F0IjoxNzQxMzY0MTA4LCJpcCI6IjEyOC4xMTkuNDAuMTk2IiwiaWRlbnRpdHkiOiI2ZGJiMTA5NTJhMzhjMTFkMTllMjY0ODAyM2Q1MDU1YiIsImRldmljZV93aXRoX2lwIjpbImFiNGM0Mjg3NGYzMDQzNGEwYmNhM2MxY2UxNTNkNmMyIiwiMTI4LjExOS40MC4xOTYiXX0.tNOvbMpoyc525wO3U9b7PA4d3xcWoaBzC1ZdKrOOqY4"
@@ -117,10 +118,14 @@ def get_problem_details(name: str) -> dict:
             None,
         )["defaultCode"]
 
-        q_details["problem_statement"] = BeautifulSoup(
+        unicode_statement = BeautifulSoup(
             graphql_response["content"].replace("<sup>", "^").replace("</sup>", ""),
             "html.parser",
         ).get_text()
+        unicode_statement = unicodedata.normalize("NFKD", unicode_statement)
+        q_details["problem_statement"] = unicode_statement.replace("\xa0", " ").replace(
+            "\u200b", " "
+        )
 
         q_details["difficulty"] = graphql_response["difficulty"]
         q_details["premium"] = graphql_response["is_paid_only"]
