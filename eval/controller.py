@@ -140,10 +140,10 @@ def generate_py_problem(list_problems: dict, config: str) -> None:
             target_file.write(content)
 
 
-def run_pythoness(ids: list) -> None:
+def run_pythoness(ids: list, runs: int) -> None:
     for id in ids:
         i = 0
-        while i < 5:
+        while i < runs:
             i += 1
             print(f"Running iteration {i} of Pythoness on {id}.py...")
 
@@ -197,7 +197,7 @@ def check_solution(list_problems: dict) -> dict:
 
 def main():
     list_problems = {
-        # "4": "median-of-two-sorted-arrays",
+        "4": "median-of-two-sorted-arrays",
         # "10": "regular-expression-matching",
         # "23": "merge-k-sorted-lists",
         # "25": "reverse-nodes-in-k-group",
@@ -207,20 +207,15 @@ def main():
         # "41": "first-missing-positive",
         # "42": "trapping-rain-water",
         # "44": "wildcard-matching",
-        "51": "n-queens",
+        # "51": "n-queens",
     }
-    # with open("short_questions_list.json", "r") as file:
-    #     list_problems = json.load(file)  # Load the JSON data into a dictionary
-
-    # Now, `data` is a Python dictionary
-    # print(list_problems)
 
     template_1 = "\n    llm_unit=False,\n    llm_prop=False,"
     template_2 = "\n    llm_prop=False,"
     template_3 = ""
     template_4 = "\n    runtime=True,"
-    generate_py_problem(list_problems, template_1)
-    # run_pythoness(list_problems.keys())
+    # generate_py_problem(list_problems, template_1)
+    run_pythoness(list_problems.keys(), 5)
     # check_solution()
 
 
