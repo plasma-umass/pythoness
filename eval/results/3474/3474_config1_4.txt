@@ -1,0 +1,24 @@
+class Solution:
+    
+    def generateString(self, str1: str, str2: str) -> str:
+        
+        # Initialize the word to be of the correct size
+        (n, m) = (len(str1), len(str2))
+        word = ['a'] * (n + m - 1)
+        for i in range(n):
+            if str1[i] == 'T':
+                if word[i:i + m] != ['a'] * m and ''.join(word[i:i + m]) != str2:
+                    return ''  # Return empty string if there's a conflict
+                word[i:i + m] = str2
+            else:
+                # Fill in 'F' condition by avoiding str2
+                for j in range(m):
+                    if word[i + j] == 'a':
+                        # Select the smallest character different from str2[j]
+                        for c in 'abcdefghijklmnopqrstuvwxyz':
+                            if c != str2[j]:
+                                word[i + j] = c
+                                break
+                    elif word[i + j] == str2[j]:
+                        return ''  # If it matches str2 for 'F', it's invalid
+        return ''.join(word)

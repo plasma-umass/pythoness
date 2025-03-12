@@ -1,0 +1,25 @@
+class Solution:
+    
+    def atMostNGivenDigitSet(self, digits: List[str], n: int) -> int:
+        
+        str_n = str(n)
+        length_n = len(str_n)
+        total_count = 0
+        # Count numbers with fewer digits than n.
+        for i in range(1, length_n):
+            total_count += len(digits) ** i
+        # Count numbers with the same number of digits.
+        for i in range(length_n):
+            smaller_digits_count = 0
+            for d in digits:
+                if d < str_n[i]:
+                    smaller_digits_count += 1
+                elif d == str_n[i]:
+                    if i == length_n - 1:
+                        total_count += 1
+                    break
+            total_count += smaller_digits_count * len(digits) ** (length_n - i - 1)
+            # If there's no current digit d in digits that matches str_n[i], break.
+            if str_n[i] not in digits:
+                break
+        return total_count

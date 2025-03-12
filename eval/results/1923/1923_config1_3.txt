@@ -1,0 +1,37 @@
+class Solution:
+    
+    def longestCommonSubpath(self, n: int, paths: List[List[int]]) -> int:
+        
+        from typing import List
+    
+        def check_length(L: int) -> bool:
+            
+            (R, P) = (10 ** 9 + 7, 10 ** 9 + 9)
+            base = 1
+            for _ in range(L):
+                base = base * P % R
+    
+            def compute_hashes(path):
+                current_hash = 0
+                hashes = set()
+                for i in range(len(path)):
+                    current_hash = (current_hash * P + path[i]) % R
+                    if i >= L:
+                        current_hash = (current_hash - path[i - L] * base) % R
+                    if i >= L - 1:
+                        hashes.add(current_hash)
+                return hashes
+            hashes = compute_hashes(paths[0])
+            for path in paths[1:]:
+                hashes &= compute_hashes(path)
+                if not hashes:
+                    return False
+            return len(hashes) > 0
+        (left, right) = (0, min((len(p) for p in paths)) + 1)
+        while left < right:
+            mid = (left + right) // 2
+            if check_length(mid):
+                left = mid + 1
+            else:
+                right = mid
+        return left - 1

@@ -1,0 +1,40 @@
+class Solution:
+    
+    def longestCommonSubpath(self, n: int, paths: List[List[int]]) -> int:
+        
+        from typing import List
+    
+        def rolling_hash(base: int, mod: int, length: int, path: List[int]):
+            current_hash = 0
+            base_l = 1
+            for i in range(length):
+                current_hash = (current_hash * base + path[i]) % mod
+                base_l = base_l * base % mod
+            yield (current_hash, base_l)
+            for i in range(length, len(path)):
+                current_hash = (current_hash * base - path[i - length] * base_l + path[i]) % mod
+                yield (current_hash, base_l)
+    
+        def check(length: int) -> bool:
+            seen_hashes = set()
+            base = 10 ** 4 + 7
+            mod = 2 ** 63 - 1
+            for (i, path) in enumerate(paths):
+                current_hashes = set((hash_val for (hash_val, _) in rolling_hash(base, mod, length, path)))
+                if i == 0:
+                    seen_hashes = current_hashes
+                else:
+                    seen_hashes &= current_hashes
+                if not seen_hashes:
+                    return False
+            return True
+        (left, right) = (0, min((len(path) for path in paths)))
+        answer = 0
+        while left <= right:
+            mid = (left + right) // 2
+            if check(mid):
+                answer = mid
+                left = mid + 1
+            else:
+                right = mid - 1
+        return answer

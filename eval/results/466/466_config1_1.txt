@@ -1,0 +1,20 @@
+class Solution:
+    
+    def getMaxRepetitions(self, s1: str, n1: int, s2: str, n2: int) -> int:
+        
+    
+        def count_s2_in_s1(s1: str, s2: str) -> int:
+            count = 0
+            index_s2 = 0
+            for char in s1:
+                if char == s2[index_s2]:
+                    index_s2 += 1
+                    if index_s2 == len(s2):
+                        count += 1
+                        index_s2 = 0
+            return count
+        count1 = count_s2_in_s1(s1, s2)
+        if count1 == 0:
+            return 0
+        total_s1 = n1 * count1
+        return total_s1 // (n2 * count_s2_in_s1(s2, s2))

@@ -1,0 +1,29 @@
+class Solution:
+    
+    def maxKDivisibleComponents(self, n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        
+        from collections import defaultdict
+        # Build the tree as an adjacency list
+        tree = defaultdict(list)
+        for (a, b) in edges:
+            tree[a].append(b)
+            tree[b].append(a)
+        # Helper function to perform DFS and calculate component sums
+    
+        def dfs(node, parent):
+            total = values[node]
+            for neighbor in tree[node]:
+                if neighbor == parent:
+                    continue
+                total += dfs(neighbor, node)
+            # We can form a valid component if the subtree sum is divisible by k
+            if total % k == 0:
+                nonlocal components
+                components += 1
+                return 0
+            else:
+                return total
+        components = 0
+        # Start DFS from any node, considering 0 here as root
+        dfs(0, -1)
+        return components

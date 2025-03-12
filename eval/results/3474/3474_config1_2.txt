@@ -1,0 +1,27 @@
+class Solution:
+    
+    def generateString(self, str1: str, str2: str) -> str:
+        
+        (n, m) = (len(str1), len(str2))
+        result = [''] * (n + m - 1)
+        for i in range(n):
+            if str1[i] == 'T':
+                if i + m > len(result):
+                    return ''
+                for j in range(m):
+                    if result[i + j] == '' or result[i + j] == str2[j]:
+                        result[i + j] = str2[j]
+                    else:
+                        return ''
+            elif str1[i] == 'F':
+                if i + m <= len(result) and result[i:i + m] == list(str2):
+                    return ''
+                if i + m <= len(result):
+                    if ''.join(result[i:i + m]) == '':
+                        result[i] = 'a' if str2[0] != 'a' else 'b'
+                else:
+                    result[i] = 'a' if result[i] == '' else result[i]
+        for i in range(len(result)):
+            if result[i] == '':
+                result[i] = 'a'
+        return ''.join(result)

@@ -1,0 +1,31 @@
+class Solution:
+    
+    def getMaxRepetitions(self, s1: str, n1: int, s2: str, n2: int) -> int:
+        
+        (len1, len2) = (len(s1), len(s2))
+        (index1, index2) = (0, 0)
+        (count1, count2) = (0, 0)
+        # A dictionary to store the index in s1 where each index of s2 is reset
+        index_dict = {}
+        while count1 < n1:
+            if s1[index1] == s2[index2]:
+                index2 += 1
+                if index2 == len2:
+                    index2 = 0
+                    count2 += 1
+                # Store the state of s1 index and repetitions when s2 is reset
+                if index2 in index_dict:
+                    # Cycle detected
+                    (prev_index1, prev_count1, prev_count2) = index_dict[index2]
+                    cycle_length = count1 - prev_count1
+                    cycle_count = count2 - prev_count2
+                    complete_cycles = (n1 - count1) // cycle_length
+                    count1 += complete_cycles * cycle_length
+                    count2 += complete_cycles * cycle_count
+                else:
+                    index_dict[index2] = (index1, count1, count2)
+            index1 += 1
+            if index1 == len1:
+                index1 = 0
+                count1 += 1
+        return count2 // n2

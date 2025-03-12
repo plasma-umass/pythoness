@@ -1,0 +1,23 @@
+class Solution:
+    
+    def atMostNGivenDigitSet(self, digits: List[str], n: int) -> int:
+        
+        s = str(n)
+        k = len(s)
+        num_digits = len(digits)
+        count = 0
+        # Count numbers with fewer digits than n
+        for i in range(1, k):
+            count += num_digits ** i
+        # Count numbers with the same length as n
+        for i in range(k):
+            has_same_prefix = False
+            for d in digits:
+                if d < s[i]:
+                    count += num_digits ** (k - i - 1)
+                elif d == s[i]:
+                    has_same_prefix = True
+                    break
+            if not has_same_prefix:
+                return count
+        return count + 1

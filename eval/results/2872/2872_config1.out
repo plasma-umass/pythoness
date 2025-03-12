@@ -1,0 +1,1290 @@
+
+
+Running iteration 1 of Pythoness on 2872_config1_1.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 2 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [1 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+          """
+          There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+          You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+          A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+          Return the maximum number of components in any valid split.
+          """
+          from collections import defaultdict
+
+          def dfs(node, parent):
+              subtree_sum = values[node]
+              for neighbor in tree[node]:
+                  if neighbor != parent:
+                      subtree_sum += dfs(neighbor, node)
+              # If the subtree sum including this node is divisible by k, we can consider it as a component and exclude the edge from parent.
+              if subtree_sum % k == 0:
+                  nonlocal max_components
+                  max_components += 1
+                  return 0  # If the component is valid, return 0 since we don't carry over any value upwards.
+              return subtree_sum  # If not valid, return the subtree_sum to parent.
+
+          # Create adjacency list for the undirected tree.
+          tree = defaultdict(list)
+          for a, b in edges:
+              tree[a].append(b)
+              tree[b].append(a)
+
+          # We start with 0 components because we need at least one whole tree component to start with.
+          max_components = 0
+          root_to_all_sum = dfs(0, -1) # Start dfs from any node, here node 0
+
+          return max_components]
+    [13654 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+    """
+    There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+    You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+    A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+    Return the maximum number of components in any valid split.
+    """
+    from collections import defaultdict
+
+    def dfs(node, parent):
+        subtree_sum = values[node]
+        for neighbor in tree[node]:
+            if neighbor != parent:
+                subtree_sum += dfs(neighbor, node)
+        # If the subtree sum including this node is divisible by k, we can consider it as a component and exclude the edge from parent.
+        if subtree_sum % k == 0:
+            nonlocal max_components
+            max_components += 1
+            return 0  # If the component is valid, return 0 since we don't carry over any value upwards.
+        return subtree_sum  # If not valid, return the subtree_sum to parent.
+
+    # Create adjacency list for the undirected tree.
+    tree = defaultdict(list)
+    for a, b in edges:
+        tree[a].append(b)
+        tree[b].append(a)
+
+    # We start with 0 components because we need at least one whole tree component to start with.
+    max_components = 0
+    root_to_all_sum = dfs(0, -1) # Start dfs from any node, here node 0
+
+    return max_components
+
+    [[Pythoness] Replacing...... 2 ms]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 13.654080867767334]]
+  [13663 ms]
+[13669 ms]
+
+
+Running iteration 2 of Pythoness on 2872_config1_2.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+          """
+          There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+          You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+          A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+          Return the maximum number of components in any valid split.
+          """
+          from collections import defaultdict
+
+          # Build the tree adjacency list
+          tree = defaultdict(list)
+          for a, b in edges:
+              tree[a].append(b)
+              tree[b].append(a)
+
+          # This will hold the remainders of the subtree sums mod k
+          remainder = [0] * n
+    
+          # To avoid revisiting nodes, we'll track visited nodes
+          visited = [False] * n
+
+          # This will count the number of valid components
+          valid_components = 0
+
+          # DFS to calculate subtree sums and determine removable edges
+          def dfs(node):
+              nonlocal valid_components
+              visited[node] = True
+              subtree_sum = values[node]
+              for neighbor in tree[node]:
+                  if not visited[neighbor]:
+                      subtree_sum += dfs(neighbor)
+              remainder[node] = subtree_sum % k
+              # If the remainder of this subtree is zero, it is a valid component
+              if remainder[node] == 0:
+                  valid_components += 1
+                  # Reset remainder to not accumulate this component further
+                  return 0
+              else:
+                  return subtree_sum
+
+          # Start DFS from node 0 (arbitrary root of the tree)
+          dfs(0)
+    
+          # If the entire tree is one component, we need one less split since
+          # valid_components includes the original tree component
+          return valid_components - 1
+
+      ]
+    [13021 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+4. After
+5. Invalid tests
+6. Failing tests, ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+RAISING ERROR
+ 0 ms]
+Exception (['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 13.021172285079956]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+          """
+          There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+          You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+          A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+          Return the maximum number of components in any valid split.
+          """
+          from collections import defaultdict
+
+          # Build the tree adjacency list
+          tree = defaultdict(list)
+          for a, b in edges:
+              tree[a].append(b)
+              tree[b].append(a)
+
+          visited = [False] * n
+          non_divisible_edges = 0
+    
+          def dfs(node):
+              nonlocal non_divisible_edges
+              visited[node] = True
+              current_sum = values[node]
+              for neighbor in tree[node]:
+                  if not visited[neighbor]:
+                      child_sum = dfs(neighbor)
+                      if child_sum % k != 0:
+                          non_divisible_edges += 1
+                      current_sum += child_sum
+              return current_sum
+
+          # Start DFS traversal from node 0
+          dfs(0)
+          # The maximum number of components is the original node count
+          # minus edges we can't remove (those that don't result in a valid division)
+          return n - non_divisible_edges
+
+      ]
+    [9773 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+
+def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+    """
+    There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+    You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+    A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+    Return the maximum number of components in any valid split.
+    """
+    from collections import defaultdict
+
+    # Build the tree adjacency list
+    tree = defaultdict(list)
+    for a, b in edges:
+        tree[a].append(b)
+        tree[b].append(a)
+
+    visited = [False] * n
+    non_divisible_edges = 0
+    
+    def dfs(node):
+        nonlocal non_divisible_edges
+        visited[node] = True
+        current_sum = values[node]
+        for neighbor in tree[node]:
+            if not visited[neighbor]:
+                child_sum = dfs(neighbor)
+                if child_sum % k != 0:
+                    non_divisible_edges += 1
+                current_sum += child_sum
+        return current_sum
+
+    # Start DFS traversal from node 0
+    dfs(0)
+    # The maximum number of components is the original node count
+    # minus edges we can't remove (those that don't result in a valid division)
+    return n - non_divisible_edges
+
+
+
+    [[Pythoness] Replacing...... 2 ms]
+    [
+    [Total cost so far: ~$0.02 USD]]
+    [
+    [Total time so far: 35.815664768218994]]
+  [22817 ms]
+[22818 ms]
+
+
+Running iteration 3 of Pythoness on 2872_config1_3.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 1 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxKDivisibleComponents(n: int, edges: list[list[int]], values: list[int], k: int) -> int:
+          """
+          There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+          You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+          A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+          Return the maximum number of components in any valid split.
+
+          Constraints:
+
+          1 <= n <= 3 * 10^4
+          edges.length == n - 1
+          edges[i].length == 2
+          0 <= ai, bi < n
+          values.length == n
+          0 <= values[i] <= 10^9
+          1 <= k <= 10^9
+          Sum of values is divisible by k.
+          The input is generated such that edges represents a valid tree.
+          """
+          from collections import defaultdict
+
+          # Build adjacency list
+          adj_list = defaultdict(list)
+          for u, v in edges:
+              adj_list[u].append(v)
+              adj_list[v].append(u)
+
+          def dfs(node, parent):
+              component_sum = values[node]
+              for neighbor in adj_list[node]:
+                  if neighbor == parent:
+                      continue
+                  component_sum += dfs(neighbor, node)
+              # If component_sum is divisible by k, we can make it a new component
+              if component_sum % k == 0:
+                  nonlocal max_components
+                  max_components += 1
+                  return 0  # Return 0 to 'cut off' this component and not carry its sum upward
+              return component_sum  # Otherwise return its sum upward to its parent
+
+          max_components = 0
+          # Start DFS from an arbitrary root node (e.g., node 0)
+          dfs(0, -1)
+          return max_components
+
+      ]
+    [12342 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types......Not same type (n: int, edges: List[List[int]], values: List[int], k: int) -> int (n: int, edges: list[list[int]], values: list[int], k: int) -> int
+ 0 ms]
+Exception 
+    [[Pythoness] The types of the generated function are incompatible with the spec. Ensure the signatures match. ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 12.342352151870728]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because the types of the function and spec were incompatible. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+      from typing import List
+
+      def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+          """
+          There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+          You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+          A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+          Return the maximum number of components in any valid split.
+
+          Constraints:
+
+          1 <= n <= 3 * 10^4
+          edges.length == n - 1
+          edges[i].length == 2
+          0 <= ai, bi < n
+          values.length == n
+          0 <= values[i] <= 10^9
+          1 <= k <= 10^9
+          Sum of values is divisible by k.
+          The input is generated such that edges represents a valid tree.
+          """
+          from collections import defaultdict
+
+          # Build adjacency list
+          adj_list = defaultdict(list)
+          for u, v in edges:
+              adj_list[u].append(v)
+              adj_list[v].append(u)
+
+          def dfs(node, parent):
+              component_sum = values[node]
+              for neighbor in adj_list[node]:
+                  if neighbor == parent:
+                      continue
+                  component_sum += dfs(neighbor, node)
+              # If component_sum is divisible by k, we can make it a new component
+              if component_sum % k == 0:
+                  nonlocal max_components
+                  max_components += 1
+                  return 0  # Return 0 to 'cut off' this component and not carry its sum upward
+              return component_sum  # Otherwise return its sum upward to its parent
+
+          max_components = 0
+          # Start DFS from an arbitrary root node (e.g., node 0)
+          dfs(0, -1)
+          return max_components
+      ]
+    [13772 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+from typing import List
+
+def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+    """
+    There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+    You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+    A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+    Return the maximum number of components in any valid split.
+
+    Constraints:
+
+    1 <= n <= 3 * 10^4
+    edges.length == n - 1
+    edges[i].length == 2
+    0 <= ai, bi < n
+    values.length == n
+    0 <= values[i] <= 10^9
+    1 <= k <= 10^9
+    Sum of values is divisible by k.
+    The input is generated such that edges represents a valid tree.
+    """
+    from collections import defaultdict
+
+    # Build adjacency list
+    adj_list = defaultdict(list)
+    for u, v in edges:
+        adj_list[u].append(v)
+        adj_list[v].append(u)
+
+    def dfs(node, parent):
+        component_sum = values[node]
+        for neighbor in adj_list[node]:
+            if neighbor == parent:
+                continue
+            component_sum += dfs(neighbor, node)
+        # If component_sum is divisible by k, we can make it a new component
+        if component_sum % k == 0:
+            nonlocal max_components
+            max_components += 1
+            return 0  # Return 0 to 'cut off' this component and not carry its sum upward
+        return component_sum  # Otherwise return its sum upward to its parent
+
+    max_components = 0
+    # Start DFS from an arbitrary root node (e.g., node 0)
+    dfs(0, -1)
+    return max_components
+
+
+    [[Pythoness] Replacing...... 4 ms]
+    [
+    [Total cost so far: ~$0.02 USD]]
+    [
+    [Total time so far: 38.45723342895508]]
+  [26136 ms]
+[26138 ms]
+
+
+Running iteration 4 of Pythoness on 2872_config1_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+          """
+          There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+          You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+          A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+          Return the maximum number of components in any valid split.
+
+          Constraints:
+
+          1 <= n <= 3 * 10^4
+          edges.length == n - 1
+          edges[i].length == 2
+          0 <= ai, bi < n
+          values.length == n
+          0 <= values[i] <= 10^9
+          1 <= k <= 10^9
+          Sum of values is divisible by k.
+          The input is generated such that edges represents a valid tree.
+          """
+
+          from collections import defaultdict
+
+          # Build the tree as an adjacency list
+          tree = defaultdict(list)
+          for a, b in edges:
+              tree[a].append(b)
+              tree[b].append(a)
+
+          # Helper function to perform DFS and calculate component sums
+          def dfs(node, parent):
+              total = values[node]
+              for neighbor in tree[node]:
+                  if neighbor == parent:
+                      continue
+                  total += dfs(neighbor, node)
+
+              # We can form a valid component if the subtree sum is divisible by k
+              if total % k == 0:
+                  nonlocal components
+                  components += 1
+                  return 0
+              else:
+                  return total
+
+          components = 0
+          # Start DFS from any node, considering 0 here as root
+          dfs(0, -1)
+
+          return components
+
+      ]
+    [21587 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+
+def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+    """
+    There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+    You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+    A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+    Return the maximum number of components in any valid split.
+
+    Constraints:
+
+    1 <= n <= 3 * 10^4
+    edges.length == n - 1
+    edges[i].length == 2
+    0 <= ai, bi < n
+    values.length == n
+    0 <= values[i] <= 10^9
+    1 <= k <= 10^9
+    Sum of values is divisible by k.
+    The input is generated such that edges represents a valid tree.
+    """
+
+    from collections import defaultdict
+
+    # Build the tree as an adjacency list
+    tree = defaultdict(list)
+    for a, b in edges:
+        tree[a].append(b)
+        tree[b].append(a)
+
+    # Helper function to perform DFS and calculate component sums
+    def dfs(node, parent):
+        total = values[node]
+        for neighbor in tree[node]:
+            if neighbor == parent:
+                continue
+            total += dfs(neighbor, node)
+
+        # We can form a valid component if the subtree sum is divisible by k
+        if total % k == 0:
+            nonlocal components
+            components += 1
+            return 0
+        else:
+            return total
+
+    components = 0
+    # Start DFS from any node, considering 0 here as root
+    dfs(0, -1)
+
+    return components
+
+
+
+    [[Pythoness] Replacing...... 2 ms]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 21.58692693710327]]
+  [21604 ms]
+[21606 ms]
+
+
+Running iteration 5 of Pythoness on 2872_config1_5.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxKDivisibleComponents that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+        You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the i^th node, and an integer k.
+        A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+        Return the maximum number of components in any valid split.
+
+        Constraints:
+
+        1 <= n <= 3 * 10^4
+        edges.length == n - 1
+        edges[i].length == 2
+        0 <= ai, bi < n
+        values.length == n
+        0 <= values[i] <= 10^9
+        1 <= k <= 10^9
+        Sum of values is divisible by k.
+        The input is generated such that edges represents a valid tree.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2
+        maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+          """
+          There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, 
+          where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+          You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the ith node, and an integer k.
+          A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have 
+          values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+          Return the maximum number of components in any valid split.
+    
+          Constraints:
+
+          1 <= n <= 3 * 10^4
+          edges.length == n - 1
+          edges[i].length == 2
+          0 <= ai, bi < n
+          values.length == n
+          0 <= values[i] <= 10^9
+          1 <= k <= 10^9
+          Sum of values is divisible by k.
+          The input is generated such that edges represents a valid tree.
+          """
+          from collections import defaultdict
+
+          # Create adjacency list for the tree
+          tree = defaultdict(list)
+          for u, v in edges:
+              tree[u].append(v)
+              tree[v].append(u)
+
+          # This will hold the count of maximum k-divisible components
+          max_components = 0
+
+          # Function to recursively perform DFS from a node
+          def dfs(node, parent):
+              nonlocal max_components
+              current_sum = values[node]
+
+              for neighbour in tree[node]:
+                  if neighbour != parent:
+                      child_sum = dfs(neighbour, node)
+                      current_sum += child_sum
+
+              if current_sum % k == 0:
+                  max_components += 1
+                  return 0
+
+              return current_sum
+
+          # Start DFS from node 0 (or any arbitrary node, since it's a connected tree)
+          dfs(0, -1)
+
+          return max_components
+
+      ]
+    [15273 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['maxKDivisibleComponents(n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6) == 2', 'maxKDivisibleComponents(n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3) == 3']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+
+def maxKDivisibleComponents(n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+    """
+    There is an undirected tree with n nodes labeled from 0 to n - 1. You are given the integer n and a 2D integer array edges of length n - 1, 
+    where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+    You are also given a 0-indexed integer array values of length n, where values[i] is the value associated with the ith node, and an integer k.
+    A valid split of the tree is obtained by removing any set of edges, possibly empty, from the tree such that the resulting components all have 
+    values that are divisible by k, where the value of a connected component is the sum of the values of its nodes.
+    Return the maximum number of components in any valid split.
+    
+    Constraints:
+
+    1 <= n <= 3 * 10^4
+    edges.length == n - 1
+    edges[i].length == 2
+    0 <= ai, bi < n
+    values.length == n
+    0 <= values[i] <= 10^9
+    1 <= k <= 10^9
+    Sum of values is divisible by k.
+    The input is generated such that edges represents a valid tree.
+    """
+    from collections import defaultdict
+
+    # Create adjacency list for the tree
+    tree = defaultdict(list)
+    for u, v in edges:
+        tree[u].append(v)
+        tree[v].append(u)
+
+    # This will hold the count of maximum k-divisible components
+    max_components = 0
+
+    # Function to recursively perform DFS from a node
+    def dfs(node, parent):
+        nonlocal max_components
+        current_sum = values[node]
+
+        for neighbour in tree[node]:
+            if neighbour != parent:
+                child_sum = dfs(neighbour, node)
+                current_sum += child_sum
+
+        if current_sum % k == 0:
+            max_components += 1
+            return 0
+
+        return current_sum
+
+    # Start DFS from node 0 (or any arbitrary node, since it's a connected tree)
+    dfs(0, -1)
+
+    return max_components
+
+
+
+    [[Pythoness] Replacing...... 2 ms]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 15.273612022399902]]
+  [15281 ms]
+[15283 ms]

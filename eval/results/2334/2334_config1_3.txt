@@ -1,0 +1,12 @@
+class Solution:
+    
+    def validSubarraySize(self, nums: List[int], threshold: int) -> int:
+        
+        n = len(nums)
+        for k in range(1, n + 1):
+            limit = threshold / k
+            # Check if there is any subarray of length k where all elements satisfy the condition
+            for i in range(n - k + 1):
+                if all((x > limit for x in nums[i:i + k])):
+                    return k
+        return -1

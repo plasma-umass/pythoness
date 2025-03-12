@@ -1,0 +1,43 @@
+class Solution:
+    
+    def longestCommonSubpath(self, n: int, paths: List[List[int]]) -> int:
+        
+        from collections import defaultdict
+    
+        def check(length: int) -> bool:
+            
+            MOD = 2 ** 61 - 1
+            base = 10 ** 5 + 7
+    
+            def compute_hash(path: List[int], length: int) -> int:
+                
+                h = 0
+                for i in range(length):
+                    h = (h * base + path[i]) % MOD
+                return h
+            multiplier = pow(base, length, MOD)
+            common_hashes = None
+            for path in paths:
+                current_hashes = set()
+                h = compute_hash(path, length)
+                current_hashes.add(h)
+                for i in range(length, len(path)):
+                    h = (h * base - path[i - length] * multiplier + path[i]) % MOD
+                    current_hashes.add(h)
+                if common_hashes is None:
+                    common_hashes = current_hashes
+                else:
+                    common_hashes &= current_hashes
+                    if not common_hashes:
+                        return False
+            return True
+        (left, right) = (0, min((len(path) for path in paths)))
+        result = 0
+        while left <= right:
+            mid = (left + right) // 2
+            if check(mid):
+                result = mid
+                left = mid + 1
+            else:
+                right = mid - 1
+        return result

@@ -17,12 +17,15 @@ import random
 
 
 def extract_examples(text, func_name):
-    pattern = r"Input: (.*?)\n.*?Output: (.*?)\n"
+    pattern = r"Input:\s*(.*?)\nOutput:\s*(.*?)\n(?:Explanation|Example|Constraints)"
     matches = re.findall(pattern, text, re.DOTALL)
+
     # Find all matches in the input string
-    # print(matches)
     results = []
     for inputs, output in matches:
+        inputs = "".join(line.strip() for line in inputs.splitlines())
+        output = "".join(line.strip() for line in output.splitlines())
+
         inputs = inputs.strip().replace("false", "False").replace("true", "True")
         output = output.strip().replace("false", "False").replace("true", "True")
         results.append(f"{func_name}({inputs}) == {output}")
@@ -125,7 +128,7 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
             )
             return
         prompt = details["problem_statement"].replace("\xa0", "")
-        template = details["template_code_definition"]
+        template = details["template_code_snippet"]
 
         if config == 1:
             template_insert = "\n    llm_unit=False,\n    llm_prop=False,"
@@ -277,7 +280,7 @@ def check_solution(list_problems: dict, config: int) -> dict:
                 file.write(llm_code)
 
             # Only run specific files
-            # if os.path.basename(filepath)[:-3] != "30_config1_2":
+            # if os.path.basename(filepath)[:-3] != "23_config1_1":
             #     continue
 
             # Get problem details, write to json
@@ -296,7 +299,7 @@ def check_solution(list_problems: dict, config: int) -> dict:
 def main():
     list_problems = {
         # "4": "median-of-two-sorted-arrays",
-        # "10": "regular-expression-matching", # Not working
+        # "10": "regular-expression-matching",                  # HTTP error
         # "23": "merge-k-sorted-lists",
         # "25": "reverse-nodes-in-k-group",
         # "30": "substring-with-concatenation-of-all-words",
@@ -306,25 +309,42 @@ def main():
         # "42": "trapping-rain-water",
         # "44": "wildcard-matching",
         # "51": "n-queens",
-        "3448": "count-substrings-divisible-by-last-digit",
-        "3449": "maximize-the-minimum-game-score",
-        # "3451": "find-invalid-ip-addresses", # Problem with get_details?
-        "3454": "separate-squares-ii",
-        "3455": "shortest-matching-substring",
-        "3459": "length-of-longest-v-shaped-diagonal-segment",
-        "3463": "check-if-digits-are-equal-in-string-after-operations-ii",
-        "3464": "maximize-the-distance-between-points-on-a-square",
-        "3470": "permutations-iv",
-        "3474": "lexicographically-smallest-generated-string",
+        ###################
+        # "3448": "count-substrings-divisible-by-last-digit",               # Leads to 3140
+        # "3449": "maximize-the-minimum-game-score",                        # Leads to 3141
+        # "3454": "separate-squares-ii",                                    # Leads to 3229
+        # "3455": "shortest-matching-substring",                            # Leads to 3223
+        # "3459": "length-of-longest-v-shaped-diagonal-segment",            # Leads to 3197
+        # "3463": "check-if-digits-are-equal-in-string-after-operations-ii",# Leads to 3206
+        # "3464": "maximize-the-distance-between-points-on-a-square",       # Leads to 3196
+        # "3470": "permutations-iv",  # HTTP Error
+        # "3474": "lexicographically-smallest-generated-string",            # Leads to 3167
+        ###################
+        # "466": "count-the-repetitions",
+        # "902": "numbers-at-most-n-given-digit-set",                       # Leads to 871
+        # "1416": "restore-the-array",                                      # Leads to 2229
+        # "1923": "longest-common-subpath",                                 # Leads to 1813
+        # "2334": "subarray-with-elements-greater-than-varying-threshold",  # Leads to 2251
+        # "2872": "maximum-number-of-k-divisible-components",               # Leads to 2789
+        # "3312": "sorted-gcd-pair-queries",                                # Leads to 3019
+        ###################
+        "493": "reverse-pairs",
+        "552": "student-attendance-record-ii",
+        "600": "non-negative-integers-without-consecutive-ones",
+        "668": "kth-smallest-number-in-multiplication-table",
+        "699": "falling-squares",
+        "765": "couples-holding-hands",
+        "801": "minimum-swaps-to-make-sequences-increasing",
+        "850": "rectangle-area-ii",
     }
 
     config = 1
     # Generates the Python template for this problem and config
-    # generate_py_problem(list_problems, config)
+    generate_py_problem(list_problems, config)
     # Runs Pythoness X times
     run_pythoness(list_problems.keys(), config, 5)
     # Checks solutions
-    check_solution(list_problems, config)
+    # check_solution(list_problems, config)
 
 
 if __name__ == "__main__":

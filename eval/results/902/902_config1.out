@@ -1,0 +1,997 @@
+
+
+Running iteration 1 of Pythoness on 902_config1_1.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+      def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+          """
+          Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+          Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+          Constraints:
+
+          1 <= digits.length <= 9
+          digits[i].length == 1
+          digits[i] is a digit from '1' to '9'.
+          All the values in digits are unique.
+          digits is sorted in non-decreasing order.
+          1 <= n <= 10^9
+          """
+          str_n = str(n)
+          length_n = len(str_n)
+          total_count = 0
+    
+          # Count numbers with fewer digits than n.
+          for i in range(1, length_n):
+              total_count += len(digits) ** i
+
+          # Count numbers with the same number of digits.
+          for i in range(length_n):
+              smaller_digits_count = 0
+              for d in digits:
+                  if d < str_n[i]:
+                      smaller_digits_count += 1
+                  elif d == str_n[i]:
+                      if i == length_n - 1:
+                          total_count += 1
+                      break
+              total_count += smaller_digits_count * (len(digits) ** (length_n - i - 1))
+        
+              # If there's no current digit d in digits that matches str_n[i], break.
+              if str_n[i] not in digits:
+                  break
+
+          return total_count
+
+      ]
+    [12314 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20', 'atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523', 'atMostNGivenDigitSet(digits = ["7"], n = 8) == 1']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+    """
+    Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+    Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+    Constraints:
+
+    1 <= digits.length <= 9
+    digits[i].length == 1
+    digits[i] is a digit from '1' to '9'.
+    All the values in digits are unique.
+    digits is sorted in non-decreasing order.
+    1 <= n <= 10^9
+    """
+    str_n = str(n)
+    length_n = len(str_n)
+    total_count = 0
+    
+    # Count numbers with fewer digits than n.
+    for i in range(1, length_n):
+        total_count += len(digits) ** i
+
+    # Count numbers with the same number of digits.
+    for i in range(length_n):
+        smaller_digits_count = 0
+        for d in digits:
+            if d < str_n[i]:
+                smaller_digits_count += 1
+            elif d == str_n[i]:
+                if i == length_n - 1:
+                    total_count += 1
+                break
+        total_count += smaller_digits_count * (len(digits) ** (length_n - i - 1))
+        
+        # If there's no current digit d in digits that matches str_n[i], break.
+        if str_n[i] not in digits:
+            break
+
+    return total_count
+
+
+
+    [[Pythoness] Replacing...... 2 ms]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 12.314444065093994]]
+  [12330 ms]
+[12332 ms]
+
+
+Running iteration 2 of Pythoness on 902_config1_2.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+          """
+          Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+          Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+          Constraints:
+
+          1 <= digits.length <= 9
+          digits[i].length == 1
+          digits[i] is a digit from '1' to '9'.
+          All the values in digits are unique.
+          digits is sorted in non-decreasing order.
+          1 <= n <= 10^9
+          """
+          s = str(n)
+          k = len(s)
+          num_digits = len(digits)
+          count = 0
+
+          # Count numbers with fewer digits than n
+          for i in range(1, k):
+              count += num_digits ** i
+
+          # Count numbers with the same length as n
+          for i in range(k):
+              has_same_prefix = False
+              for d in digits:
+                  if d < s[i]:
+                      count += num_digits ** (k - i - 1)
+                  elif d == s[i]:
+                      has_same_prefix = True
+                      break
+              if not has_same_prefix:
+                  return count
+          return count + 1
+
+      ]
+    [10686 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20', 'atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523', 'atMostNGivenDigitSet(digits = ["7"], n = 8) == 1']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+
+def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+    """
+    Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+    Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+    Constraints:
+
+    1 <= digits.length <= 9
+    digits[i].length == 1
+    digits[i] is a digit from '1' to '9'.
+    All the values in digits are unique.
+    digits is sorted in non-decreasing order.
+    1 <= n <= 10^9
+    """
+    s = str(n)
+    k = len(s)
+    num_digits = len(digits)
+    count = 0
+
+    # Count numbers with fewer digits than n
+    for i in range(1, k):
+        count += num_digits ** i
+
+    # Count numbers with the same length as n
+    for i in range(k):
+        has_same_prefix = False
+        for d in digits:
+            if d < s[i]:
+                count += num_digits ** (k - i - 1)
+            elif d == s[i]:
+                has_same_prefix = True
+                break
+        if not has_same_prefix:
+            return count
+    return count + 1
+
+
+
+    [[Pythoness] Replacing...... 1 ms]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 10.686040163040161]]
+  [10694 ms]
+[10695 ms]
+
+
+Running iteration 3 of Pythoness on 902_config1_3.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+          """
+          Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+          Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+          Constraints:
+
+          1 <= digits.length <= 9
+          digits[i].length == 1
+          digits[i] is a digit from '1' to '9'.
+          All the values in digits are unique.
+          digits is sorted in non-decreasing order.
+          1 <= n <= 10^9
+          """
+          s = str(n)
+          m, d_len = len(s), len(digits)
+          res = sum(d_len ** i for i in range(1, m))
+
+          for i in range(m):
+              c = sum(x < s[i] for x in digits)
+              res += c * (d_len ** (m - i - 1))
+              if s[i] not in digits:
+                  return res
+          return res + 1
+      ]
+    [7292 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20', 'atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523', 'atMostNGivenDigitSet(digits = ["7"], n = 8) == 1']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+    """
+    Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+    Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+    Constraints:
+
+    1 <= digits.length <= 9
+    digits[i].length == 1
+    digits[i] is a digit from '1' to '9'.
+    All the values in digits are unique.
+    digits is sorted in non-decreasing order.
+    1 <= n <= 10^9
+    """
+    s = str(n)
+    m, d_len = len(s), len(digits)
+    res = sum(d_len ** i for i in range(1, m))
+
+    for i in range(m):
+        c = sum(x < s[i] for x in digits)
+        res += c * (d_len ** (m - i - 1))
+        if s[i] not in digits:
+            return res
+    return res + 1
+
+
+    [[Pythoness] Replacing...... 1 ms]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 7.292672634124756]]
+  [7300 ms]
+[7302 ms]
+
+
+Running iteration 4 of Pythoness on 902_config1_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+          """
+          Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+          Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+          Constraints:
+
+          1 <= digits.length <= 9
+          digits[i].length == 1
+          digits[i] is a digit from '1' to '9'.
+          All the values in digits are unique.
+          digits is sorted in non-decreasing order.
+          1 <= n <= 10^9
+          """
+          n_str = str(n)
+          n_length = len(n_str)
+          digits_length = len(digits)
+          count = 0
+
+          # Count numbers with length less than n
+          for i in range(1, n_length):
+              count += digits_length ** i
+
+          # Count numbers with the same length as n
+          for i in range(n_length):
+              has_same_num = False
+              for digit in digits:
+                  if digit < n_str[i]:
+                      count += digits_length ** (n_length - i - 1)
+                  elif digit == n_str[i]:
+                      has_same_num = True
+                      break
+              if not has_same_num:
+                  return count
+
+          return count + 1
+      ]
+    [6807 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20', 'atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523', 'atMostNGivenDigitSet(digits = ["7"], n = 8) == 1']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+    """
+    Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+    Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+    Constraints:
+
+    1 <= digits.length <= 9
+    digits[i].length == 1
+    digits[i] is a digit from '1' to '9'.
+    All the values in digits are unique.
+    digits is sorted in non-decreasing order.
+    1 <= n <= 10^9
+    """
+    n_str = str(n)
+    n_length = len(n_str)
+    digits_length = len(digits)
+    count = 0
+
+    # Count numbers with length less than n
+    for i in range(1, n_length):
+        count += digits_length ** i
+
+    # Count numbers with the same length as n
+    for i in range(n_length):
+        has_same_num = False
+        for digit in digits:
+            if digit < n_str[i]:
+                count += digits_length ** (n_length - i - 1)
+            elif digit == n_str[i]:
+                has_same_num = True
+                break
+        if not has_same_num:
+            return count
+
+    return count + 1
+
+
+    [[Pythoness] Replacing...... 3 ms]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 6.807123184204102]]
+  [6835 ms]
+[6836 ms]
+
+
+Running iteration 5 of Pythoness on 902_config1_5.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named atMostNGivenDigitSet that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+        Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+        Constraints:
+
+        1 <= digits.length <= 9
+        digits[i].length == 1
+        digits[i] is a digit from '1' to '9'.
+        All the values in digits are unique.
+        digits is sorted in non-decreasing order.
+        1 <= n <= 10^9
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20
+        atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523
+        atMostNGivenDigitSet(digits = ["7"], n = 8) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+          """
+          Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+          Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+          Constraints:
+
+          1 <= digits.length <= 9
+          digits[i].length == 1
+          digits[i] is a digit from '1' to '9'.
+          All the values in digits are unique.
+          digits is sorted in non-decreasing order.
+          1 <= n <= 10^9
+          """
+          if not digits or n <= 0:
+              return 0
+
+          s = str(n)
+          k = len(s)
+          dp = [0] * (k + 1)
+          dp[k] = 1
+
+          for i in range(k - 1, -1, -1):
+              for digit in digits:
+                  if digit < s[i]:
+                      dp[i] += len(digits) ** (k - i - 1)
+                  elif digit == s[i]:
+                      dp[i] += dp[i + 1]
+
+          total = sum(len(digits) ** i for i in range(1, k))
+          total += dp[0]
+          return total
+      ]
+    [24675 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['atMostNGivenDigitSet(digits = ["1","3","5","7"], n = 100) == 20', 'atMostNGivenDigitSet(digits = ["1","4","9"], n = 1000000000) == 29523', 'atMostNGivenDigitSet(digits = ["7"], n = 8) == 1']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+def atMostNGivenDigitSet(digits: List[str], n: int) -> int:
+    """
+    Given an array of digits which is sorted in non-decreasing order. You can write numbers using each digits[i] as many times as we want. For example, if digits = ['1','3','5'], we may write numbers such as '13', '551', and '1351315'.
+    Return the number of positive integers that can be generated that are less than or equal to a given integer n.
+
+    Constraints:
+
+    1 <= digits.length <= 9
+    digits[i].length == 1
+    digits[i] is a digit from '1' to '9'.
+    All the values in digits are unique.
+    digits is sorted in non-decreasing order.
+    1 <= n <= 10^9
+    """
+    if not digits or n <= 0:
+        return 0
+
+    s = str(n)
+    k = len(s)
+    dp = [0] * (k + 1)
+    dp[k] = 1
+
+    for i in range(k - 1, -1, -1):
+        for digit in digits:
+            if digit < s[i]:
+                dp[i] += len(digits) ** (k - i - 1)
+            elif digit == s[i]:
+                dp[i] += dp[i + 1]
+
+    total = sum(len(digits) ** i for i in range(1, k))
+    total += dp[0]
+    return total
+
+
+    [[Pythoness] Replacing...... 2 ms]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 24.675307273864746]]
+  [24705 ms]
+[24707 ms]

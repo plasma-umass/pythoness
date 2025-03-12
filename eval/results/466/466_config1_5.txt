@@ -1,0 +1,29 @@
+class Solution:
+    
+    def getMaxRepetitions(self, s1: str, n1: int, s2: str, n2: int) -> int:
+        
+        # Initialize variables
+        (index_s2, count_s1, count_s2) = (0, 0, 0)
+        memo = {}
+        while count_s1 < n1:
+            count_s1 += 1
+            for char in s1:
+                if char == s2[index_s2]:
+                    index_s2 += 1
+                if index_s2 == len(s2):
+                    index_s2 = 0
+                    count_s2 += 1
+            # Detect the cycle and optimize
+            if index_s2 in memo:
+                (previous_count_s1, previous_count_s2) = memo[index_s2]
+                # Remaining sets of s1 to be processed
+                remaining_count_s1 = n1 - count_s1
+                # Number of cycles can be skipped
+                cycle_length_s1 = count_s1 - previous_count_s1
+                cycle_length_s2 = count_s2 - previous_count_s2
+                num_completed_cycles = remaining_count_s1 // cycle_length_s1
+                count_s1 += num_completed_cycles * cycle_length_s1
+                count_s2 += num_completed_cycles * cycle_length_s2
+            else:
+                memo[index_s2] = (count_s1, count_s2)
+        return count_s2 // n2

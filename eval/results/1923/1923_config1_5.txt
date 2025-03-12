@@ -1,0 +1,40 @@
+class Solution:
+    
+    def longestCommonSubpath(self, n: int, paths: List[List[int]]) -> int:
+        
+        from collections import defaultdict
+        # Helper function to determine if a common subpath of length 'length' exists
+    
+        def check(length: int) -> bool:
+            base = 10 ** 5 + 1
+            hash_set = None
+            for path in paths:
+                # Compute rolling hash for subpaths of the current length
+                current_hash = 0
+                base_pow = 1
+                current_set = set()
+                for i in range(len(path)):
+                    current_hash = current_hash * base + path[i]
+                    if i >= length:
+                        current_hash -= path[i - length] * base_pow
+                    else:
+                        base_pow *= base
+                    if i >= length - 1:
+                        current_set.add(current_hash)
+                if hash_set is None:
+                    hash_set = current_set
+                else:
+                    hash_set &= current_set
+                if not hash_set:
+                    return False
+            return True
+        (left, right) = (0, min((len(path) for path in paths)))
+        result = 0
+        while left <= right:
+            mid = (left + right) // 2
+            if check(mid):
+                result = mid
+                left = mid + 1
+            else:
+                right = mid - 1
+        return result
