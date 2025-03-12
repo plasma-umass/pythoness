@@ -482,12 +482,12 @@ def create_prompt(
         prompt += string_reformat(generation_reason)
         prompt += "\n"
 
-    if related_objs:
-        # handle duplicates
-        related_objs = list(set(related_objs))
-        prompt += prep_related_objs(func, related_objs, no_print)
+    # if related_objs:
+    #     # handle duplicates
+    #     related_objs = list(set(related_objs))
+    #     prompt += prep_related_objs(func, related_objs, no_print)
 
-    # prompt += prep_imports(func)
+    prompt += prep_imports(func)
 
     prompt += """
         Task:
