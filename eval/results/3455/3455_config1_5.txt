@@ -1,0 +1,37 @@
+class Solution:
+    
+    def shortestMatchingSubstring(self, s: str, p: str) -> int:
+        
+        # Split the pattern into its components
+        parts = p.split('*')
+        (prefix, middle, suffix) = (parts[0], parts[1], parts[2])
+    
+        def find_occurrences(substr: str, string: str) -> list:
+            
+            occurrences = []
+            start = 0
+            while start <= len(string):
+                start = string.find(substr, start)
+                if start == -1:
+                    break
+                occurrences.append(start)
+                start += 1
+            return occurrences
+        # Find all occurrences of prefix in s
+        prefix_indices = find_occurrences(prefix, s)
+        min_len = float('inf')
+        for start_idx in prefix_indices:
+            # Start searching from the end of the prefix substring
+            search_start = start_idx + len(prefix)
+            # Check for the middle part
+            middle_idx = s.find(middle, search_start)
+            if middle_idx == -1:
+                continue
+            # Start checking for the suffix after the middle part
+            suffix_idx = s.find(suffix, middle_idx + len(middle))
+            if suffix_idx == -1:
+                continue
+            # Calculate the total length of this matching substring
+            substr_length = suffix_idx + len(suffix) - start_idx
+            min_len = min(min_len, substr_length)
+        return min_len if min_len != float('inf') else -1

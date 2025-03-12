@@ -9,7 +9,7 @@ import os
 import re
 import shutil
 import subprocess
-import textwrap
+import random
 
 # Get from browser cookies
 # SESSION = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfYXV0aF91c2VyX2lkIjoiMTU2MjIxMDEiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJhbGxhdXRoLmFjY291bnQuYXV0aF9iYWNrZW5kcy5BdXRoZW50aWNhdGlvbkJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiI0YzU1ODI3MmI4MWYyMGI2MTI5MGRjM2M1ODdmNzllYzkxZWYyMWM2N2YzZDI4ODQzNDY1OWRiMDUwNDhmYjJjIiwic2Vzc2lvbl91dWlkIjoiMjEwZjA1NDMiLCJpZCI6MTU2MjIxMDEsImVtYWlsIjoia3lsYS5sZXZpbkBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImtobGV2aW4iLCJ1c2VyX3NsdWciOiJraGxldmluIiwiYXZhdGFyIjoiaHR0cHM6Ly9hc3NldHMubGVldGNvZGUuY29tL3VzZXJzL2tobGV2aW4vYXZhdGFyXzE3MzE3MjQzMjgucG5nIiwicmVmcmVzaGVkX2F0IjoxNzQxMzY0MTA4LCJpcCI6IjEyOC4xMTkuNDAuMTk2IiwiaWRlbnRpdHkiOiI2ZGJiMTA5NTJhMzhjMTFkMTllMjY0ODAyM2Q1MDU1YiIsImRldmljZV93aXRoX2lwIjpbImFiNGM0Mjg3NGYzMDQzNGEwYmNhM2MxY2UxNTNkNmMyIiwiMTI4LjExOS40MC4xOTYiXX0.tNOvbMpoyc525wO3U9b7PA4d3xcWoaBzC1ZdKrOOqY4"
@@ -64,6 +64,21 @@ def remove_imports(code):
     return "\n".join(result_lines)
 
 
+def wrap_in_solution_class(code: str, func_name) -> str:
+    lines = code.split("\n")
+    new_code = []
+
+    for i, line in enumerate(lines):
+        if re.match(rf"^\s*def {func_name}\s*\(", line):  # Function definition line
+            # Insert "self" as the first argument if it's missing
+            line = re.sub(r"^(\s*def\s+\w+\()([^)]*)\)", r"\1self, \2)", line)
+            new_code.append("    " + line)  # Indent function
+        else:
+            new_code.append("    " + line)  # Indent function body
+
+    return "class Solution:\n" + "\n".join(new_code)
+
+
 def generate_json_problem(list_problems: dict, id) -> dict:
     name = list_problems[id]
 
@@ -77,7 +92,7 @@ def generate_json_problem(list_problems: dict, id) -> dict:
         json.dump(details, json_file, indent=4)
 
     # Take a break between GET requests
-    sleep(3)
+    sleep(5)
 
     return details
 
@@ -178,8 +193,6 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
         with open(f"./results/{id}/{id}_config{config}.py", "w") as target_file:
             target_file.write(content)
 
-        return func_name
-
 
 def run_pythoness(ids: list, config: int, runs: int) -> None:
     for id in ids:
@@ -191,7 +204,9 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
 
         while i < runs:
             i += 1
-            print(f"Running iteration {i} of Pythoness on {id}.py...")
+            print(
+                f"Running iteration {i} of Pythoness on {id}_config{config}_{i}.py..."
+            )
 
             # Create file for output Python code, replacing it if necessary
             out_file = f"./results/{id}/{id}_config{config}_{i}.py"
@@ -201,7 +216,9 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
 
             # Open the file for writing the output
             with open(f"./results/{id}/{id}_config{config}.out", "a") as file:
-                file.write(f"\n\nRunning iteration {i} of Pythoness on {id}.py\n\n")
+                file.write(
+                    f"\n\nRunning iteration {i} of Pythoness on {id}_config{config}_{i}.py\n\n"
+                )
                 # Run the process and capture stdout
                 process = subprocess.Popen(
                     [
@@ -230,7 +247,6 @@ def check_solution(list_problems: dict, config: int) -> dict:
 
         # Loop through all matching files
         for filepath in glob.glob(pattern):
-            print(f"Submitting {os.path.basename(filepath)}...")
 
             with open(filepath, "r") as file:
                 llm_code = file.read()
@@ -246,28 +262,41 @@ def check_solution(list_problems: dict, config: int) -> dict:
             llm_code = "\n".join(llm_code.splitlines()[:-1])
             llm_code = re.sub(r'"""(.*?)"""', "", llm_code, flags=re.DOTALL)
 
+            # Wrap in Solution class (including imports)
+            if os.path.exists(f"./results/{id}/{id}_problem.json"):
+                with open(f"./results/{id}/{id}_problem.json", "r") as file:
+                    details = json.load(file)
+            else:
+                details = generate_json_problem(list_problems, id)
+            func_name = get_function_name(details["template_code_definition"])
+
+            llm_code = wrap_in_solution_class(llm_code, func_name)
+
             print(f"Writing to {os.path.basename(filepath)[:-3]}.txt...")
-            with open(f"{os.path.basename(filepath)[:-3]}.txt", "w") as file:
+            with open(f"{filepath[:-3]}.txt", "w") as file:
                 file.write(llm_code)
 
+            # Only run specific files
+            # if os.path.basename(filepath)[:-3] != "30_config1_2":
+            #     continue
+
             # Get problem details, write to json
-            # s_details = submit_solution(name, id, llm_code)
-            # print(s_details)
+            print(f"Submitting {os.path.basename(filepath)}... ", end="")
+            s_details = submit_solution(name, id, llm_code)
+            print("Success!")
+            with open(f"{filepath[:-3]}.json", "w") as json_file:
+                json.dump(s_details, json_file, indent=4)
 
-            # print(f"Writing to {filepath}.json...")
-            # with open(f"{filepath}.json", "w") as json_file:
-            #     json.dump(s_details, json_file, indent=4)
-
-            # # Take a break between GET requests - 3s is not enough
-            # sleep(5)
+            # Take a random break between GET requests - 4s min
+            sleep(random.uniform(10, 15))
 
     return
 
 
 def main():
     list_problems = {
-        "4": "median-of-two-sorted-arrays",
-        # "10": "regular-expression-matching",
+        # "4": "median-of-two-sorted-arrays",
+        # "10": "regular-expression-matching", # Not working
         # "23": "merge-k-sorted-lists",
         # "25": "reverse-nodes-in-k-group",
         # "30": "substring-with-concatenation-of-all-words",
@@ -277,13 +306,23 @@ def main():
         # "42": "trapping-rain-water",
         # "44": "wildcard-matching",
         # "51": "n-queens",
+        "3448": "count-substrings-divisible-by-last-digit",
+        "3449": "maximize-the-minimum-game-score",
+        # "3451": "find-invalid-ip-addresses", # Problem with get_details?
+        "3454": "separate-squares-ii",
+        "3455": "shortest-matching-substring",
+        "3459": "length-of-longest-v-shaped-diagonal-segment",
+        "3463": "check-if-digits-are-equal-in-string-after-operations-ii",
+        "3464": "maximize-the-distance-between-points-on-a-square",
+        "3470": "permutations-iv",
+        "3474": "lexicographically-smallest-generated-string",
     }
 
     config = 1
     # Generates the Python template for this problem and config
     # generate_py_problem(list_problems, config)
     # Runs Pythoness X times
-    # run_pythoness(list_problems.keys(), config, 5)
+    run_pythoness(list_problems.keys(), config, 5)
     # Checks solutions
     check_solution(list_problems, config)
 

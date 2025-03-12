@@ -1,0 +1,27 @@
+class Solution:
+    
+    def shortestMatchingSubstring(self, s: str, p: str) -> int:
+        
+        # Split the pattern based on '*'
+        parts = p.split('*')
+        prefix = parts[0]
+        middle = parts[1]
+        suffix = parts[2]
+        min_length = float('inf')
+        # Iterate through s to find the match
+        i = 0
+        while i <= len(s):
+            # Check if the prefix matches
+            if s.startswith(prefix, i):
+                j = i + len(prefix)
+                # Find the first occurrence of suffix after the prefix
+                k = s.find(suffix, j)
+                # Ensure that the middle part is between prefix and suffix
+                while k != -1:
+                    if middle in s[j:k]:
+                        match_length = k + len(suffix) - i
+                        min_length = min(min_length, match_length)
+                        break
+                    k = s.find(suffix, k + 1)
+            i += 1
+        return min_length if min_length != float('inf') else -1

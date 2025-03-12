@@ -1,0 +1,29 @@
+class Solution:
+    from typing import List
+    
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        
+    
+        def is_not_under_attack(row, col):
+            for prev_row in range(row):
+                if board[prev_row] == col or board[prev_row] - prev_row == col - row or board[prev_row] + prev_row == col + row:
+                    return False
+            return True
+    
+        def place_queen(row):
+            if row == n:
+                solution = []
+                for i in range(n):
+                    line = '.' * board[i] + 'Q' + '.' * (n - board[i] - 1)
+                    solution.append(line)
+                solutions.append(solution)
+            else:
+                for col in range(n):
+                    if is_not_under_attack(row, col):
+                        board[row] = col
+                        place_queen(row + 1)
+                        board[row] = -1
+        board = [-1] * n
+        solutions = []
+        place_queen(0)
+        return solutions

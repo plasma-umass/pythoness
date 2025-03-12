@@ -1,0 +1,44 @@
+class Solution:
+    
+    def shortestMatchingSubstring(self, s: str, p: str) -> int:
+        
+        segments = p.split('*')
+        pre = segments[0]
+        mid = segments[1]
+        post = segments[2]
+        n = len(s)
+        len_pre = len(pre)
+        len_mid = len(mid)
+        len_post = len(post)
+        # Initialize variables
+        min_len = float('inf')
+        (i, j) = (0, 0)
+        # Traverse through each possible starting position
+        while i < n:
+            # Check if we can find 'pre' starting from i
+            if len_pre > 0 and s[i:i + len_pre] != pre:
+                i += 1
+                continue
+            # Find substring from pre to post which also includes mid
+            j = i + len_pre
+            # Edge case where mid is empty
+            if len_mid == 0:
+                k = j
+            else:
+                # Find where mid starts after pre
+                k = s.find(mid, j, n)
+            if k == -1:
+                i += 1
+                continue
+            # Find where post starts after mid
+            l = s.find(post, k + len_mid, n)
+            if l == -1:
+                i += 1
+                continue
+            # Calculate and update minimum length
+            span_len = l + len_post - i
+            if span_len < min_len:
+                min_len = span_len
+            i += 1
+        # If min_len is unchanged, no valid substring found
+        return min_len if min_len != float('inf') else -1

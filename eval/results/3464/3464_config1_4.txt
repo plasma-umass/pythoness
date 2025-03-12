@@ -1,0 +1,25 @@
+class Solution:
+    
+    def maxDistance(self, side: int, points: List[List[int]], k: int) -> int:
+        
+        from typing import List
+    
+        def canPlace(points, mid, k):
+            placed = [points[0]]
+            for p in points[1:]:
+                if all((abs(p[0] - q[0]) + abs(p[1] - q[1]) >= mid for q in placed)):
+                    placed.append(p)
+                    if len(placed) >= k:
+                        return True
+            return len(placed) >= k
+        points.sort()
+        (low, high) = (0, 2 * side)
+        result = 0
+        while low <= high:
+            mid = (low + high) // 2
+            if canPlace(points, mid, k):
+                result = mid
+                low = mid + 1
+            else:
+                high = mid - 1
+        return result

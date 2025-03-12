@@ -1,0 +1,28 @@
+class Solution:
+    from typing import List
+    
+    def maxDistance(self, side: int, points: List[List[int]], k: int) -> int:
+        
+    
+        def manhattan_distance(p1: List[int], p2: List[int]) -> int:
+            return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+    
+        def can_place_with_min_distance(d: int) -> bool:
+            selected_points = [points[0]]
+            for i in range(1, len(points)):
+                if len(selected_points) == k:
+                    return True
+                if all((manhattan_distance(points[i], sp) >= d for sp in selected_points)):
+                    selected_points.append(points[i])
+            return len(selected_points) >= k
+        points.sort()
+        (low, high) = (0, 2 * side)
+        answer = 0
+        while low <= high:
+            mid = (low + high) // 2
+            if can_place_with_min_distance(mid):
+                answer = mid
+                low = mid + 1
+            else:
+                high = mid - 1
+        return answer

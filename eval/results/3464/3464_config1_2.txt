@@ -1,0 +1,33 @@
+class Solution:
+    from typing import List
+    
+    def maxDistance(self, side: int, points: List[List[int]], k: int) -> int:
+        
+    
+        def manhattan_distance(p1, p2):
+            return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+    
+        def canAchieveDistance(d):
+            # Check if we can select k points such that the minimum Manhattan distance between
+            # any two selected points is at least d
+            # This uses a greedy algorithm to attempt selecting points
+            selected = []
+            for point in points:
+                if len(selected) == 0:
+                    selected.append(point)
+                elif all((manhattan_distance(point, sel) >= d for sel in selected)):
+                    selected.append(point)
+                    if len(selected) == k:
+                        return True
+            return len(selected) >= k
+        # Binary search to find the maximum minimum distance
+        (low, high) = (0, 2 * side)
+        best_distance = 0
+        while low <= high:
+            mid = (low + high) // 2
+            if canAchieveDistance(mid):
+                best_distance = mid
+                low = mid + 1
+            else:
+                high = mid - 1
+        return best_distance

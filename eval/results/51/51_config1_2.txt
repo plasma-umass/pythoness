@@ -1,0 +1,24 @@
+class Solution:
+    from typing import List
+    
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        
+    
+        def backtrack(row: int) -> None:
+            if row == n:
+                result.append([''.join(row) for row in board])
+                return
+            for col in range(n):
+                if not columns[col] and (not diagonals1[row + col]) and (not diagonals2[row - col]):
+                    board[row][col] = 'Q'
+                    columns[col] = diagonals1[row + col] = diagonals2[row - col] = True
+                    backtrack(row + 1)
+                    board[row][col] = '.'
+                    columns[col] = diagonals1[row + col] = diagonals2[row - col] = False
+        result = []
+        board = [['.'] * n for _ in range(n)]
+        columns = [False] * n
+        diagonals1 = [False] * (2 * n - 1)
+        diagonals2 = [False] * (2 * n - 1)
+        backtrack(0)
+        return result

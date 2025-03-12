@@ -1,0 +1,32 @@
+class Solution:
+    from typing import List
+    
+    def findSubstring(self, s: str, words: List[str]) -> List[int]:
+        
+        if not s or not words:
+            return []
+        word_length = len(words[0])
+        total_words = len(words)
+        total_length = word_length * total_words
+        word_count = {}
+        for word in words:
+            if word in word_count:
+                word_count[word] += 1
+            else:
+                word_count[word] = 1
+        indices = []
+        for i in range(len(s) - total_length + 1):
+            seen = {}
+            for j in range(total_words):
+                word_start = i + j * word_length
+                word_end = word_start + word_length
+                current_word = s[word_start:word_end]
+                if current_word in word_count:
+                    seen[current_word] = seen.get(current_word, 0) + 1
+                    if seen[current_word] > word_count[current_word]:
+                        break
+                else:
+                    break
+            else:
+                indices.append(i)
+        return indices

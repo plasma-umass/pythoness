@@ -1,0 +1,23 @@
+class Solution:
+    
+    def shortestMatchingSubstring(self, s: str, p: str) -> int:
+        
+        first_star = p.index('*')
+        last_star = p.rindex('*')
+        l_pattern = p[:first_star]
+        m_pattern = p[first_star + 1:last_star]
+        r_pattern = p[last_star + 1:]
+        min_length = float('inf')
+        i = 0
+        while i <= len(s):
+            if s[i:].startswith(l_pattern):
+                start_idx = i + len(l_pattern)
+                middle_start = s.find(m_pattern, start_idx)
+                if middle_start != -1:
+                    end_idx = middle_start + len(m_pattern)
+                    r_start = s.find(r_pattern, end_idx)
+                    if r_start != -1:
+                        length = r_start + len(r_pattern) - i
+                        min_length = min(min_length, length)
+            i += 1
+        return min_length if min_length != float('inf') else -1

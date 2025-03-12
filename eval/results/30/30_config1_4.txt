@@ -1,0 +1,38 @@
+class Solution:
+    
+    def findSubstring(self, s: str, words: List[str]) -> List[int]:
+        
+        from collections import Counter
+        if not s or not words:
+            return []
+        word_length = len(words[0])
+        word_count = len(words)
+        total_length = word_length * word_count
+        if len(s) < total_length:
+            return []
+        # Count the words
+        word_map = Counter(words)
+        result = []
+        # Iterate over each possible starting point
+        for i in range(word_length):
+            left = i
+            count = 0
+            current_map = Counter()
+            # Slide the window
+            for j in range(i, len(s) - word_length + 1, word_length):
+                word = s[j:j + word_length]
+                if word in word_map:
+                    current_map[word] += 1
+                    count += 1
+                    while current_map[word] > word_map[word]:
+                        left_word = s[left:left + word_length]
+                        current_map[left_word] -= 1
+                        count -= 1
+                        left += word_length
+                    if count == word_count:
+                        result.append(left)
+                else:
+                    current_map.clear()
+                    count = 0
+                    left = j + word_length
+        return result

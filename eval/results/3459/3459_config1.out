@@ -1,0 +1,1890 @@
+
+
+Running iteration 1 of Pythoness on 3459_config1_1.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          from typing import List
+
+          def is_valid_direction_change(current_direction, new_direction):
+              # Clockwise turns: 0 -> 1, 1 -> 2, 2 -> 3, 3 -> 0
+              return (current_direction + 1) % 4 == new_direction
+
+          n = len(grid)
+          m = len(grid[0]) if n > 0 else 0
+
+          # Directions: (dy, dx)
+          directions = [
+              (1, 1),   # 0: top-left -> bottom-right
+              (-1, 1),  # 1: bottom-left -> top-right
+              (-1, -1), # 2: bottom-right -> top-left
+              (1, -1)   # 3: top-right -> bottom-left
+          ]
+
+          max_length = 0
+
+          def dfs(row, col, direction_idx, current_length, sequence_idx):
+              nonlocal max_length
+              if current_length > max_length:
+                  max_length = current_length
+
+              # Continue in the current direction
+              dy, dx = directions[direction_idx]
+              new_row, new_col = row + dy, col + dx
+              if 0 <= new_row < n and 0 <= new_col < m and grid[new_row][new_col] == sequence[sequence_idx]:
+                  dfs(new_row, new_col, direction_idx, current_length + 1, (sequence_idx + 1) % 2)
+
+              # Try to turn clockwise to a new valid direction
+              for new_direction_idx in range(4):
+                  if new_direction_idx != direction_idx and is_valid_direction_change(direction_idx, new_direction_idx):
+                      dy, dx = directions[new_direction_idx]
+                      new_row, new_col = row + dy, col + dx
+                      if 0 <= new_row < n and 0 <= new_col < m and grid[new_row][new_col] == sequence[sequence_idx]:
+                          dfs(new_row, new_col, new_direction_idx, current_length + 1, (sequence_idx + 1) % 2)
+
+          # The infinite sequence to follow
+          sequence = [2, 0]
+
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      # Start a potential V-diagonal
+                      for d in range(4):
+                          dfs(i, j, d, 1, 0)  # Start with length 1 (the "1" itself)
+
+          return max_length]
+    [22056 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 5 ms]
+Exception lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+    [[Pythoness] This test failed to execute properly: lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 22.05658721923828]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          from typing import List
+
+          def is_valid_turn(current_direction, new_direction):
+              # Allowable turns: 0 -> 1, 1 -> 2, 2 -> 3, 3 -> 0
+              return (current_direction + 1) % 4 == new_direction
+
+          n = len(grid)
+          m = len(grid[0]) if n > 0 else 0
+
+          # Directions: (dy, dx)
+          directions = [
+              (1, 1),   # 0: top-left to bottom-right
+              (1, -1),  # 1: top-right to bottom-left
+              (-1, -1), # 2: bottom-right to top-left
+              (-1, 1)   # 3: bottom-left to top-right
+          ]
+
+          max_length = 0
+
+          def dfs(row, col, direction_idx, current_length, sequence_idx, turns_used):
+              nonlocal max_length
+
+              # Update max_length if current path is longer
+              if current_length > max_length:
+                  max_length = current_length
+
+              # Continue in the current direction
+              dy, dx = directions[direction_idx]
+              new_row, new_col = row + dy, col + dx
+              if 0 <= new_row < n and 0 <= new_col < m and grid[new_row][new_col] == sequence[sequence_idx]:
+                  dfs(new_row, new_col, direction_idx, current_length + 1, (sequence_idx + 1) % 2, turns_used)
+
+              # Try to turn clockwise to a new valid direction if no turns have been used
+              if turns_used == 0:
+                  for new_direction_idx in range(4):
+                      if new_direction_idx != direction_idx and is_valid_turn(direction_idx, new_direction_idx):
+                          dy, dx = directions[new_direction_idx]
+                          new_row, new_col = row + dy, col + dx
+                          if 0 <= new_row < n and 0 <= new_col < m and grid[new_row][new_col] == sequence[sequence_idx]:
+                              dfs(new_row, new_col, new_direction_idx, current_length + 1, (sequence_idx + 1) % 2, 1)
+
+          # The infinite sequence to follow
+          sequence = [2, 0]
+
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      # Start new V-diagonal
+                      for d in range(4):
+                          dfs(i, j, d, 1, 0, 0)  # Start at (i, j) with length 1
+
+          return max_length]
+    [23731 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+
+[Pythoness] Output:
+def lenOfVDiagonal(grid: List[List[int]]) -> int:
+    """
+    You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+    A V-shaped diagonal segment is defined as:
+
+    The segment starts with 1.
+    The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+    The segment:
+
+    Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+    Continues the sequence in the same diagonal direction.
+    Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+    Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+    Constraints:
+
+    n == grid.length
+    m == grid[i].length
+    1 <= n, m <= 500
+    grid[i][j] is either 0, 1 or 2.
+    """
+    from typing import List
+
+    def is_valid_turn(current_direction, new_direction):
+        # Allowable turns: 0 -> 1, 1 -> 2, 2 -> 3, 3 -> 0
+        return (current_direction + 1) % 4 == new_direction
+
+    n = len(grid)
+    m = len(grid[0]) if n > 0 else 0
+
+    # Directions: (dy, dx)
+    directions = [
+        (1, 1),   # 0: top-left to bottom-right
+        (1, -1),  # 1: top-right to bottom-left
+        (-1, -1), # 2: bottom-right to top-left
+        (-1, 1)   # 3: bottom-left to top-right
+    ]
+
+    max_length = 0
+
+    def dfs(row, col, direction_idx, current_length, sequence_idx, turns_used):
+        nonlocal max_length
+
+        # Update max_length if current path is longer
+        if current_length > max_length:
+            max_length = current_length
+
+        # Continue in the current direction
+        dy, dx = directions[direction_idx]
+        new_row, new_col = row + dy, col + dx
+        if 0 <= new_row < n and 0 <= new_col < m and grid[new_row][new_col] == sequence[sequence_idx]:
+            dfs(new_row, new_col, direction_idx, current_length + 1, (sequence_idx + 1) % 2, turns_used)
+
+        # Try to turn clockwise to a new valid direction if no turns have been used
+        if turns_used == 0:
+            for new_direction_idx in range(4):
+                if new_direction_idx != direction_idx and is_valid_turn(direction_idx, new_direction_idx):
+                    dy, dx = directions[new_direction_idx]
+                    new_row, new_col = row + dy, col + dx
+                    if 0 <= new_row < n and 0 <= new_col < m and grid[new_row][new_col] == sequence[sequence_idx]:
+                        dfs(new_row, new_col, new_direction_idx, current_length + 1, (sequence_idx + 1) % 2, 1)
+
+    # The infinite sequence to follow
+    sequence = [2, 0]
+
+    for i in range(n):
+        for j in range(m):
+            if grid[i][j] == 1:
+                # Start new V-diagonal
+                for d in range(4):
+                    dfs(i, j, d, 1, 0, 0)  # Start at (i, j) with length 1
+
+    return max_length
+
+    [[Pythoness] Replacing...... 5 ms]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 67.84414076805115]]
+  [45825 ms]
+[45826 ms]
+
+
+Running iteration 2 of Pythoness on 3459_config1_2.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       import itertools
+      from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          def get_next_direction(current_dir, clockwise_turn):
+              if not clockwise_turn:
+                  return current_dir
+              return (current_dir + 1) % 4
+
+          def valid_v_shape(x, y, dx, dy, max_turn):
+              sequence = [1, 2, 0]
+              seq_idx = 0
+              length = 0
+              turn_made = 0
+              n, m = len(grid), len(grid[0])
+
+              while 0 <= x < n and 0 <= y < m:
+                  if grid[x][y] != sequence[seq_idx % 3]:
+                      break
+
+                  length += 1
+                  seq_idx += 1
+
+                  x += dx
+                  y += dy
+
+                  if seq_idx >= 3:  # After completing a cycle consider changing direction
+                      next_direction = get_next_direction(max_turn, turn_made)
+                      if next_direction != max_turn:
+                          dx, dy = directions[next_direction]
+                          turn_made += 1
+                      seq_idx = 0
+
+              return length if turn_made <= 1 else 0
+
+          directions = [(-1, 1), (1, -1), (1, 1), (-1, -1)]  # TL-BR, BL-TR, TR-BL, BR-TL
+          n, m = len(grid), len(grid[0])
+          max_length = 0
+
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      for dir_index, (dx, dy) in enumerate(directions):
+                          for turn_allowed in [0, 1]:
+                              length = valid_v_shape(i, j, dx, dy, dir_index * turn_allowed)
+                              max_length = max(max_length, length)
+
+          return max_length
+      ]
+    [16047 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 16.04736089706421]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          n, m = len(grid), len(grid[0])
+          directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # TL-BR, TR-BL, BL-TR, BR-TL
+
+          def get_v_length(start_x, start_y, dx1, dy1, dx2, dy2):
+              length = 0
+              sequence = [1, 2, 0]
+              for dx, dy in [(dx1, dy1), (dx2, dy2)]:
+                  x, y = start_x, start_y
+                  seq_idx = 0
+                  while 0 <= x < n and 0 <= y < m and grid[x][y] == sequence[seq_idx]:
+                      length += 1
+                      seq_idx = (seq_idx + 1) % 3
+                      x += dx
+                      y += dy
+                  if seq_idx != 0:  # Backtrack for correct alternating pattern
+                      length -= seq_idx
+              return length
+
+          max_length = 0
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      for d1, d2 in [(0, 2), (1, 3), (2, 0), (3, 1)]:  # Opposite directions for V-shape
+                          length = get_v_length(i, j, *directions[d1], *directions[d2])
+                          max_length = max(max_length, length)
+
+          return max_length
+      ]
+    [15081 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5', 'lenOfVDiagonal(grid = [[1]]) == 1'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5', 'lenOfVDiagonal(grid = [[1]]) == 1']
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 47.17600750923157]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5', 'lenOfVDiagonal(grid = [[1]]) == 1']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          def check_sequence(x, y, dx, dy, start_val):
+              seq = [1, 2, 0]
+              length = 0
+              idx = seq.index(start_val)
+              while 0 <= x < len(grid) and 0 <= y < len(grid[0]):
+                  if grid[x][y] != seq[idx]:
+                      break
+                  length += 1
+                  idx = (idx + 1) % 3
+                  x += dx
+                  y += dy
+              return length
+
+          max_length = 0
+          directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)] # TL->BR, TR->BL, BL->TR, BR->TL
+          turns = {(0, 1): (1, 1), (1, 0): (0, 1), (2, 3): (3, 1), (3, 2): (2, 1)}
+
+          for i in range(len(grid)):
+              for j in range(len(grid[0])):
+                  if grid[i][j] == 1:
+                      for k, (dx, dy) in enumerate(directions):
+                          length = check_sequence(i, j, dx, dy, 1)
+                          if k in turns:
+                              d2x, d2y = directions[turns[k][0]]
+                              # Account for the possibility to turn and continue
+                              length += check_sequence(i + length*dx, j + length*dy, d2x, d2y, [2, 0][turns[k][1]])
+                          max_length = max(max_length, length)
+
+          return max_length
+      ]
+    [20488 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.06 USD]]
+    [
+    [Total time so far: 98.79313492774963]]
+  [51645 ms]
+[51646 ms]
+
+
+Running iteration 3 of Pythoness on 3459_config1_3.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      from typing import List
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+
+          if not grid or not grid[0]:
+              return 0
+
+          n = len(grid)
+          m = len(grid[0])
+          max_length = 0
+
+          def check_sequence(x, y, dx1, dy1, dx2, dy2):
+              length = 0
+              sequence = [1, 2, 0]
+              turn_made = False
+              step = 0
+
+              while 0 <= x < n and 0 <= y < m:
+                  if grid[x][y] != sequence[step % 3]:
+                      break
+                  length += 1
+                  step += 1
+                  if (turn_made and step % 3 == 0) or (not turn_made and step % 3 == 2):
+                      next_x, next_y = x + dx2, y + dy2
+                  else:
+                      next_x, next_y = x + dx1, y + dy1
+
+                  if not (0 <= next_x < n and 0 <= next_y < m):
+                      if not turn_made:
+                          turn_made = True
+                          step = 3 if step % 3 == 2 else step
+                      else:
+                          break
+
+                  x, y = next_x, next_y
+
+              return length
+
+          # Iterate over each cell in the grid to check all possible starting points of the V-shaped segment
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      # Directions for diagonal movement
+                      directions = [
+                          (1, 1, 1, -1),  # 0 degree to 90 degree
+                          (1, -1, -1, -1),  # 45 degree to 135 degree
+                          (-1, -1, -1, 1),  # 135 degree to 225 degree
+                          (-1, 1, 1, 1)   # 225 degree to 315 degree
+                      ]
+                      for dx1, dy1, dx2, dy2 in directions:
+                          max_length = max(max_length, check_sequence(i, j, dx1, dy1, dx2, dy2))
+
+          return max_length
+
+      ]
+    [17798 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 17.79794979095459]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      from typing import List
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+
+          if not grid or not grid[0]:
+              return 0
+
+          n = len(grid)
+          m = len(grid[0])
+          max_length = 0
+
+          # Possible diagonal directions
+          directions = [
+              (1, 1),  # Southeast (↘)
+              (1, -1), # Southwest (↙)
+              (-1, 1), # Northeast (↗)
+              (-1, -1) # Northwest (↖)
+          ]
+
+          def check_sequence(x, y, d1, d2):
+              # Base sequence that should be followed: [1, 2, 0, 2, 0, ...]
+              sequence = [1, 2, 0]
+              max_len = 0
+              len1, len2 = 0, 0
+              for dx, dy in [d1, d2]:
+                  step = 0
+                  cx, cy = x, y
+                  while 0 <= cx < n and 0 <= cy < m:
+                      if grid[cx][cy] != sequence[step % 3]:
+                          break
+                      step += 1
+                      cx += dx
+                      cy += dy
+                  if dx == d1[0] and dy == d1[1]:
+                      len1 = step
+                  else:
+                      len2 = step
+                  max_len = max(max_len, len1 + len2 - 1)  # Subtract 1 as the turn counts the starting 1 twice
+
+              return max_len
+
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      # Try each starting direction and potential turning
+                      for d_index in range(4):
+                          current_max = check_sequence(i, j, directions[d_index], directions[(d_index + 1) % 4])
+                          max_length = max(max_length, current_max)
+
+          return max_length
+
+      ]
+    [20561 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 56.15703082084656]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      from typing import List
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+
+          if not grid or not grid[0]:
+              return 0
+
+          n, m = len(grid), len(grid[0])
+          max_length = 0
+          steps = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+          def find_sequence_length(x, y, direction):
+              length = 0
+              sequence = [1, 2, 0]
+              seq_index = 0
+              while 0 <= x < n and 0 <= y < m and grid[x][y] == sequence[seq_index % 3]:
+                  length += 1
+                  seq_index += 1
+                  x += direction[0]
+                  y += direction[1]
+              return length
+
+          # Check diagonals
+          for start_direction in range(4):
+              for i in range(n):
+                  for j in range(m):
+                      if grid[i][j] == 1:
+                          # First direction
+                          len1 = find_sequence_length(i, j, steps[start_direction])
+                          x1 = i + (len1 - 1) * steps[start_direction][0]
+                          y1 = j + (len1 - 1) * steps[start_direction][1]
+
+                          # Try turning, second direction in sequence
+                          turn_direction = (start_direction + 1) % 4  # Clockwise turn
+                          len2 = find_sequence_length(x1, y1, steps[turn_direction])
+
+                          # Update maximum length found
+                          max_length = max(max_length, len1 + len2 - (1 if len2 > 0 else 0))
+
+          return max_length
+
+      ]
+    [12604 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.06 USD]]
+    [
+    [Total time so far: 107.12078881263733]]
+  [50997 ms]
+[50998 ms]
+
+
+Running iteration 4 of Pythoness on 3459_config1_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       from typing import List
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          def in_bounds(y, x):
+              return 0 <= y < len(grid) and 0 <= x < len(grid[0])
+
+          def find_v_length(y, x, direction1, direction2):
+              # Initial direction
+              dir_y, dir_x = direction1
+              current_seq = [1, 2, 0]
+              sequence_length = 0
+              direction_turns = 0
+
+              while in_bounds(y, x):
+                  # If the current element does not match the sequence
+                  if grid[y][x] != current_seq[sequence_length % 3]:
+                      break
+                  sequence_length += 1
+
+                  # Move in the current direction
+                  y += dir_y
+                  x += dir_x
+
+                  # If sequence has reached the end of a diagonal, allow turn
+                  if sequence_length > 1 and grid[y][x] == 1:
+                      if direction_turns == 0:
+                          direction_turns += 1
+                          dir_y, dir_x = direction2
+
+              return sequence_length
+
+          result = 0
+
+          # Directions: (y, x)
+          directions = [((1, 1), (1, -1)), ((-1, -1), (-1, 1)), ((1, -1), (-1, -1)), ((-1, 1), (1, 1))]
+
+          for y in range(len(grid)):
+              for x in range(len(grid[0])):
+                  if grid[y][x] == 1:
+                      for direction1, direction2 in directions:
+                          length = find_v_length(y, x, direction1, direction2)
+                          result = max(result, length)
+
+          return result
+      ]
+    [13934 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+    [[Pythoness] This test failed to execute properly: lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 13.933618068695068]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          def in_bounds(y, x):
+              return 0 <= y < len(grid) and 0 <= x < len(grid[0])
+
+          def find_v_length(y, x, direction1, direction2):
+              sequence = [1, 2, 0]
+              max_length = 0
+              # Check without a turn
+              i, j = y, x
+              length = 0
+              while in_bounds(i, j) and grid[i][j] == sequence[length % 3]:
+                  length += 1
+                  max_length = max(max_length, length)
+                  i += direction1[0]
+                  j += direction1[1]
+
+              # Check with one turn
+              i, j = y + direction1[0], x + direction1[1]
+              length = 1
+              while in_bounds(i, j) and grid[i][j] == sequence[length % 3]:
+                  length += 1
+                  i += direction1[0]
+                  j += direction1[1]
+
+              # Make the turn
+              i, j = i - direction1[0] + direction2[0], j - direction1[1] + direction2[1]
+              while in_bounds(i, j) and grid[i][j] == sequence[length % 3]:
+                  length += 1
+                  max_length = max(max_length, length)
+                  i += direction2[0]
+                  j += direction2[1]
+
+              return max_length
+
+          directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+          max_result = 0
+          for y in range(len(grid)):
+              for x in range(len(grid[0])):
+                  if grid[y][x] == 1:
+                      for k in range(4):  # Try each pair of directions
+                          d1 = directions[k]
+                          d2 = directions[(k + 1) % 4]  # Turn to the next direction clockwise
+                          max_result = max(max_result, find_v_length(y, x, d1, d2))
+          return max_result
+      ]
+    [17313 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 45.18039011955261]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+          """
+          def in_bounds(y, x):
+              return 0 <= y < len(grid) and 0 <= x < len(grid[0])
+
+          def get_length(y, x, dy, dx):
+              seq = [1, 2, 0]
+              length = 0
+              while in_bounds(y, x) and grid[y][x] == seq[length % 3]:
+                  length += 1
+                  y += dy
+                  x += dx
+              return length
+
+          directions = [((1, 1), (-1, 1)), ((1, -1), (-1, -1)), ((-1, 1), (1, 1)), ((-1, -1), (1, -1))]
+          max_length = 0
+
+          for y in range(len(grid)):
+              for x in range(len(grid[0])):
+                  if grid[y][x] == 1:
+                      for dir1, dir2 in directions:
+                          length1 = get_length(y, x, dir1[0], dir1[1])
+                          length2 = get_length(y + dir1[0] * (length1 - 1), x + dir1[1] * (length1 - 1), dir2[0], dir2[1]) if length1 > 0 else 0
+                          max_length = max(max_length, length1 + length2 - 1) # Subtract one to not double count the turning point
+          return max_length
+      ]
+    [11304 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.06 USD]]
+    [
+    [Total time so far: 87.73160552978516]]
+  [42600 ms]
+[42601 ms]
+
+
+Running iteration 5 of Pythoness on 3459_config1_5.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named lenOfVDiagonal that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Task:
+
+        You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+        A V-shaped diagonal segment is defined as:
+
+        The segment starts with 1.
+        The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+        The segment:
+
+        Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+        Continues the sequence in the same diagonal direction.
+        Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+
+
+
+        Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+        Constraints:
+
+        n == grid.length
+        m == grid[i].length
+        1 <= n, m <= 500
+        grid[i][j] is either 0, 1 or 2.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5
+        lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4
+        lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5
+        lenOfVDiagonal(grid = [[1]]) == 1
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def lenOfVDiagonal(grid: List[List[int]]) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       import itertools
+      from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+
+          """
+          def search_sequence(x, y, dir1, dir2, total_turns_allowed=1):
+              pattern = itertools.cycle([2, 0])
+              next(pattern)  # A V-sequence starts with the next element after 1, which is 2.
+
+              def within_bounds(x, y):
+                  return 0 <= x < len(grid) and 0 <= y < len(grid[0])
+
+              length = 1  # Starting from a '1'
+              turns = 0
+              current_direction = dir1
+
+              while turns <= total_turns_allowed:
+                  next_num = next(pattern)
+                  if current_direction == dir1:
+                      x += dir1[0]
+                      y += dir1[1]
+                  else:
+                      x += dir2[0]
+                      y += dir2[1]
+
+                  if within_bounds(x, y) and grid[x][y] == next_num:
+                      length += 1
+                  else:
+                      if turns < total_turns_allowed:
+                          turns += 1
+                          current_direction = dir2  # Change direction
+                      else:
+                          break
+
+              return length
+
+          if not grid:
+              return 0
+
+          max_length = 0
+          directions = [((1, 1), (-1, 1)), ((-1, -1), (1, -1)), ((1, -1), (1, 1)), ((-1, 1), (-1, -1))]
+
+          for i in range(len(grid)):
+              for j in range(len(grid[0])):
+                  if grid[i][j] == 1:
+                      for dir1, dir2 in directions:
+                          max_length = max(max_length, search_sequence(i, j, dir1, dir2))
+
+          return max_length
+      ]
+    [17201 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 17.201380729675293]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+
+          """
+          n = len(grid)
+          m = len(grid[0])
+          directions = [((1, 1), (1, -1)), ((1, -1), (-1, -1)), ((-1, -1), (-1, 1)), ((-1, 1), (1, 1))]
+
+          def search(x, y, primary_dir, secondary_dir):
+              length = 1
+              next_val = 2
+              max_length = 0
+
+              # Continue in primary direction first
+              i, j = x, y
+              while 0 <= i < n and 0 <= j < m and grid[i][j] == next_val:
+                  length += 1
+                  next_val = 2 if next_val == 0 else 0
+                  i += primary_dir[0]
+                  j += primary_dir[1]
+
+              max_length = max(max_length, length)
+
+              # Check with one turn to secondary direction
+              i, j = x + primary_dir[0], y + primary_dir[1]
+              if 0 <= i < n and 0 <= j < m and grid[i][j] == 2:
+                  length = 1
+                  next_val = 0
+                  while 0 <= i < n and 0 <= j < m and grid[i][j] == next_val:
+                      length += 1
+                      next_val = 2 if next_val == 0 else 0
+                      i += secondary_dir[0]
+                      j += secondary_dir[1]
+                  max_length = max(max_length, length + 1)
+
+              return max_length
+
+          max_segment_length = 0
+
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      for primary, secondary in directions:
+                          max_segment_length = max(max_segment_length, search(i, j, primary, secondary))
+
+          return max_segment_length
+      ]
+    [15827 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 50.230013847351074]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       from typing import List
+
+
+      def lenOfVDiagonal(grid: List[List[int]]) -> int:
+          """
+          You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+          A V-shaped diagonal segment is defined as:
+
+          The segment starts with 1.
+          The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+          The segment:
+
+          Starts along a diagonal direction (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+          Continues the sequence in the same diagonal direction.
+          Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+          Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+          Constraints:
+
+          n == grid.length
+          m == grid[i].length
+          1 <= n, m <= 500
+          grid[i][j] is either 0, 1 or 2.
+
+          """
+          n = len(grid)
+          m = len(grid[0])
+          max_length = 0
+
+          def traverse(x, y, dx, dy):
+              seq = [1, 2, 0]
+              length = 0
+              for i in range(min(n, m)):
+                  if x < 0 or y < 0 or x >= n or y >= m:
+                      break
+                  if grid[x][y] != seq[i % 3]:
+                      break
+                  length += 1
+                  x += dx
+                  y += dy
+              return length
+
+          for i in range(n):
+              for j in range(m):
+                  if grid[i][j] == 1:
+                      for dx, dy in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
+                          max_length = max(max_length, traverse(i, j, dx, dy))
+                      for (dx1, dy1), (dx2, dy2) in [((1, 1), (-1, 1)), ((1, -1), (-1, -1)), ((-1, 1), (1, 1)), ((-1, -1), (1, -1))]:
+                          length1 = traverse(i, j, dx1, dy1)
+                          x, y = i + (length1 - 1) * dx1, j + (length1 - 1) * dy1
+                          length2 = traverse(x, y, dx2, dy2)
+                          max_length = max(max_length, length1 + length2 - 1)
+
+          return max_length
+      ]
+    [16220 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests...... 0 ms]
+Exception (['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['lenOfVDiagonal(grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 5', 'lenOfVDiagonal(grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]) == 4', 'lenOfVDiagonal(grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]) == 5']
+
+    ]
+    [
+    [Total cost so far: ~$0.06 USD]]
+    [
+    [Total time so far: 99.47910809516907]]
+  [49281 ms]
+[49282 ms]

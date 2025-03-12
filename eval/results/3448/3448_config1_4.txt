@@ -1,0 +1,15 @@
+class Solution:
+    
+    def countSubstrings(self, s: str) -> int:
+        
+        n = len(s)
+        count = 0
+        for i in range(n):
+            current_number = 0
+            for j in range(i, n):
+                current_number = current_number * 10 + int(s[j])
+                last_digit = int(s[j])
+                # Check divisibility by the last digit if it's not zero
+                if last_digit != 0 and current_number % last_digit == 0:
+                    count += 1
+        return count

@@ -1,0 +1,25 @@
+class Solution:
+    from typing import List
+    
+    def maxDistance(self, side: int, points: List[List[int]], k: int) -> int:
+        
+    
+        def canPlacePointsWithDist(d: int) -> bool:
+            # Helper function to determine if it is possible to choose k points
+            # such that each point has at least distance d from each other
+            placed_points = []
+            for point in points:
+                if all((abs(point[0] - other[0]) + abs(point[1] - other[1]) >= d for other in placed_points)):
+                    placed_points.append(point)
+                    if len(placed_points) == k:
+                        return True
+            return False
+        # Binary search to find the maximum minimum distance
+        (left, right) = (0, 2 * side)
+        while left < right:
+            mid = (left + right + 1) // 2
+            if canPlacePointsWithDist(mid):
+                left = mid
+            else:
+                right = mid - 1
+        return left

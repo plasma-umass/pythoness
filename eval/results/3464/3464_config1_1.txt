@@ -1,0 +1,37 @@
+class Solution:
+    from typing import List
+    
+    def maxDistance(self, side: int, points: List[List[int]], k: int) -> int:
+        
+    
+        def manhattan_dist(p1, p2):
+            return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+    
+        def can_form_k_points_with_min_dist(d):
+    
+            def place_points(i, k_left):
+                if k_left == 0:
+                    return True
+                if i >= len(points):
+                    return False
+                # Attempt to place this point
+                selected.append(i)
+                if all((manhattan_dist(points[i], points[j]) >= d for j in selected[:-1])):
+                    if place_points(i + 1, k_left - 1):
+                        return True
+                # Backtrack
+                selected.pop()
+                return place_points(i + 1, k_left)
+            selected = []
+            return place_points(0, k)
+        points.sort()
+        (left, right) = (0, 2 * side)
+        result = 0
+        while left <= right:
+            mid = (left + right) // 2
+            if can_form_k_points_with_min_dist(mid):
+                result = mid
+                left = mid + 1
+            else:
+                right = mid - 1
+        return result
