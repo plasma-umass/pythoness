@@ -24,7 +24,7 @@ def organize_results(base_dir="results"):
             continue
 
         oracle_file = os.path.join(subdir_path, f"{subdir}_oracle.py")
-        new_oracle_name = os.path.join(src_path, f"oracle[{subdir}].py")
+        new_oracle_name = os.path.join(src_path, f"oracle{subdir}.py")
 
         if os.path.exists(oracle_file):
             try:
@@ -37,4 +37,5 @@ def organize_results(base_dir="results"):
 
 
 if __name__ == "__main__":
+    # Search results/i/ for "i_oracle.py" and reorganize into src/oraclei.py and empty tests/
     organize_results()
