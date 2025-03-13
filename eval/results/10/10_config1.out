@@ -1,6 +1,6 @@
 
 
-Running iteration 1 of Pythoness on 10.py
+Running iteration 1 of Pythoness on 10_config1_1.py
 
 [Start...]
   [[Pythoness] Getting function info...... 0 ms]
@@ -11,6 +11,13 @@ Running iteration 1 of Pythoness on 10.py
     named isMatch that performs the following task as
     a field "code". Only produce output that can be parsed as
     JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
 
     Task:
 
@@ -58,6 +65,13 @@ Running iteration 1 of Pythoness on 10.py
     named isMatch that performs the following task as
     a field "code". Only produce output that can be parsed as
     JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
 
     Task:
 
@@ -117,35 +131,42 @@ Running iteration 1 of Pythoness on 10.py
           p contains only lowercase English letters, '.', and '*'.
           It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
           """
+          # Using dynamic programming approach
+          n = len(s)
+          m = len(p)
+          # dp[i][j] means whether s[:i] matches p[:j]
+          dp = [[False] * (m + 1) for _ in range(n + 1)]
+          dp[0][0] = True
+    
+          # Fill the dp array for empty string matching
+          for j in range(1, m + 1):
+              if p[j - 1] == '*':
+                  dp[0][j] = dp[0][j - 2]
 
-          # Dynamic programming approach
-          m, n = len(s), len(p)
-          dp = [[False] * (n + 1) for _ in range(m + 1)]
-          dp[0][0] = True  # Empty string matches empty pattern
-
-          # Deal with patterns like a*, a*b*, a*b*c*
+          # Fill the dp array for each character in s and p
           for i in range(1, n + 1):
-              if p[i - 1] == '*':
-                  dp[0][i] = dp[0][i - 2]
-
-          for i in range(1, m + 1):
-              for j in range(1, n + 1):
+              for j in range(1, m + 1):
                   if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
                       dp[i][j] = dp[i - 1][j - 1]
                   elif p[j - 1] == '*':
                       dp[i][j] = dp[i][j - 2] or (
                           (p[j - 2] == '.' or p[j - 2] == s[i - 1]) and dp[i - 1][j]
                       )
-                  else:
-                      dp[i][j] = False
-          return dp[m][n]
+    
+          return dp[n][m]
 
       ]
-    [10044 ms]
+    [15176 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['isMatch(s = "aa", p = "a") == False', 'isMatch(s = "aa", p = "a*") == True', 'isMatch(s = "ab", p = ".*") == True']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
 
 [Pythoness] Output:
 
@@ -167,41 +188,42 @@ def isMatch(s: str, p: str) -> bool:
     p contains only lowercase English letters, '.', and '*'.
     It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
     """
+    # Using dynamic programming approach
+    n = len(s)
+    m = len(p)
+    # dp[i][j] means whether s[:i] matches p[:j]
+    dp = [[False] * (m + 1) for _ in range(n + 1)]
+    dp[0][0] = True
+    
+    # Fill the dp array for empty string matching
+    for j in range(1, m + 1):
+        if p[j - 1] == '*':
+            dp[0][j] = dp[0][j - 2]
 
-    # Dynamic programming approach
-    m, n = len(s), len(p)
-    dp = [[False] * (n + 1) for _ in range(m + 1)]
-    dp[0][0] = True  # Empty string matches empty pattern
-
-    # Deal with patterns like a*, a*b*, a*b*c*
+    # Fill the dp array for each character in s and p
     for i in range(1, n + 1):
-        if p[i - 1] == '*':
-            dp[0][i] = dp[0][i - 2]
-
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
+        for j in range(1, m + 1):
             if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
                 dp[i][j] = dp[i - 1][j - 1]
             elif p[j - 1] == '*':
                 dp[i][j] = dp[i][j - 2] or (
                     (p[j - 2] == '.' or p[j - 2] == s[i - 1]) and dp[i - 1][j]
                 )
-            else:
-                dp[i][j] = False
-    return dp[m][n]
+    
+    return dp[n][m]
 
 
 
-    [[Pythoness] Replacing...... 2 ms]
+    [[Pythoness] Replacing...... 3 ms]
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 10.044103384017944]]
-  [10056 ms]
-[10057 ms]
+    [Total time so far: 15.176268339157104]]
+  [15186 ms]
+[15187 ms]
 
 
-Running iteration 2 of Pythoness on 10.py
+Running iteration 2 of Pythoness on 10_config1_2.py
 
 [Start...]
   [[Pythoness] Getting function info...... 0 ms]
@@ -212,6 +234,13 @@ Running iteration 2 of Pythoness on 10.py
     named isMatch that performs the following task as
     a field "code". Only produce output that can be parsed as
     JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
 
     Task:
 
@@ -259,6 +288,13 @@ Running iteration 2 of Pythoness on 10.py
     named isMatch that performs the following task as
     a field "code". Only produce output that can be parsed as
     JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
 
     Task:
 
@@ -318,30 +354,35 @@ Running iteration 2 of Pythoness on 10.py
           p contains only lowercase English letters, '.', and '*'.
           It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
           """
-          # Dynamic programming approach
           dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
           dp[0][0] = True
-
-          # Handle patterns like a*, a*b*, a*b*c* etc.
-          for j in range(2, len(p) + 1):
-              if p[j-1] == '*':
-                  dp[0][j] = dp[0][j-2]
+    
+          for j in range(1, len(p) + 1):
+              if p[j - 1] == '*':
+                  dp[0][j] = dp[0][j - 2]
 
           for i in range(1, len(s) + 1):
               for j in range(1, len(p) + 1):
-                  if p[j-1] == '.' or p[j-1] == s[i-1]:
-                      dp[i][j] = dp[i-1][j-1]
-                  elif p[j-1] == '*':
-                      dp[i][j] = dp[i][j-2] or (dp[i-1][j] and (p[j-2] == s[i-1] or p[j-2] == '.'))
+                  if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
+                      dp[i][j] = dp[i - 1][j - 1]
+                  elif p[j - 1] == '*':
+                      dp[i][j] = dp[i][j - 2] or (dp[i - 1][j] if p[j - 2] == s[i - 1] or p[j - 2] == '.' else False)
 
           return dp[len(s)][len(p)]
 
+
       ]
-    [8498 ms]
+    [8604 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['isMatch(s = "aa", p = "a") == False', 'isMatch(s = "aa", p = "a*") == True', 'isMatch(s = "ab", p = ".*") == True']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
 
 [Pythoness] Output:
 
@@ -363,23 +404,22 @@ def isMatch(s: str, p: str) -> bool:
     p contains only lowercase English letters, '.', and '*'.
     It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
     """
-    # Dynamic programming approach
     dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
     dp[0][0] = True
-
-    # Handle patterns like a*, a*b*, a*b*c* etc.
-    for j in range(2, len(p) + 1):
-        if p[j-1] == '*':
-            dp[0][j] = dp[0][j-2]
+    
+    for j in range(1, len(p) + 1):
+        if p[j - 1] == '*':
+            dp[0][j] = dp[0][j - 2]
 
     for i in range(1, len(s) + 1):
         for j in range(1, len(p) + 1):
-            if p[j-1] == '.' or p[j-1] == s[i-1]:
-                dp[i][j] = dp[i-1][j-1]
-            elif p[j-1] == '*':
-                dp[i][j] = dp[i][j-2] or (dp[i-1][j] and (p[j-2] == s[i-1] or p[j-2] == '.'))
+            if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+            elif p[j - 1] == '*':
+                dp[i][j] = dp[i][j - 2] or (dp[i - 1][j] if p[j - 2] == s[i - 1] or p[j - 2] == '.' else False)
 
     return dp[len(s)][len(p)]
+
 
 
 
@@ -387,12 +427,12 @@ def isMatch(s: str, p: str) -> bool:
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 8.498695373535156]]
-  [8511 ms]
-[8512 ms]
+    [Total time so far: 8.604864120483398]]
+  [8615 ms]
+[8616 ms]
 
 
-Running iteration 3 of Pythoness on 10.py
+Running iteration 3 of Pythoness on 10_config1_3.py
 
 [Start...]
   [[Pythoness] Getting function info...... 0 ms]
@@ -403,6 +443,13 @@ Running iteration 3 of Pythoness on 10.py
     named isMatch that performs the following task as
     a field "code". Only produce output that can be parsed as
     JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
 
     Task:
 
@@ -451,6 +498,218 @@ Running iteration 3 of Pythoness on 10.py
     a field "code". Only produce output that can be parsed as
     JSON. 
 
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+        '.' Matches any single character.    
+        '*' Matches zero or more of the preceding element.
+
+        The matching should cover the entire input string (not partial).
+
+        Constraints:
+
+        1 <= s.length <= 20
+        1 <= p.length <= 20
+        s contains only lowercase English letters.
+        p contains only lowercase English letters, '.', and '*'.
+        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        isMatch(s = "aa", p = "a") == False
+        isMatch(s = "aa", p = "a*") == True
+        isMatch(s = "ab", p = ".*") == True
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def isMatch(s: str, p: str) -> bool:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def isMatch(s: str, p: str) -> bool:
+          """
+          Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+          '.' Matches any single character.    
+          '*' Matches zero or more of the preceding element.
+
+          The matching should cover the entire input string (not partial).
+
+          Constraints:
+
+          1 <= s.length <= 20
+          1 <= p.length <= 20
+          s contains only lowercase English letters.
+          p contains only lowercase English letters, '.', and '*'.
+          It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+          """
+          # Function to match the strings s and p
+          m, n = len(s), len(p)
+          dp = [[False] * (n + 1) for _ in range(m + 1)]
+          dp[0][0] = True
+
+          for j in range(1, n + 1):
+              if p[j - 1] == '*':
+                  dp[0][j] = dp[0][j - 2]
+
+          for i in range(1, m + 1):
+              for j in range(1, n + 1):
+                  if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
+                      dp[i][j] = dp[i - 1][j - 1]
+                  elif p[j - 1] == '*':
+                      dp[i][j] = dp[i][j - 2] or (dp[i - 1][j] if p[j - 2] == '.' or p[j - 2] == s[i - 1] else False)
+
+          return dp[m][n]
+      ]
+    [10654 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['isMatch(s = "aa", p = "a") == False', 'isMatch(s = "aa", p = "a*") == True', 'isMatch(s = "ab", p = ".*") == True']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+def isMatch(s: str, p: str) -> bool:
+    """
+    Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+    '.' Matches any single character.    
+    '*' Matches zero or more of the preceding element.
+
+    The matching should cover the entire input string (not partial).
+
+    Constraints:
+
+    1 <= s.length <= 20
+    1 <= p.length <= 20
+    s contains only lowercase English letters.
+    p contains only lowercase English letters, '.', and '*'.
+    It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+    """
+    # Function to match the strings s and p
+    m, n = len(s), len(p)
+    dp = [[False] * (n + 1) for _ in range(m + 1)]
+    dp[0][0] = True
+
+    for j in range(1, n + 1):
+        if p[j - 1] == '*':
+            dp[0][j] = dp[0][j - 2]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+            elif p[j - 1] == '*':
+                dp[i][j] = dp[i][j - 2] or (dp[i - 1][j] if p[j - 2] == '.' or p[j - 2] == s[i - 1] else False)
+
+    return dp[m][n]
+
+
+    [[Pythoness] Replacing...... 2 ms]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 10.65446949005127]]
+  [10664 ms]
+[10665 ms]
+
+
+Running iteration 4 of Pythoness on 10_config1_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named isMatch that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+        '.' Matches any single character.    
+        '*' Matches zero or more of the preceding element.
+
+        The matching should cover the entire input string (not partial).
+
+        Constraints:
+
+        1 <= s.length <= 20
+        1 <= p.length <= 20
+        s contains only lowercase English letters.
+        p contains only lowercase English letters, '.', and '*'.
+        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        isMatch(s = "aa", p = "a") == False
+        isMatch(s = "aa", p = "a*") == True
+        isMatch(s = "ab", p = ".*") == True
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def isMatch(s: str, p: str) -> bool:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named isMatch that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
     Task:
 
         Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
@@ -493,6 +752,221 @@ Running iteration 3 of Pythoness on 10.py
  
 
       def isMatch(s: str, p: str) -> bool:
+          """
+          Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+          '.' Matches any single character.    
+          '*' Matches zero or more of the preceding element.
+
+          The matching should cover the entire input string (not partial).
+
+          Constraints:
+
+          1 <= s.length <= 20
+          1 <= p.length <= 20
+          s contains only lowercase English letters.
+          p contains only lowercase English letters, '.', and '*'.
+          It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+          """
+          # Initialize a 2D dp array with False values
+          dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
+    
+          # Base condition, empty string and empty pattern match
+          dp[0][0] = True
+    
+          # Fill in the base cases for patterns with '*' characters
+          for j in range(1, len(p) + 1):
+              if p[j-1] == '*':
+                  dp[0][j] = dp[0][j-2]
+    
+          # Fill the dp table
+          for i in range(1, len(s) + 1):
+              for j in range(1, len(p) + 1):
+                  if p[j-1] == '.' or p[j-1] == s[i-1]:
+                      dp[i][j] = dp[i-1][j-1]
+                  elif p[j-1] == '*':
+                      dp[i][j] = dp[i][j-2] or (dp[i-1][j] if p[j-2] == s[i-1] or p[j-2] == '.' else False)
+            
+          return dp[len(s)][len(p)]
+
+      ]
+    [7700 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['isMatch(s = "aa", p = "a") == False', 'isMatch(s = "aa", p = "a*") == True', 'isMatch(s = "ab", p = ".*") == True']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+
+def isMatch(s: str, p: str) -> bool:
+    """
+    Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+    '.' Matches any single character.    
+    '*' Matches zero or more of the preceding element.
+
+    The matching should cover the entire input string (not partial).
+
+    Constraints:
+
+    1 <= s.length <= 20
+    1 <= p.length <= 20
+    s contains only lowercase English letters.
+    p contains only lowercase English letters, '.', and '*'.
+    It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+    """
+    # Initialize a 2D dp array with False values
+    dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
+    
+    # Base condition, empty string and empty pattern match
+    dp[0][0] = True
+    
+    # Fill in the base cases for patterns with '*' characters
+    for j in range(1, len(p) + 1):
+        if p[j-1] == '*':
+            dp[0][j] = dp[0][j-2]
+    
+    # Fill the dp table
+    for i in range(1, len(s) + 1):
+        for j in range(1, len(p) + 1):
+            if p[j-1] == '.' or p[j-1] == s[i-1]:
+                dp[i][j] = dp[i-1][j-1]
+            elif p[j-1] == '*':
+                dp[i][j] = dp[i][j-2] or (dp[i-1][j] if p[j-2] == s[i-1] or p[j-2] == '.' else False)
+            
+    return dp[len(s)][len(p)]
+
+
+
+    [[Pythoness] Replacing...... 3 ms]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 7.700552940368652]]
+  [7713 ms]
+[7714 ms]
+
+
+Running iteration 5 of Pythoness on 10_config1_5.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named isMatch that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+        '.' Matches any single character.    
+        '*' Matches zero or more of the preceding element.
+
+        The matching should cover the entire input string (not partial).
+
+        Constraints:
+
+        1 <= s.length <= 20
+        1 <= p.length <= 20
+        s contains only lowercase English letters.
+        p contains only lowercase English letters, '.', and '*'.
+        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        isMatch(s = "aa", p = "a") == False
+        isMatch(s = "aa", p = "a*") == True
+        isMatch(s = "ab", p = ".*") == True
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def isMatch(s: str, p: str) -> bool:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named isMatch that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+        '.' Matches any single character.    
+        '*' Matches zero or more of the preceding element.
+
+        The matching should cover the entire input string (not partial).
+
+        Constraints:
+
+        1 <= s.length <= 20
+        1 <= p.length <= 20
+        s contains only lowercase English letters.
+        p contains only lowercase English letters, '.', and '*'.
+        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        isMatch(s = "aa", p = "a") == False
+        isMatch(s = "aa", p = "a*") == True
+        isMatch(s = "ab", p = ".*") == True
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def isMatch(s: str, p: str) -> bool:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def isMatch(s: str, p: str) -> bool:
           """
           Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
 
@@ -509,25 +983,44 @@ Running iteration 3 of Pythoness on 10.py
           p contains only lowercase English letters, '.', and '*'.
           It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
           """
-          import re
+          # Initialize the DP table with False
+          dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
+    
+          # Base case: empty string matches with empty pattern
+          dp[0][0] = True
+    
+          # Deals with patterns with '*' that can match with an empty string
+          for j in range(2, len(p) + 1):
+              if p[j - 1] == '*':
+                  dp[0][j] = dp[0][j - 2]
 
-          # Compile the pattern with the regex for full match '^...$'
-          pattern = re.compile(f'^{p}$')
-          # Use fullmatch which checks if the whole string matches the pattern
-          match = pattern.fullmatch(s)
-          # Return True if a match is found, otherwise return False
-          return match is not None
+          # Start populating the table
+          for i in range(1, len(s) + 1):
+              for j in range(1, len(p) + 1):
+                  if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
+                      # Characters match or pattern has '.', exact match
+                      dp[i][j] = dp[i - 1][j - 1]
+                  elif p[j - 1] == '*':
+                      # Star case
+                      # Consider the character before '*'
+                      dp[i][j] = dp[i][j - 2] or \
+                                 (dp[i - 1][j] and (s[i - 1] == p[j - 2] or p[j - 2] == '.'))
 
+          return dp[len(s)][len(p)]
       ]
-    [5414 ms]
+    [10642 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['isMatch(s = "aa", p = "a") == False', 'isMatch(s = "aa", p = "a*") == True', 'isMatch(s = "ab", p = ".*") == True']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
 
 [Pythoness] Output:
-
-
 def isMatch(s: str, p: str) -> bool:
     """
     Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
@@ -545,529 +1038,36 @@ def isMatch(s: str, p: str) -> bool:
     p contains only lowercase English letters, '.', and '*'.
     It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
     """
-    import re
-
-    # Compile the pattern with the regex for full match '^...$'
-    pattern = re.compile(f'^{p}$')
-    # Use fullmatch which checks if the whole string matches the pattern
-    match = pattern.fullmatch(s)
-    # Return True if a match is found, otherwise return False
-    return match is not None
-
-
-
-    [[Pythoness] Replacing...... 1 ms]
-    [
-    [Total cost so far: ~$0.00 USD]]
-    [
-    [Total time so far: 5.41444730758667]]
-  [5421 ms]
-[5422 ms]
-
-
-Running iteration 4 of Pythoness on 10.py
-
-[Start...]
-  [[Pythoness] Getting function info...... 0 ms]
-  [[Pythoness] Creating prompt and checking the DB......]
-    [[Pythoness] Prompt:
- 
-    Produce a JSON object with code for a Python function
-    named isMatch that performs the following task as
-    a field "code". Only produce output that can be parsed as
-    JSON. 
-
-    Task:
-
-        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-        '.' Matches any single character.    
-        '*' Matches zero or more of the preceding element.
-
-        The matching should cover the entire input string (not partial).
-
-        Constraints:
-
-        1 <= s.length <= 20
-        1 <= p.length <= 20
-        s contains only lowercase English letters.
-        p contains only lowercase English letters, '.', and '*'.
-        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-
-    Include a docstring containing the task description above
-    (without the word "Task:").  The function should be
-    entirely self-contained, with all imports, code, and data, except
-    for the above helper functions. Do not define any other functions, classes,
-    or methods inside the function you are writing.
-
-    The function should pass the following tests:
-        isMatch(s = "aa", p = "a") == False
-        isMatch(s = "aa", p = "a*") == True
-        isMatch(s = "ab", p = ".*") == True
-
-    Return only a single method or function definition. Use this template for your response:
-    ```
-
-    def isMatch(s: str, p: str) -> bool:
-        """"""
-
-    ```
-    ]
-  [0 ms]
-  [[Pythoness] Generating code......]
-    [[Pythoness] Attempt 1]
-    [[Pythoness] New prompt:
-
-
-    Produce a JSON object with code for a Python function
-    named isMatch that performs the following task as
-    a field "code". Only produce output that can be parsed as
-    JSON. 
-
-    Task:
-
-        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-        '.' Matches any single character.    
-        '*' Matches zero or more of the preceding element.
-
-        The matching should cover the entire input string (not partial).
-
-        Constraints:
-
-        1 <= s.length <= 20
-        1 <= p.length <= 20
-        s contains only lowercase English letters.
-        p contains only lowercase English letters, '.', and '*'.
-        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-
-    Include a docstring containing the task description above
-    (without the word "Task:").  The function should be
-    entirely self-contained, with all imports, code, and data, except
-    for the above helper functions. Do not define any other functions, classes,
-    or methods inside the function you are writing.
-
-    The function should pass the following tests:
-        isMatch(s = "aa", p = "a") == False
-        isMatch(s = "aa", p = "a*") == True
-        isMatch(s = "ab", p = ".*") == True
-
-    Return only a single method or function definition. Use this template for your response:
-    ```
-
-    def isMatch(s: str, p: str) -> bool:
-        """"""
-
-    ```
-
-    ]
-    [[Pythoness] Parsing......]
-      [[Pythoness] Synthesized function: 
- 
-
-      def isMatch(s: str, p: str) -> bool:
-          """
-          Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-          '.' Matches any single character.    
-          '*' Matches zero or more of the preceding element.
-
-          The matching should cover the entire input string (not partial).
-
-          Constraints:
-
-          1 <= s.length <= 20
-          1 <= p.length <= 20
-          s contains only lowercase English letters.
-          p contains only lowercase English letters, '.', and '*'.
-          It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-          """
-
-          # Dynamic programming table
-      table = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
-          table[0][0] = True  # Empty string matches empty pattern
-
-          # Fill out first row for patterns like a*, a*b*, a*b*c*, etc.
-          for j in range(2, len(p) + 1):
-              if p[j-1] == '*':
-                  table[0][j] = table[0][j-2]
-
-          for i in range(1, len(s) + 1):
-              for j in range(1, len(p) + 1):
-                  if p[j - 1] == '*':
-                      table[i][j] = table[i][j-2] or (table[i-1][j] and (s[i-1] == p[j-2] or p[j-2] == '.'))
-                  else:
-                      table[i][j] = table[i-1][j-1] and (s[i-1] == p[j-1] or p[j-1] == '.')
-
-          return table[len(s)][len(p)]
-
-      ]
-    [9439 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 23)
-
-
-To file...
-
-
- 0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
-    [
-    [Total cost so far: ~$0.01 USD]]
-    [
-    [Total time so far: 9.439654350280762]]
-    [[Pythoness] Attempt 2]
-    [[Pythoness] New prompt:
-
-            Your previous attempt failed because of a compilation error. Try again.
-    ]
-    [[Pythoness] Parsing......]
-      [[Pythoness] Synthesized function: 
- 
-
-      def isMatch(s: str, p: str) -> bool:
-          """
-          Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-          '.' Matches any single character.    
-          '*' Matches zero or more of the preceding element.
-
-          The matching should cover the entire input string (not partial).
-
-          Constraints:
-
-          1 <= s.length <= 20
-          1 <= p.length <= 20
-          s contains only lowercase English letters.
-          p contains only lowercase English letters, '.', and '*'.
-          It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-          """
-
-          # Dynamic programming table
-      table = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
-          table[0][0] = True  # Empty string matches empty pattern
-
-          # Fill out first row for patterns like a*, a*b*, a*b*c*, etc.
-          for j in range(2, len(p) + 1):
-              if p[j-1] == '*':
-                  table[0][j] = table[0][j-2]
-
-          for i in range(1, len(s) + 1):
-              for j in range(1, len(p) + 1):
-                  if p[j - 1] == '*':
-                      table[i][j] = table[i][j-2] or (table[i-1][j] and (s[i-1] == p[j-2] or p[j-2] == '.'))
-                  else:
-                      table[i][j] = table[i-1][j-1] and (s[i-1] == p[j-1] or p[j-1] == '.')
-
-          return table[len(s)][len(p)]
-
-      ]
-    [11427 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 23)
-
-
-To file...
-
-
- 0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
-    [
-    [Total cost so far: ~$0.02 USD]]
-    [
-    [Total time so far: 30.306241035461426]]
-    [[Pythoness] Attempt 3]
-    [[Pythoness] New prompt:
-
-            Your previous attempt failed because of a compilation error. Try again.
-    ]
-    [[Pythoness] Parsing......]
-      [[Pythoness] Synthesized function: 
- 
-
-      def isMatch(s: str, p: str) -> bool:
-          """
-          Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-          '.' Matches any single character.    
-          '*' Matches zero or more of the preceding element.
-
-          The matching should cover the entire input string (not partial).
-
-          Constraints:
-
-          1 <= s.length <= 20
-          1 <= p.length <= 20
-          s contains only lowercase English letters.
-          p contains only lowercase English letters, '.', and '*'.
-          It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-          """
-
-          # Dynamic programming table
-          table = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
-          table[0][0] = True  # Empty string matches empty pattern
-
-          # Fill out first row for patterns like a*, a*b*, a*b*c*, etc.
-          for j in range(2, len(p) + 1):
-              if p[j-1] == '*':
-                  table[0][j] = table[0][j-2]
-
-          for i in range(1, len(s) + 1):
-              for j in range(1, len(p) + 1):
-                  if p[j - 1] == '*':
-                      table[i][j] = table[i][j-2] or (table[i-1][j] and (s[i-1] == p[j-2] or p[j-2] == '.'))
-                  else:
-                      table[i][j] = table[i-1][j-1] and (s[i-1] == p[j-1] or p[j-1] == '.')
-
-          return table[len(s)][len(p)]
-
-      ]
-    [10762 ms]
-    [[Pythoness] Compiling and executing...... 0 ms]
-    [[Pythoness] Validating types...... 0 ms]
-    [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
-
-[Pythoness] Output:
-
-
-def isMatch(s: str, p: str) -> bool:
-    """
-    Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-    '.' Matches any single character.    
-    '*' Matches zero or more of the preceding element.
-
-    The matching should cover the entire input string (not partial).
-
-    Constraints:
-
-    1 <= s.length <= 20
-    1 <= p.length <= 20
-    s contains only lowercase English letters.
-    p contains only lowercase English letters, '.', and '*'.
-    It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-    """
-
-    # Dynamic programming table
-    table = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
-    table[0][0] = True  # Empty string matches empty pattern
-
-    # Fill out first row for patterns like a*, a*b*, a*b*c*, etc.
-    for j in range(2, len(p) + 1):
-        if p[j-1] == '*':
-            table[0][j] = table[0][j-2]
-
-    for i in range(1, len(s) + 1):
-        for j in range(1, len(p) + 1):
-            if p[j - 1] == '*':
-                table[i][j] = table[i][j-2] or (table[i-1][j] and (s[i-1] == p[j-2] or p[j-2] == '.'))
-            else:
-                table[i][j] = table[i-1][j-1] and (s[i-1] == p[j-1] or p[j-1] == '.')
-
-    return table[len(s)][len(p)]
-
-
-
-    [[Pythoness] Replacing...... 2 ms]
-    [
-    [Total cost so far: ~$0.04 USD]]
-    [
-    [Total time so far: 61.935309410095215]]
-  [31661 ms]
-[31662 ms]
-
-
-Running iteration 5 of Pythoness on 10.py
-
-[Start...]
-  [[Pythoness] Getting function info...... 0 ms]
-  [[Pythoness] Creating prompt and checking the DB......]
-    [[Pythoness] Prompt:
- 
-    Produce a JSON object with code for a Python function
-    named isMatch that performs the following task as
-    a field "code". Only produce output that can be parsed as
-    JSON. 
-
-    Task:
-
-        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-        '.' Matches any single character.    
-        '*' Matches zero or more of the preceding element.
-
-        The matching should cover the entire input string (not partial).
-
-        Constraints:
-
-        1 <= s.length <= 20
-        1 <= p.length <= 20
-        s contains only lowercase English letters.
-        p contains only lowercase English letters, '.', and '*'.
-        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-
-    Include a docstring containing the task description above
-    (without the word "Task:").  The function should be
-    entirely self-contained, with all imports, code, and data, except
-    for the above helper functions. Do not define any other functions, classes,
-    or methods inside the function you are writing.
-
-    The function should pass the following tests:
-        isMatch(s = "aa", p = "a") == False
-        isMatch(s = "aa", p = "a*") == True
-        isMatch(s = "ab", p = ".*") == True
-
-    Return only a single method or function definition. Use this template for your response:
-    ```
-
-    def isMatch(s: str, p: str) -> bool:
-        """"""
-
-    ```
-    ]
-  [0 ms]
-  [[Pythoness] Generating code......]
-    [[Pythoness] Attempt 1]
-    [[Pythoness] New prompt:
-
-
-    Produce a JSON object with code for a Python function
-    named isMatch that performs the following task as
-    a field "code". Only produce output that can be parsed as
-    JSON. 
-
-    Task:
-
-        Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-        '.' Matches any single character.    
-        '*' Matches zero or more of the preceding element.
-
-        The matching should cover the entire input string (not partial).
-
-        Constraints:
-
-        1 <= s.length <= 20
-        1 <= p.length <= 20
-        s contains only lowercase English letters.
-        p contains only lowercase English letters, '.', and '*'.
-        It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-
-    Include a docstring containing the task description above
-    (without the word "Task:").  The function should be
-    entirely self-contained, with all imports, code, and data, except
-    for the above helper functions. Do not define any other functions, classes,
-    or methods inside the function you are writing.
-
-    The function should pass the following tests:
-        isMatch(s = "aa", p = "a") == False
-        isMatch(s = "aa", p = "a*") == True
-        isMatch(s = "ab", p = ".*") == True
-
-    Return only a single method or function definition. Use this template for your response:
-    ```
-
-    def isMatch(s: str, p: str) -> bool:
-        """"""
-
-    ```
-
-    ]
-    [[Pythoness] Parsing......]
-      [[Pythoness] Synthesized function: 
- 
-
-      def isMatch(s: str, p: str) -> bool:
-          """
-          Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-          '.' Matches any single character.    
-          '*' Matches zero or more of the preceding element.
-
-          The matching should cover the entire input string (not partial).
-
-          Constraints:
-
-          1 <= s.length <= 20
-          1 <= p.length <= 20
-          s contains only lowercase English letters.
-          p contains only lowercase English letters, '.', and '*'.
-          It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-          """
-
-          dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
-          dp[0][0] = True
-
-          # Fill in the first row for patterns that can match an empty string
-          for j in range(2, len(p) + 1):
-              if p[j - 1] == '*':
-                  dp[0][j] = dp[0][j - 2]
-
-          for i in range(1, len(s) + 1):
-              for j in range(1, len(p) + 1):
-                  if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
-                      dp[i][j] = dp[i - 1][j - 1]
-                  elif p[j - 1] == '*':
-                      dp[i][j] = dp[i][j - 2] or (
-                          (p[j - 2] == '.' or p[j - 2] == s[i - 1]) and dp[i - 1][j]
-                      )
-
-          return dp[len(s)][len(p)]
-
-      ]
-    [9570 ms]
-    [[Pythoness] Compiling and executing...... 0 ms]
-    [[Pythoness] Validating types...... 0 ms]
-    [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
-
-[Pythoness] Output:
-
-
-def isMatch(s: str, p: str) -> bool:
-    """
-    Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
-
-    '.' Matches any single character.    
-    '*' Matches zero or more of the preceding element.
-
-    The matching should cover the entire input string (not partial).
-
-    Constraints:
-
-    1 <= s.length <= 20
-    1 <= p.length <= 20
-    s contains only lowercase English letters.
-    p contains only lowercase English letters, '.', and '*'.
-    It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
-    """
-
+    # Initialize the DP table with False
     dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
+    
+    # Base case: empty string matches with empty pattern
     dp[0][0] = True
-
-    # Fill in the first row for patterns that can match an empty string
+    
+    # Deals with patterns with '*' that can match with an empty string
     for j in range(2, len(p) + 1):
         if p[j - 1] == '*':
             dp[0][j] = dp[0][j - 2]
 
+    # Start populating the table
     for i in range(1, len(s) + 1):
         for j in range(1, len(p) + 1):
             if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
+                # Characters match or pattern has '.', exact match
                 dp[i][j] = dp[i - 1][j - 1]
             elif p[j - 1] == '*':
-                dp[i][j] = dp[i][j - 2] or (
-                    (p[j - 2] == '.' or p[j - 2] == s[i - 1]) and dp[i - 1][j]
-                )
+                # Star case
+                # Consider the character before '*'
+                dp[i][j] = dp[i][j - 2] or \
+                           (dp[i - 1][j] and (s[i - 1] == p[j - 2] or p[j - 2] == '.'))
 
     return dp[len(s)][len(p)]
 
 
-
-    [[Pythoness] Replacing...... 3 ms]
+    [[Pythoness] Replacing...... 2 ms]
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 9.570321083068848]]
-  [9580 ms]
-[9582 ms]
+    [Total time so far: 10.6427743434906]]
+  [10651 ms]
+[10653 ms]

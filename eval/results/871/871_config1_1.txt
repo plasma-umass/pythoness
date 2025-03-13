@@ -1,0 +1,19 @@
+class Solution:
+    
+    def minRefuelStops(self, target: int, startFuel: int, stations: List[List[int]]) -> int:
+        
+        import heapq
+        maxHeap = []  # A max heap to store the fuel amounts at stations we've passed
+        currentFuel = startFuel  # Initial fuel
+        previousPosition = 0  # Start position
+        refuelStops = 0  # Number of refuels
+        for (position, fuel) in stations + [(target, 0)]:
+            currentFuel -= position - previousPosition
+            while maxHeap and currentFuel < 0:  # Need more fuel to reach this position
+                currentFuel += -heapq.heappop(maxHeap)  # Refuel with the largest amount of available fuel
+                refuelStops += 1
+            if currentFuel < 0:  # Cannot reach this station
+                return -1
+            heapq.heappush(maxHeap, -fuel)  # Add this station's fuel to our choices
+            previousPosition = position
+        return refuelStops

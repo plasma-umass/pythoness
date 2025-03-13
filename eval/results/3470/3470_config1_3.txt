@@ -1,0 +1,23 @@
+class Solution:
+    from itertools import permutations
+    from typing import List
+    
+    def permute(self, n: int, k: int) -> List[int]:
+        
+    
+        def is_alternating(seq):
+            # Check if sequence is alternating between odd and even
+            for i in range(len(seq) - 1):
+                if seq[i] % 2 == seq[i + 1] % 2:
+                    return False
+            return True
+        numbers = list(range(1, n + 1))
+        count = 0
+        # Generate all permutations and check for alternating property
+        for perm in permutations(numbers):
+            if is_alternating(perm):
+                count += 1
+                if count == k:
+                    return list(perm)
+        # If fewer than k permutations, return an empty list
+        return []

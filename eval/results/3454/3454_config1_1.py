@@ -28,19 +28,8 @@ The total area of all the squares will not exceed 10^15.""",
     output=True,
     time_bound=None,
 )
-def minimumOperations(self, nums: List[int], target: List[int]) -> int:
-    n = len(nums)
-    f = abs(target[0] - nums[0])
-    for i in range(1, n):
-        x = target[i] - nums[i]
-        y = target[i - 1] - nums[i - 1]
-        if x * y > 0:
-            d = abs(x) - abs(y)
-            if d > 0:
-                f += d
-        else:
-            f += abs(x)
-    return f
+def separateSquares(squares: List[List[int]]) -> float:
+    """"""
 
 
-minimumOperations(nums=[3, 5, 1, 2], target=[4, 6, 2, 4])
+separateSquares(squares=[[0, 0, 1], [2, 2, 1]])

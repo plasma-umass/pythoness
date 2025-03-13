@@ -1,0 +1,20 @@
+class Solution:
+    from itertools import permutations
+    from typing import List
+    
+    def permute(self, n: int, k: int) -> List[int]:
+        
+        # Generate all permutations of the first n positive integers
+        all_perms = permutations(range(1, n + 1))
+        # Filter out valid alternating permutations
+        valid_perms = []
+        for perm in all_perms:
+            if all((perm[i] % 2 != perm[i + 1] % 2 for i in range(n - 1))):
+                valid_perms.append(perm)
+        # Sort them lexicographically
+        valid_perms.sort()
+        # Return the k-th permutation if it exists
+        if k <= len(valid_perms):
+            return list(valid_perms[k - 1])
+        else:
+            return []

@@ -18,18 +18,20 @@ def isMatch(s: str, p: str) -> bool:
     p contains only lowercase English letters, '.', and '*'.
     It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
     """
-    # Dynamic programming table
-    table = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
-    table[0][0] = True  # Empty string matches empty pattern
-    # Fill out first row for patterns like a*, a*b*, a*b*c*, etc.
-    for j in range(2, len(p) + 1):
+    # Initialize a 2D dp array with False values
+    dp = [[False] * (len(p) + 1) for _ in range(len(s) + 1)]
+    # Base condition, empty string and empty pattern match
+    dp[0][0] = True
+    # Fill in the base cases for patterns with '*' characters
+    for j in range(1, len(p) + 1):
         if p[j - 1] == '*':
-            table[0][j] = table[0][j - 2]
+            dp[0][j] = dp[0][j - 2]
+    # Fill the dp table
     for i in range(1, len(s) + 1):
         for j in range(1, len(p) + 1):
-            if p[j - 1] == '*':
-                table[i][j] = table[i][j - 2] or (table[i - 1][j] and (s[i - 1] == p[j - 2] or p[j - 2] == '.'))
-            else:
-                table[i][j] = table[i - 1][j - 1] and (s[i - 1] == p[j - 1] or p[j - 1] == '.')
-    return table[len(s)][len(p)]
+            if p[j - 1] == '.' or p[j - 1] == s[i - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+            elif p[j - 1] == '*':
+                dp[i][j] = dp[i][j - 2] or (dp[i - 1][j] if p[j - 2] == s[i - 1] or p[j - 2] == '.' else False)
+    return dp[len(s)][len(p)]
 isMatch(s='aa', p='a')
