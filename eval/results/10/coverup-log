@@ -1,0 +1,196 @@
+---- 2025-03-13T20:46:32 startup ----
+Command: /home/vscode/.local/bin/coverup --package src --tests-dir tests
+---- 2025-03-13T20:46:32 src/oracle10.py:1-26 ----
+{
+  "model": "gpt-4o-2024-05-13",
+  "temperature": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": "\nYou are an expert Python test-driven developer.\nThe code below, extracted from src/oracle10.py, does not achieve full coverage:\nwhen tested, lines 1-26 do not execute.\nCreate new pytest test functions that execute all missing lines and branches, always making\nsure that each test is correct and indeed improves coverage.\nUse the get_info tool function as necessary.\nAlways send entire Python test scripts when proposing a new test or correcting one you\npreviously proposed.\nBe sure to include assertions in the test that verify any applicable postconditions.\nPlease also make VERY SURE to clean up after the test, so as to avoid state pollution;\nuse 'monkeypatch' or 'pytest-mock' if appropriate.\nWrite as little top-level code as possible, and in particular do not include any top-level code\ncalling into pytest.main or the test itself.\nRespond ONLY with the Python code enclosed in backticks, without any explanation.\n```python\n         1: class Solution:\n         2:   def isMatch(self, s: str, p: str) -> bool:\n         3:     m = len(s)\n         4:     n = len(p)\n                # dp[i][j] := True if s[0..i) matches p[0..j)\n         6:     dp = [[False] * (n + 1) for _ in range(m + 1)]\n         7:     dp[0][0] = True\n            \n         9:     def isMatch(i: int, j: int) -> bool:\n        10:       return j >= 0 and p[j] == '.' or s[i] == p[j]\n            \n        12:     for j, c in enumerate(p):\n        13:       if c == '*' and dp[0][j - 1]:\n        14:         dp[0][j + 1] = True\n            \n        16:     for i in range(m):\n        17:       for j in range(n):\n        18:         if p[j] == '*':\n                      # The minimum index of '*' is 1.\n        20:           noRepeat = dp[i + 1][j - 1]\n        21:           doRepeat = isMatch(i, j - 1) and dp[i][j + 1]\n        22:           dp[i + 1][j + 1] = noRepeat or doRepeat\n        23:         elif isMatch(i, j):\n        24:           dp[i + 1][j + 1] = dp[i][j]\n            \n        26:     return dp[m][n]\n\n```\n"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_info",
+        "description": "Returns information about a symbol.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "class, function or method name, as in 'f' for function f or 'C.foo' for method foo in class C."
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    }
+  ]
+}
+---- 2025-03-13T20:46:35 src/oracle10.py:1-26 ----
+{
+  "id": "chatcmpl-BAjjmuoj9Ncn96rXfWmB1cCWkOMnw",
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "message": {
+        "content": null,
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"name\": \"Solution\"}",
+              "name": "get_info"
+            },
+            "id": "call_aNwvQVtIGixoeWNRutFt5nEJ",
+            "type": "function"
+          },
+          {
+            "function": {
+              "arguments": "{\"name\": \"Solution.isMatch\"}",
+              "name": "get_info"
+            },
+            "id": "call_hhMmX3rrTHDW0CxrFqjfDzfn",
+            "type": "function"
+          }
+        ],
+        "function_call": null
+      }
+    }
+  ],
+  "created": 1741898794,
+  "model": "gpt-4o-2024-05-13",
+  "object": "chat.completion",
+  "system_fingerprint": "fp_f44a718f65",
+  "usage": {
+    "completion_tokens": 47,
+    "prompt_tokens": 629,
+    "total_tokens": 676,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "service_tier": "default"
+}
+---- 2025-03-13T20:46:35 src/oracle10.py:1-26 ----
+{
+  "model": "gpt-4o-2024-05-13",
+  "temperature": 0,
+  "messages": [
+    {
+      "role": "user",
+      "content": "\nYou are an expert Python test-driven developer.\nThe code below, extracted from src/oracle10.py, does not achieve full coverage:\nwhen tested, lines 1-26 do not execute.\nCreate new pytest test functions that execute all missing lines and branches, always making\nsure that each test is correct and indeed improves coverage.\nUse the get_info tool function as necessary.\nAlways send entire Python test scripts when proposing a new test or correcting one you\npreviously proposed.\nBe sure to include assertions in the test that verify any applicable postconditions.\nPlease also make VERY SURE to clean up after the test, so as to avoid state pollution;\nuse 'monkeypatch' or 'pytest-mock' if appropriate.\nWrite as little top-level code as possible, and in particular do not include any top-level code\ncalling into pytest.main or the test itself.\nRespond ONLY with the Python code enclosed in backticks, without any explanation.\n```python\n         1: class Solution:\n         2:   def isMatch(self, s: str, p: str) -> bool:\n         3:     m = len(s)\n         4:     n = len(p)\n                # dp[i][j] := True if s[0..i) matches p[0..j)\n         6:     dp = [[False] * (n + 1) for _ in range(m + 1)]\n         7:     dp[0][0] = True\n            \n         9:     def isMatch(i: int, j: int) -> bool:\n        10:       return j >= 0 and p[j] == '.' or s[i] == p[j]\n            \n        12:     for j, c in enumerate(p):\n        13:       if c == '*' and dp[0][j - 1]:\n        14:         dp[0][j + 1] = True\n            \n        16:     for i in range(m):\n        17:       for j in range(n):\n        18:         if p[j] == '*':\n                      # The minimum index of '*' is 1.\n        20:           noRepeat = dp[i + 1][j - 1]\n        21:           doRepeat = isMatch(i, j - 1) and dp[i][j + 1]\n        22:           dp[i + 1][j + 1] = noRepeat or doRepeat\n        23:         elif isMatch(i, j):\n        24:           dp[i + 1][j + 1] = dp[i][j]\n            \n        26:     return dp[m][n]\n\n```\n"
+    },
+    {
+      "content": "",
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "function": {
+            "arguments": "{\"name\": \"Solution\"}",
+            "name": "get_info"
+          },
+          "id": "call_aNwvQVtIGixoeWNRutFt5nEJ",
+          "type": "function"
+        },
+        {
+          "function": {
+            "arguments": "{\"name\": \"Solution.isMatch\"}",
+            "name": "get_info"
+          },
+          "id": "call_hhMmX3rrTHDW0CxrFqjfDzfn",
+          "type": "function"
+        }
+      ],
+      "function_call": null
+    },
+    {
+      "tool_call_id": "call_aNwvQVtIGixoeWNRutFt5nEJ",
+      "role": "tool",
+      "name": "get_info",
+      "content": "\"...\" below indicates omitted code.\n\n```python\nclass Solution:\n\n    def isMatch(self, s: str, p: str) -> bool:\n        ...\n```"
+    },
+    {
+      "tool_call_id": "call_hhMmX3rrTHDW0CxrFqjfDzfn",
+      "role": "tool",
+      "name": "get_info",
+      "content": "\"...\" below indicates omitted code.\n\n```python\nclass Solution:\n    ...\n\n    def isMatch(self, s: str, p: str) -> bool:\n        m = len(s)\n        n = len(p)\n        dp = [[False] * (n + 1) for _ in range(m + 1)]\n        dp[0][0] = True\n\n        def isMatch(i: int, j: int) -> bool:\n            return j >= 0 and p[j] == '.' or s[i] == p[j]\n        for (j, c) in enumerate(p):\n            if c == '*' and dp[0][j - 1]:\n                dp[0][j + 1] = True\n        for i in range(m):\n            for j in range(n):\n                if p[j] == '*':\n                    noRepeat = dp[i + 1][j - 1]\n                    doRepeat = isMatch(i, j - 1) and dp[i][j + 1]\n                    dp[i + 1][j + 1] = noRepeat or doRepeat\n                elif isMatch(i, j):\n                    dp[i + 1][j + 1] = dp[i][j]\n        return dp[m][n]\n```"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_info",
+        "description": "Returns information about a symbol.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "class, function or method name, as in 'f' for function f or 'C.foo' for method foo in class C."
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    }
+  ]
+}
+---- 2025-03-13T20:46:39 src/oracle10.py:1-26 ----
+{
+  "id": "chatcmpl-BAjjnBEEy9igdzsqmovhd9q85ZnHC",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```python\nimport pytest\nfrom src.oracle10 import Solution\n\n@pytest.fixture\ndef solution():\n    return Solution()\n\ndef test_isMatch_empty_string(solution):\n    assert solution.isMatch(\"\", \"\") == True\n\ndef test_isMatch_single_char_match(solution):\n    assert solution.isMatch(\"a\", \"a\") == True\n\ndef test_isMatch_single_char_no_match(solution):\n    assert solution.isMatch(\"a\", \"b\") == False\n\ndef test_isMatch_dot_char(solution):\n    assert solution.isMatch(\"a\", \".\") == True\n\ndef test_isMatch_star_char(solution):\n    assert solution.isMatch(\"aa\", \"a*\") == True\n    assert solution.isMatch(\"aa\", \".*\") == True\n    assert solution.isMatch(\"ab\", \".*\") == True\n    assert solution.isMatch(\"aab\", \"c*a*b\") == True\n\ndef test_isMatch_complex_pattern(solution):\n    assert solution.isMatch(\"mississippi\", \"mis*is*p*.\") == False\n    assert solution.isMatch(\"mississippi\", \"mis*is*ip*.\") == True\n\ndef test_isMatch_no_star(solution):\n    assert solution.isMatch(\"abcd\", \"d*\") == False\n\ndef test_isMatch_empty_pattern(solution):\n    assert solution.isMatch(\"a\", \"\") == False\n\ndef test_isMatch_empty_string_with_star(solution):\n    assert solution.isMatch(\"\", \"a*\") == True\n```",
+        "role": "assistant",
+        "tool_calls": null,
+        "function_call": null
+      }
+    }
+  ],
+  "created": 1741898795,
+  "model": "gpt-4o-2024-05-13",
+  "object": "chat.completion",
+  "system_fingerprint": "fp_f44a718f65",
+  "usage": {
+    "completion_tokens": 293,
+    "prompt_tokens": 1022,
+    "total_tokens": 1315,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "service_tier": "default"
+}
+---- 2025-03-13T20:46:40 src/oracle10.py:1-26 ----
+.............................................                           [4500%]
+
+---- 2025-03-13T20:46:40 src/oracle10.py:1-26 ----
+Saved as /workspaces/ubuntu/pythoness/eval/results/10/tests/test_coverup_1.py
+

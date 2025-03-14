@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Solution:
     def reversePairs(self, nums: List[int]) -> int:
         def merge_sort(l, r):

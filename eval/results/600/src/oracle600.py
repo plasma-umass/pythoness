@@ -1,3 +1,6 @@
+from functools import cache
+
+
 class Solution:
     def findIntegers(self, n: int) -> int:
         @cache

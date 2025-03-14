@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 
 
 def organize_results(base_dir="results"):
@@ -36,6 +37,52 @@ def organize_results(base_dir="results"):
             print(f"Warning: '{oracle_file}' not found in '{subdir}'.")
 
 
+def run_coverup_in_results():
+    results_dir = "results"
+    specific_subdirs = [
+        # "765",
+        # "801",
+        # "2251",
+        # "2334",
+        # "3312",
+        # "3445",
+        "3448",
+        "3449",
+        "3459",
+    ]  # Replace with the subdirectory names you want
+
+    if not os.path.isdir(results_dir):
+        print(f"Directory '{results_dir}' does not exist.")
+        return
+
+    for subdir in specific_subdirs:
+
+        subdir_path = os.path.join(results_dir, subdir)
+
+        # if os.path.exists(os.path.join(subdir_path, "coverup-log")):
+        #     print("Coverup already run here. Skip.")
+        #     continue
+
+        if os.path.isdir(subdir_path):
+            print(f"Entering {subdir_path} and running coverup...")
+
+            process = subprocess.Popen(
+                ["coverup", "--package", "src", "--tests-dir", "tests"],
+                cwd=subdir_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+
+            for line in process.stdout:
+                print(line, end="")  # Print output as it arrives
+
+            process.wait()
+            print(f"Finished running coverup in {subdir_path}\n")
+
+
 if __name__ == "__main__":
     # Search results/i/ for "i_oracle.py" and reorganize into src/oraclei.py and empty tests/
-    organize_results()
+    # organize_results()
+    # RUN COVERUP ON EVERYTHING
+    run_coverup_in_results()

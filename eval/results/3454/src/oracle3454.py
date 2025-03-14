@@ -1,3 +1,6 @@
+from typing import List
+
+
 class SegmentTree:
     def __init__(self, xs: List[int]):
         self.xs = xs  # sorted x coordinates

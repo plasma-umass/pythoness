@@ -30,12 +30,6 @@ Running iteration 1 of Pythoness on 25_config1_1.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -55,27 +49,6 @@ Running iteration 1 of Pythoness on 25_config1_1.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -110,12 +83,6 @@ Running iteration 1 of Pythoness on 25_config1_1.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -135,27 +102,6 @@ Running iteration 1 of Pythoness on 25_config1_1.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -164,17 +110,12 @@ Running iteration 1 of Pythoness on 25_config1_1.py
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
-       def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+ 
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
           """
           Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
           k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
           You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
 
           Constraints:
 
@@ -182,51 +123,45 @@ Running iteration 1 of Pythoness on 25_config1_1.py
           1 <= k <= n <= 5000
           0 <= Node.val <= 1000
           """
-          def reverse_linked_list(start, end):
-              prev, curr = None, start
-              while curr != end:
-                  next_node = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = next_node
-              return prev
+          if head is None or k == 1:
+              return head
 
           dummy = ListNode(0)
           dummy.next = head
-          group_prev = dummy
+          current, prev, next_node = head, dummy, None
+    
+          count = 0
+          while current:
+              count += 1
+              current = current.next
 
-          while True:
-              kth = group_prev
-              for _ in range(k):
-                  kth = kth.next
-                  if not kth:
-                      return dummy.next
-              group_next = kth.next
-
-              # Reverse the group
-              prev, curr = kth.next, group_prev.next
-              for _ in range(k):
-                  tmp = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = tmp
-
-              tmp = group_prev.next
-              group_prev.next = kth
-              group_prev = tmp
-
-          return dummy.next]
-    [16764 ms]
+          while count >= k:
+              current = prev.next
+              next_node = current.next
+              for _ in range(1, k):
+                  current.next = next_node.next
+                  next_node.next = prev.next
+                  prev.next = next_node
+                  next_node = current.next
+              prev = current
+              count -= k
+          return dummy.next
+      ]
+    [10357 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
 Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
     [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
-    [Total cost so far: ~$0.01 USD]]
+    [Total cost so far: ~$0.00 USD]]
     [
-    [Total time so far: 16.764857053756714]]
+    [Total time so far: 10.35698652267456]]
     [[Pythoness] Attempt 2]
     [[Pythoness] New prompt:
 
@@ -234,17 +169,20 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
-       def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+ 
+      from typing import Optional
+
+      class ListNode:
+          def __init__(self, val=0, next=None):
+              self.val = val
+              self.next = next
+
+
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
           """
           Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
           k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
           You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
 
           Constraints:
 
@@ -252,66 +190,56 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
           1 <= k <= n <= 5000
           0 <= Node.val <= 1000
           """
-          def get_kth_node(curr, k):
-              i = 0
-              while curr and i < k:
-                  curr = curr.next
-                  i += 1
-              return curr if i == k else None
+          if not head or k == 1:
+              return head
 
           dummy = ListNode(0)
           dummy.next = head
-          prev = dummy
-    
-          while True:
-              kth = get_kth_node(prev, k)
-              if not kth:
-                  break
-              next_group = kth.next
-              # Reverse current k group
-              prev_sublist = prev.next
-              curr = prev.next
-              prev_k = kth.next
+          prev, current = dummy, head
 
-              while curr != next_group:
-                  temp = curr.next
-                  curr.next = prev_k
-                  prev_k = curr
-                  curr = temp
-        
-              prev.next = kth
-              prev = prev_sublist
-    
-          return dummy.next]
-    [11204 ms]
+          # Count the number of nodes in the linked list
+          count = 0
+          while current:
+              count += 1
+              current = current.next
+
+          # Reverse in groups
+          while count >= k:
+              current = prev.next
+              next_node = current.next
+              for _ in range(1, k):
+                  current.next = next_node.next
+                  next_node.next = prev.next
+                  prev.next = next_node
+                  next_node = current.next
+              prev = current
+              count -= k
+
+          return dummy.next
+      ]
+    [9288 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
-    [[Pythoness] Validating types...... 0 ms]
-    [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
-Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
-    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
+    [[Pythoness] Validating types......Not same type (head: Optional[__main__.ListNode], k: int) -> Optional[__main__.ListNode] (head: Optional[__main__.ListNode], k: int) -> Optional[__main__.ListNode]
+ 0 ms]
+Exception 
+    [[Pythoness] The types of the generated function are incompatible with the spec. Ensure the signatures match. ]
     [
-    [Total cost so far: ~$0.02 USD]]
+    [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 44.73426032066345]]
+    [Total time so far: 30.00178074836731]]
     [[Pythoness] Attempt 3]
     [[Pythoness] New prompt:
 
-            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
+            Your previous attempt failed because the types of the function and spec were incompatible. Try again.
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
-       def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+ 
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
           """
           Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
           k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
           You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
 
           Constraints:
 
@@ -319,49 +247,45 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
           1 <= k <= n <= 5000
           0 <= Node.val <= 1000
           """
-          def get_kth_node(curr, k):
-              i = 0
-              while curr and i < k:
-                  curr = curr.next
-                  i += 1
-              return curr
+          if not head or k == 1:
+              return head
 
           dummy = ListNode(0)
           dummy.next = head
-          group_prev = dummy
-    
-          while True:
-              kth = get_kth_node(group_prev, k)
-              if not kth:
-                  break
-              group_next = kth.next
-              # Reverse group
-              prev, curr = kth.next, group_prev.next
+          prev, current = dummy, head
 
-              while curr != group_next:
-                  temp = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = temp
-        
-              temp = group_prev.next
-              group_prev.next = kth
-              group_prev = temp
-    
-          return dummy.next]
-    [11870 ms]
+          # Count the number of nodes in the linked list
+          count = 0
+          while current:
+              count += 1
+              current = current.next
+
+          # Reverse in groups
+          while count >= k:
+              current = prev.next
+              next_node = current.next
+              for _ in range(1, k):
+                  current.next = next_node.next
+                  next_node.next = prev.next
+                  prev.next = next_node
+                  next_node = current.next
+              prev = current
+              count -= k
+
+          return dummy.next
+      ]
+    [10454 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
-    [[Pythoness] Validating types...... 0 ms]
-    [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
-Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
-    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
+    [[Pythoness] Validating types......Not same type (head: Optional[__main__.ListNode], k: int) -> Optional[__main__.ListNode] (head: Optional[__main__.ListNode], k: int) -> Optional[__main__.ListNode]
+ 0 ms]
+Exception 
+    [[Pythoness] The types of the generated function are incompatible with the spec. Ensure the signatures match. ]
     [
-    [Total cost so far: ~$0.04 USD]]
+    [Total cost so far: ~$0.03 USD]]
     [
-    [Total time so far: 84.57384943962097]]
-  [39902 ms]
-[39903 ms]
+    [Total time so far: 60.10121822357178]]
+  [30134 ms]
+[30135 ms]
 
 
 Running iteration 2 of Pythoness on 25_config1_2.py
@@ -394,12 +318,6 @@ Running iteration 2 of Pythoness on 25_config1_2.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -419,27 +337,6 @@ Running iteration 2 of Pythoness on 25_config1_2.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -474,12 +371,6 @@ Running iteration 2 of Pythoness on 25_config1_2.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -499,27 +390,6 @@ Running iteration 2 of Pythoness on 25_config1_2.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -529,174 +399,211 @@ Running iteration 2 of Pythoness on 25_config1_2.py
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
  
-          def reverseKGroup(head, k):
-              """
-              Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
-              k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
-              You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Definition for singly-linked list.
-              class ListNode:
-                  def __init__(self, val=0, next=None):
-                      self.val = val
-                      self.next = next
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Constraints:
+          Constraints:
 
-              The number of nodes in the list is n.
-              1 <= k <= n <= 5000
-              0 <= Node.val <= 1000
-              """
-              def reverseLinkedList(head, k):
-                  prev, curr = None, head
-                  while k > 0:
-                      next_node = curr.next
-                      curr.next = prev
-                      prev = curr
-                      curr = next_node
-                      k -= 1
-                  return prev
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+    
+          # Helper function to reverse a portion of the list
+          def reverseLinkedList(start: ListNode, end: ListNode) -> ListNode:
+              prev = None
+              current = start
+              while current != end:
+                  temp = current.next
+                  current.next = prev
+                  prev = current
+                  current = temp
+              return prev
 
-              count = 0
-              ptr = head
-              while count < k and ptr:
-                  ptr = ptr.next
-                  count += 1
+          dummy = ListNode(0, head)
+          groupPrev = dummy
+    
+          while True:
+              kth = groupPrev
+              for _ in range(k):
+                  kth = kth.next
+                  if not kth:
+                      return dummy.next
         
-              if count == k:
-                  reversedHead = reverseLinkedList(head, k)
-                  head.next = reverseKGroup(ptr, k)
-                  return reversedHead
-        
-              return head
+              groupNext = kth.next
+              # Reverse group
+              prev = groupPrev.next
+              groupPrev.next = reverseLinkedList(groupPrev.next, groupNext)
+              prev.next = groupNext
+              groupPrev = prev
+    
+          return dummy.next
+
       ]
-    [7927 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 2)
+    [8925 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
  0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
-    [Total cost so far: ~$0.01 USD]]
+    [Total cost so far: ~$0.00 USD]]
     [
-    [Total time so far: 7.927008152008057]]
+    [Total time so far: 8.925259828567505]]
     [[Pythoness] Attempt 2]
     [[Pythoness] New prompt:
 
-            Your previous attempt failed because of a compilation error. Try again.
+            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
  
-          def reverseKGroup(head, k):
-              """
-              Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
-              k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
-              You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Definition for singly-linked list.
-              class ListNode:
-                  def __init__(self, val=0, next=None):
-                      self.val = val
-                      self.next = next
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Constraints:
+          Constraints:
 
-              The number of nodes in the list is n.
-              1 <= k <= n <= 5000
-              0 <= Node.val <= 1000
-              """
-              def reverseLinkedList(head, k):
-                  prev, curr = None, head
-                  while k > 0:
-                      next_node = curr.next
-                      curr.next = prev
-                      prev = curr
-                      curr = next_node
-                      k -= 1
-                  return prev
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+    
+          # Helper function to reverse a portion of the list
+          def reverseLinkedList(start: ListNode, end: ListNode) -> ListNode:
+              prev = None
+              current = start
+              while current != end:
+                  temp = current.next
+                  current.next = prev
+                  prev = current
+                  current = temp
+              return prev
 
-              count = 0
-              ptr = head
-              while count < k and ptr:
-                  ptr = ptr.next
-                  count += 1
+          # Dummy node initialization
+          dummy = ListNode(0)
+          dummy.next = head
+          groupPrev = dummy
+    
+          while True:
+              # Identify the kth node from groupPrev
+              kth = groupPrev
+              for _ in range(k):
+                  kth = kth.next
+                  if not kth:
+                      return dummy.next
         
-              if count == k:
-                  reversedHead = reverseLinkedList(head, k)
-                  head.next = reverseKGroup(ptr, k)
-                  return reversedHead
-        
-              return head
+              # Set the groupNext and reverse the group
+              groupNext = kth.next
+              prev = groupPrev.next
+              kth.next = None
+              groupPrev.next = reverseLinkedList(prev, None)
+              prev.next = groupNext
+              groupPrev = prev
+
+          return dummy.next
+
       ]
-    [7130 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 2)
+    [17949 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
  0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.02 USD]]
     [
-    [Total time so far: 22.98431897163391]]
+    [Total time so far: 35.79963231086731]]
     [[Pythoness] Attempt 3]
     [[Pythoness] New prompt:
 
-            Your previous attempt failed because of a compilation error. Try again.
+            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
  
-          def reverseKGroup(head, k):
-              """
-              Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
-              k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
-              You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Definition for singly-linked list.
-              class ListNode:
-                  def __init__(self, val=0, next=None):
-                      self.val = val
-                      self.next = next
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Constraints:
+          Constraints:
 
-              The number of nodes in the list is n.
-              1 <= k <= n <= 5000
-              0 <= Node.val <= 1000
-              """
-              def reverseLinkedList(head, k):
-                  prev, curr = None, head
-                  while k > 0:
-                      next_node = curr.next
-                      curr.next = prev
-                      prev = curr
-                      curr = next_node
-                      k -= 1
-                  return prev
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+    
+          # Helper function to reverse a portion of the list
+          def reverseLinkedList(start: ListNode, end: ListNode) -> ListNode:
+              prev = end
+              current = start
+              while current != end:
+                  temp = current.next
+                  current.next = prev
+                  prev = current
+                  current = temp
+              return prev
 
-              count = 0
-              ptr = head
-              while count < k and ptr:
-                  ptr = ptr.next
-                  count += 1
+          # Dummy node initialization
+          dummy = ListNode(0)
+          dummy.next = head
+          groupPrev = dummy
+    
+          while True:
+              # Identify the kth node from groupPrev
+              kth = groupPrev
+              for _ in range(k):
+                  kth = kth.next
+                  if not kth:
+                      return dummy.next
+        
+              # Set the groupNext and reverse the group
+              groupNext = kth.next
+              start = groupPrev.next
+              groupPrev.next = reverseLinkedList(start, groupNext)
+              start.next = groupNext
+              groupPrev = start
 
-              if count == k:
-                  reversedHead = reverseLinkedList(head, k)
-                  head.next = reverseKGroup(ptr, k)
-                  return reversedHead
+          return dummy.next
 
-              return head
       ]
-    [5847 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 2)
+    [13183 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
  0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.03 USD]]
     [
-    [Total time so far: 43.88866138458252]]
-  [20939 ms]
-[20940 ms]
+    [Total time so far: 75.85715389251709]]
+  [40092 ms]
+[40093 ms]
 
 
 Running iteration 3 of Pythoness on 25_config1_3.py
@@ -729,12 +636,6 @@ Running iteration 3 of Pythoness on 25_config1_3.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -754,27 +655,6 @@ Running iteration 3 of Pythoness on 25_config1_3.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -809,12 +689,6 @@ Running iteration 3 of Pythoness on 25_config1_3.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -834,27 +708,6 @@ Running iteration 3 of Pythoness on 25_config1_3.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -863,161 +716,13 @@ Running iteration 3 of Pythoness on 25_config1_3.py
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
-       def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+ 
+
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
           """
           Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
           k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
           You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
-
-          Constraints:
-
-          The number of nodes in the list is n.
-          1 <= k <= n <= 5000
-          0 <= Node.val <= 1000
-          """
-          def reverseLinkedList(head: Optional[ListNode], k: int) -> Optional[ListNode]:
-              prev, curr = None, head
-              while k:
-                  next_node = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = next_node
-                  k -= 1
-              return prev
-
-          count = 0
-          curr = head
-          while curr:
-              count += 1
-              curr = curr.next
-
-          dummy = ListNode(0)
-          dummy.next = head
-          prev_end = dummy
-
-          while count >= k:
-              start = prev_end.next
-              end = start
-              for _ in range(k - 1):
-                  end = end.next
-
-              next_group = end.next
-
-              prev_end.next = reverseLinkedList(start, k)
-              start.next = next_group
-
-              prev_end = start
-              count -= k
-
-          return dummy.next]
-    [11575 ms]
-    [[Pythoness] Compiling and executing...... 0 ms]
-    [[Pythoness] Validating types...... 0 ms]
-    [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
-Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
-    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
-    [
-    [Total cost so far: ~$0.01 USD]]
-    [
-    [Total time so far: 11.57535433769226]]
-    [[Pythoness] Attempt 2]
-    [[Pythoness] New prompt:
-
-            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
-    ]
-    [[Pythoness] Parsing......]
-      [[Pythoness] Synthesized function: 
-       def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
-          """
-          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
-          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
-          You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
-
-          Constraints:
-
-          The number of nodes in the list is n.
-          1 <= k <= n <= 5000
-          0 <= Node.val <= 1000
-          """
-          def reverseLinkedList(head: ListNode, k: int) -> ListNode:
-              new_head, ptr = None, head
-              while k:
-                  next_node = ptr.next
-                  ptr.next = new_head
-                  new_head = ptr
-                  ptr = next_node
-                  k -= 1
-              return new_head
-
-          dummy = ListNode(0)
-          dummy.next = head
-          group_prev = dummy
-
-          while True:
-              kth = group_prev
-              count = 0
-              while count < k and kth:
-                  kth = kth.next
-                  count += 1
-              if not kth:
-                  break
-
-              group_next = kth.next
-              prev, curr = kth.next, group_prev.next
-
-              while curr != group_next:
-                  temp = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = temp
-
-              temp = group_prev.next
-              group_prev.next = kth
-              group_prev = temp
-
-          return dummy.next]
-    [9021 ms]
-    [[Pythoness] Compiling and executing...... 0 ms]
-    [[Pythoness] Validating types...... 0 ms]
-    [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
-Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
-    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
-    [
-    [Total cost so far: ~$0.02 USD]]
-    [
-    [Total time so far: 32.17190885543823]]
-    [[Pythoness] Attempt 3]
-    [[Pythoness] New prompt:
-
-            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
-    ]
-    [[Pythoness] Parsing......]
-      [[Pythoness] Synthesized function: 
-       def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
-          """
-          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
-          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
-          You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
 
           Constraints:
 
@@ -1026,7 +731,76 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
           0 <= Node.val <= 1000
           """
     
-          def get_kth_node(curr: ListNode, k: int) -> ListNode:
+          def reverseLinkedList(start: ListNode, end: ListNode) -> ListNode:
+              prev, current = None, start
+              while current != end:
+                  nxt = current.next
+                  current.next = prev
+                  prev = current
+                  current = nxt
+              return prev
+
+          dummy = ListNode(0, head)
+          group_prev = dummy
+
+          while True:
+              kth = group_prev
+              for _ in range(k):
+                  kth = kth.next
+                  if not kth:
+                      return dummy.next
+
+              group_next = kth.next
+              # Reverse the group
+              prev, current = group_next, group_prev.next
+              for _ in range(k):
+                  temp = current.next
+                  current.next = prev
+                  prev = current
+                  current = temp
+
+              temp = group_prev.next
+              group_prev.next = prev
+              group_prev = temp
+          ]
+    [11728 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 11.72876524925232]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
+
+          Constraints:
+
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+    
+          def getKth(curr: ListNode, k: int) -> Optional[ListNode]:
               while curr and k > 0:
                   curr = curr.next
                   k -= 1
@@ -1037,11 +811,12 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
           group_prev = dummy
 
           while True:
-              kth = get_kth_node(group_prev, k)
+              kth = getKth(group_prev, k)
               if not kth:
                   break
               group_next = kth.next
 
+              # Reverse the group
               prev, curr = kth.next, group_prev.next
               while curr != group_next:
                   temp = curr.next
@@ -1053,20 +828,91 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
               group_prev.next = kth
               group_prev = temp
 
-          return dummy.next]
-    [7879 ms]
+          return dummy.next
+      ]
+    [9790 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
 Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
     [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
-    [Total cost so far: ~$0.04 USD]]
+    [Total cost so far: ~$0.02 USD]]
     [
-    [Total time so far: 60.64830803871155]]
-  [28505 ms]
-[28506 ms]
+    [Total time so far: 33.248255014419556]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
+
+          Constraints:
+
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+    
+          def getKth(curr: ListNode, k: int) -> Optional[ListNode]:
+              while curr and k > 0:
+                  curr = curr.next
+                  k -= 1
+              return curr
+
+          dummy = ListNode(0, head)
+          group_prev = dummy
+
+          while True:
+              kth = getKth(group_prev, k)
+              if not kth:
+                  break
+              group_next = kth.next
+
+              # Reverse the group
+              prev, curr = kth.next, group_prev.next
+              while curr != group_next:
+                  temp = curr.next
+                  curr.next = prev
+                  prev = curr
+                  curr = temp
+
+              temp = group_prev.next
+              group_prev.next = kth
+              group_prev = temp
+
+          return dummy.next
+      ]
+    [6312 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 61.08028054237366]]
+  [27863 ms]
+[27865 ms]
 
 
 Running iteration 4 of Pythoness on 25_config1_4.py
@@ -1099,12 +945,6 @@ Running iteration 4 of Pythoness on 25_config1_4.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -1124,27 +964,6 @@ Running iteration 4 of Pythoness on 25_config1_4.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -1179,12 +998,6 @@ Running iteration 4 of Pythoness on 25_config1_4.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -1204,27 +1017,6 @@ Running iteration 4 of Pythoness on 25_config1_4.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -1234,213 +1026,229 @@ Running iteration 4 of Pythoness on 25_config1_4.py
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
  
-          def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
-              """
-              Given the head of a linked list, reverse the nodes of the list k at a time, and return
-              the modified list. k is a positive integer and is less than or equal to the length of
-              the linked list. If the number of nodes is not a multiple of k then left-out nodes in
-              the end should remain as it is. You may not alter the values in the list's nodes, only
-              nodes themselves may be changed.
 
-              Definition for singly-linked list.
-              class ListNode:
-              def __init__(self, val=0, next=None):
-              self.val = val
-              self.next = next
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Constraints:
+          Constraints:
 
-              The number of nodes in the list is n.
-              1 <= k <= n <= 5000
-              0 <= Node.val <= 1000
-              """
-        
-              def reverseLinkedList(head: ListNode, k: int) -> ListNode:
-                  # Reverse k nodes of the given linked list.
-                  prev, curr = None, head
-                  while k:
-                      next_node = curr.next
-                      curr.next = prev
-                      prev = curr
-                      curr = next_node
-                      k -= 1
-                  return prev
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+          if head is None or k == 1:
+              return head
 
-              def getKthNode(curr: ListNode, k: int) -> ListNode:
-                  # Return the k-th node from the current node, if possible.
-                  while curr and k > 0:
-                      curr = curr.next
-                      k -= 1
-                  return curr
+          def reverseLinkedList(start: ListNode, end: ListNode) -> ListNode:
+              prev = None
+              current = start
+              while current != end:
+                  nxt = current.next
+                  current.next = prev
+                  prev = current
+                  current = nxt
+              return prev
 
-              dummy = ListNode(0)
-              dummy.next = head
-              group_prev = dummy
+          dummy = ListNode(0)
+          dummy.next = head
 
-              while True:
-                  kth = getKthNode(group_prev, k)
-                  if not kth:
-                      break
-                  group_next = kth.next
-                  # reverse the group
-                  prev, curr = kth.next, group_prev.next
-                  while curr != group_next:
-                      tmp = curr.next
-                      curr.next = prev
-                      prev = curr
-                      curr = tmp
-                  tmp = group_prev.next
-                  group_prev.next = kth
-                  group_prev = tmp
+          groupPrev = dummy
+          groupEnd = head
 
-              return dummy.next
-          ]
-    [9445 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 2)
+          while True:
+              count = 0
+              temp = groupEnd
+              # Check if there's enough nodes left to reverse
+              while count < k and temp:
+                  temp = temp.next
+                  count += 1
+              if count == k:
+                  # Reverse k nodes
+                  newStart = reverseLinkedList(groupPrev.next, temp)
+                  newEnd = groupPrev.next
+                  # Connect previous part with newly reversed
+                  groupPrev.next = newStart
+                  newEnd.next = temp
+                  # Move groupPrev and groupEnd forward
+                  groupPrev = newEnd
+                  groupEnd = newEnd.next
+              else:
+                  break
+
+          return dummy.next
+      ]
+    [9510 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
  0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 9.445831775665283]]
+    [Total time so far: 9.5102059841156]]
     [[Pythoness] Attempt 2]
     [[Pythoness] New prompt:
 
-            Your previous attempt failed because of a compilation error. Try again.
+            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
  
-          def reverseKGroup(head: ListNode, k: int) -> ListNode:
-              """
-              Given the head of a linked list, reverse the nodes of the list k at a time, and return
-              the modified list. k is a positive integer and is less than or equal to the length of
-              the linked list. If the number of nodes is not a multiple of k then left-out nodes in
-              the end should remain as it is. You may not alter the values in the list's nodes, only
-              nodes themselves may be changed.
 
-              Definition for singly-linked list.
-              class ListNode:
-              def __init__(self, val=0, next=None):
-              self.val = val
-              self.next = next
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Constraints:
+          Constraints:
 
-              The number of nodes in the list is n.
-              1 <= k <= n <= 5000
-              0 <= Node.val <= 1000
-              """
-        
-              def reverseLinkedList(head: ListNode, k: int) -> ListNode:
-                  # Reverse k nodes of the given linked list.
-                  prev, curr = None, head
-                  while k > 0:
-                      next_node = curr.next
-                      curr.next = prev
-                      prev = curr
-                      curr = next_node
-                      k -= 1
-                  return prev
-
-              # Check the length of the list is at least k.
-              count = 0
-              ptr = head
-              while count < k and ptr:
-                  ptr = ptr.next
-                  count += 1
-
-              if count == k:
-                  # Reverse the first k nodes of the list and return the reversed list.
-                  reversedHead = reverseLinkedList(head, k)
-                  # Now recurse on the remaining list.
-                  head.next = reverseKGroup(ptr, k)
-                  return reversedHead
-
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+          if head is None or k == 1:
               return head
-          ]
-    [8733 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 2)
+
+          def reverseLinkedList(start: ListNode, end: ListNode) -> ListNode:
+              prev = None
+              current = start
+              while current != end:
+                  nxt = current.next
+                  current.next = prev
+                  prev = current
+                  current = nxt
+              return prev
+
+          dummy = ListNode(0, head)
+
+          groupPrev = dummy
+
+          while True:
+              # Check the end of the current k-group
+              kth = groupPrev
+              count = 0
+              while count < k and kth:
+                  kth = kth.next
+                  count += 1
+              if not kth:
+                  break
+
+              groupNext = kth.next
+              # Reverse the k nodes
+              prev, curr = None, groupPrev.next
+              for _ in range(k):
+                  temp = curr.next
+                  curr.next = prev
+                  prev = curr
+                  curr = temp
+
+              # Connect reversed group with previous and next nodes
+              tail = groupPrev.next
+              tail.next = groupNext
+              groupPrev.next = prev
+
+              # Move groupPrev to the tail of the reversed sublist
+              groupPrev = tail
+
+          return dummy.next
+      ]
+    [12956 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
  0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.02 USD]]
     [
-    [Total time so far: 27.625306367874146]]
+    [Total time so far: 31.976274490356445]]
     [[Pythoness] Attempt 3]
     [[Pythoness] New prompt:
 
-            Your previous attempt failed because of a compilation error. Try again.
+            Your previous attempt failed because this test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]. Try again.
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
  
-          def reverseKGroup(head: ListNode, k: int) -> ListNode:
-              """
-              Given the head of a linked list, reverse the nodes of the list k at a time, and return
-              the modified list. k is a positive integer and is less than or equal to the length of
-              the linked list. If the number of nodes is not a multiple of k then left-out nodes in
-              the end should remain as it is. You may not alter the values in the list's nodes, only
-              nodes themselves may be changed.
 
-              Definition for singly-linked list.
-              class ListNode:
-              def __init__(self, val=0, next=None):
-              self.val = val
-              self.next = next
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
+          """
+          Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+          k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+          You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-              Constraints:
+          Constraints:
 
-              The number of nodes in the list is n.
-              1 <= k <= n <= 5000
-              0 <= Node.val <= 1000
-              """
-        
-              def reverseLinkedList(head, k):
-                  # Reverse k nodes of the given linked list.
-                  new_head = None
-                  ptr = head
-                  while k > 0:
-                      next_node = ptr.next
-                      ptr.next = new_head
-                      new_head = ptr
-                      ptr = next_node
-                      k -= 1
-                  return new_head
-
-              count = 0
-              ptr = head
-              # First, see if there are at least k nodes left in the linked list.
-              while count < k and ptr:
-                  ptr = ptr.next
-                  count += 1
-
-              # If we have k nodes, then we reverse them
-              if count == k:
-                  # Reverse k nodes of the list and get the new head
-                  reversedHead = reverseLinkedList(head, k)
-
-                  # Now recurse on the remaining linked list. Since head is the new tail of the
-                  # reversed group, connect it with the result of reverseKGroup.
-                  head.next = reverseKGroup(ptr, k)
-
-                  return reversedHead
-
+          The number of nodes in the list is n.
+          1 <= k <= n <= 5000
+          0 <= Node.val <= 1000
+          """
+          if head is None or k == 1:
               return head
-          ]
-    [8253 ms]
-    [[Pythoness] Compiling and executing......unexpected indent (generated_func, line 2)
+
+          dummy = ListNode(0)
+          dummy.next = head
+
+          groupPrev = dummy
+
+          while True:
+              # Check the end of the current k-group
+              kth = groupPrev
+              for _ in range(k):
+                  kth = kth.next
+                  if not kth:
+                      return dummy.next
+
+              groupNext = kth.next
+
+              # Reverse the k nodes
+              prev, curr = groupPrev.next, groupPrev.next
+              for _ in range(k):
+                  temp = curr.next
+                  curr.next = prev
+                  prev = curr
+                  curr = temp
+
+              tail = groupPrev.next
+              tail.next = groupNext
+              groupPrev.next = prev
+
+              groupPrev = tail
+
+          return dummy.next
+      ]
+    [7376 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
  0 ms]
-Exception 
-    [[Pythoness] Compilation failed.]
+Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+    [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.04 USD]]
     [
-    [Total time so far: 54.05836367607117]]
-  [26468 ms]
-[26470 ms]
+    [Total time so far: 61.818243741989136]]
+  [29872 ms]
+[29873 ms]
 
 
 Running iteration 5 of Pythoness on 25_config1_5.py
@@ -1473,12 +1281,6 @@ Running iteration 5 of Pythoness on 25_config1_5.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -1498,27 +1300,6 @@ Running iteration 5 of Pythoness on 25_config1_5.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -1553,12 +1334,6 @@ Running iteration 5 of Pythoness on 25_config1_5.py
         k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
         You may not alter the values in the list's nodes, only nodes themselves may be changed.
 
-        Definition for singly-linked list.
-        class ListNode:
-        def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
         Constraints:
 
         The number of nodes in the list is n.
@@ -1578,27 +1353,6 @@ Running iteration 5 of Pythoness on 25_config1_5.py
     Return only a single method or function definition. Use this template for your response:
     ```
 
-        def __init__(self, val=0, next=None):
-            self.val = val
-            self.next = next
-
-    Constraints:
-
-    The number of nodes in the list is n.
-    1 <= k <= n <= 5000
-    0 <= Node.val <= 1000""",
-        tests=[
-            "reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]",
-            "reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]",
-        ],
-        llm_unit=False,
-        llm_prop=False,
-        regenerate=True,
-        replace=True,
-        verbose=True,
-        output=True,
-        time_bound=None,
-    )
     def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
         """"""
 
@@ -1609,80 +1363,74 @@ Running iteration 5 of Pythoness on 25_config1_5.py
       [[Pythoness] Synthesized function: 
  
 
-      def reverseKGroup(head, k):
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
           """
           Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
           k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
           You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
 
           Constraints:
 
           The number of nodes in the list is n.
           1 <= k <= n <= 5000
           0 <= Node.val <= 1000
+
+          Include a docstring containing the task description above
+          (without the word "Task:").  The function should be
+          entirely self-contained, with all imports, code, and data, except
+          for the above helper functions. Do not define any other functions, classes,
+          or methods inside the function you are writing.
+
+          The function should pass the following tests:
+              reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+              reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]
           """
-    
-          def reverseLinkedList(head, k):
-              prev, curr = None, head
-              while k:
-                  next_node = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = next_node
-                  k -= 1
-              return prev
-    
-          # Count the nodes in the list
-          node_count = 0
-          ptr = head
-          while ptr:
-              ptr = ptr.next
-              node_count += 1
-        
-          # Initialize dummy node which acts like a previous node for the start
+          if not head or k == 1:
+              return head
+
           dummy = ListNode(0)
           dummy.next = head
-          prev_group_end = dummy
-    
-          # Reverse every k nodes of the linked list
-          while node_count >= k:
-              start = prev_group_end.next
-              end = start
-        
-              # Advance the end pointer k-1 times to reach the end of the group
-              for _ in range(k - 1):
-                  end = end.next
-        
-              next_group_start = end.next
-              # Reverse this part
-              end.next = None
-              prev_group_end.next = reverseLinkedList(start, k)
-              start.next = next_group_start
+          current = dummy
+          while True:
+              count = 0
+              pointer = current
+              while pointer and count < k:
+                  pointer = pointer.next
+                  count += 1
 
-              # Move the prev_group_end pointer k nodes ahead
-              prev_group_end = start
-        
-              node_count -= k
+              if count == k:
+                  prev = None
+                  tail = current.next
+                  for _ in range(k):
+                      tmp = tail.next
+                      tail.next = prev
+                      prev = tail
+                      tail = tmp
+                  temp = current.next
+                  current.next = prev
+                  temp.next = tail
+                  current = temp
+              else:
+                  break
 
           return dummy.next
+
       ]
-    [10461 ms]
+    [11245 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
 Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
     [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 10.461873531341553]]
+    [Total time so far: 11.245074987411499]]
     [[Pythoness] Attempt 2]
     [[Pythoness] New prompt:
 
@@ -1692,79 +1440,69 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
       [[Pythoness] Synthesized function: 
  
 
-      def reverseKGroup(head, k):
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
           """
           Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
           k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
           You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
 
           Constraints:
 
           The number of nodes in the list is n.
           1 <= k <= n <= 5000
           0 <= Node.val <= 1000
+
+          Include a docstring containing the task description above.
+    
+          The function should pass the following tests:
+              reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+              reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]
           """
-    
-          def reverseLinkedList(head, k):
-              prev, curr = None, head
-              while k:
-                  next_node = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = next_node
-                  k -= 1
-              return prev
+          if not head or k == 1:
+              return head
 
-    
-          # Initialize a dummy node to handle the new head of the reversed list
-          dummy = ListNode(0)
-          dummy.next = head
-          group_prev = dummy
-    
+          dummy = ListNode(0, head)
+          current = dummy
           while True:
-              # Find the kth node
-              kth_node = group_prev
-              for _ in range(k):
-                  kth_node = kth_node.next
-                  if not kth_node:
-                      return dummy.next
-              group_next = kth_node.next
-        
-              # Reverse the group
-              prev, curr = kth_node.next, group_prev.next
-              for _ in range(k):
-                  tmp = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = tmp
-        
-              tmp = group_prev.next
-              group_prev.next = prev
-              group_prev = tmp
-        
-              # Move to the next group
-              head = group_next
+              count = 0
+              pointer = current
+              while pointer.next and count < k:
+                  pointer = pointer.next
+                  count += 1
 
+              if count == k:
+                  prev = None
+                  tail = current.next
+                  for _ in range(k):
+                      tmp = tail.next
+                      tail.next = prev
+                      prev = tail
+                      tail = tmp
+                  temp = current.next
+                  current.next = prev
+                  temp.next = tail
+                  current = temp
+              else:
+                  break
 
           return dummy.next
+
       ]
-    [10547 ms]
+    [9747 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
 Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
     [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.02 USD]]
     [
-    [Total time so far: 31.47064781188965]]
+    [Total time so far: 32.23759627342224]]
     [[Pythoness] Attempt 3]
     [[Pythoness] New prompt:
 
@@ -1774,76 +1512,75 @@ Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
       [[Pythoness] Synthesized function: 
  
 
-      def reverseKGroup(head, k):
+      def reverseKGroup(head: Optional[ListNode], k: int) -> Optional[ListNode]:
           """
           Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
           k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
           You may not alter the values in the list's nodes, only nodes themselves may be changed.
-
-          Definition for singly-linked list.
-          class ListNode:
-          def __init__(self, val=0, next=None):
-          self.val = val
-          self.next = next
 
           Constraints:
 
           The number of nodes in the list is n.
           1 <= k <= n <= 5000
           0 <= Node.val <= 1000
-          """
+
+          Include a docstring containing the task description above.
     
-          def count_nodes(node):
-              count = 0
-              while node:
-                  count += 1
-                  node = node.next
-              return count
+          The function should pass the following tests:
+              reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
+              reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]
+          """
+          if not head or k == 1:
+              return head
 
-          def reverse_linked_list(head, k):
-              prev, curr = None, head
-              while k > 0:
-                  next_node = curr.next
-                  curr.next = prev
-                  prev = curr
-                  curr = next_node
-                  k -= 1
-              return prev
-
-          num_nodes = count_nodes(head)
           dummy = ListNode(0)
           dummy.next = head
-          group_prev = dummy
+          current = dummy
     
-          while num_nodes >= k:
-              # Identify the k-group to be reversed
-              group_start = group_prev.next
-              group_end = group_start
-              for _ in range(k - 1):
-                  group_end = group_end.next
+          # Helper function to reverse the linked list segment
+          def reverse(first, last):
+              prev = last
+              while first != last:
+                  temp = first.next
+                  first.next = prev
+                  prev = first
+                  first = temp
+              return prev
 
-              next_group_start = group_end.next
-              # Reverse k nodes
-              group_end.next = None
-              group_prev.next = reverse_linked_list(group_start, k)
-              group_start.next = next_group_start
+          while True:
+              count = 0
+              pointer = current
+              while pointer and count < k:
+                  pointer = pointer.next
+                  count += 1
 
-              # Prepare for the next group
-              group_prev = group_start
-              num_nodes -= k
+              if count == k:
+                  first = current.next
+                  last = pointer
+
+                  # Reverse the segment
+                  current.next = reverse(first, last)
+                  current = first
+              else:
+                  break
 
           return dummy.next
+
       ]
-    [8792 ms]
+    [13733 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
-    [[Pythoness] Validating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]', 'reverseKGroup(head = [1,2,3,4,5], k = 3) == [3,2,1,4,5]']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
 Exception reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]
     [[Pythoness] This test failed to execute properly: reverseKGroup(head = [1,2,3,4,5], k = 2) == [2,1,4,3,5]]
     [
     [Total cost so far: ~$0.04 USD]]
     [
-    [Total time so far: 61.27181005477905]]
-  [29840 ms]
-[29841 ms]
+    [Total time so far: 66.96352100372314]]
+  [34764 ms]
+[34765 ms]

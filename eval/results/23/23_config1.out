@@ -135,31 +135,25 @@ Running iteration 1 of Pythoness on 23_config1_1.py
           import heapq
 
           ListNode.__lt__ = lambda self, other: self.val < other.val
-
           min_heap = []
+          for node in lists:
+              if node:
+                  heapq.heappush(min_heap, node)
 
-          # Put the head of each list in the heap
-          for l in lists:
-              if l:
-                  heapq.heappush(min_heap, l)
-
-          dummy = ListNode(0)
-          current = dummy
+          head = ListNode(0, None)
+          current = head
 
           while min_heap:
-              # Get the node with the smallest value
-              node = heapq.heappop(min_heap)
-              current.next = node
+              smallest_node = heapq.heappop(min_heap)
+              current.next = smallest_node
               current = current.next
-        
-              # If there is a next node, push it to the heap
-              if node.next:
-                  heapq.heappush(min_heap, node.next)
+              if smallest_node.next:
+                  heapq.heappush(min_heap, smallest_node.next)
 
-          return dummy.next
+          return head.next
 
       ]
-    [9340 ms]
+    [11359 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -173,7 +167,7 @@ Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
     [
     [Total cost so far: ~$0.00 USD]]
     [
-    [Total time so far: 9.340222835540771]]
+    [Total time so far: 11.359022855758667]]
     [[Pythoness] Attempt 2]
     [[Pythoness] New prompt:
 
@@ -200,31 +194,27 @@ Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
           import heapq
 
           ListNode.__lt__ = lambda self, other: self.val < other.val
-
           min_heap = []
+    
+          for node_list in lists:
+              node = node_list
+              if node:
+                  heapq.heappush(min_heap, node)
 
-          # Put the head of each list in the heap
-          for l in lists:
-              if l:
-                  heapq.heappush(min_heap, l)
-
-          dummy = ListNode(0)
-          current = dummy
+          head = ListNode(0, None)
+          current = head
 
           while min_heap:
-              # Get the node with the smallest value
-              node = heapq.heappop(min_heap)
-              current.next = node
+              smallest_node = heapq.heappop(min_heap)
+              current.next = smallest_node
               current = current.next
-        
-              # If there is a next node, push it to the heap
-              if node.next:
-                  heapq.heappush(min_heap, node.next)
+              if smallest_node.next:
+                  heapq.heappush(min_heap, smallest_node.next)
 
-          return dummy.next
+          return head.next
 
       ]
-    [8885 ms]
+    [9695 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -238,7 +228,7 @@ Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 27.5660400390625]]
+    [Total time so far: 32.41294479370117]]
     [[Pythoness] Attempt 3]
     [[Pythoness] New prompt:
 
@@ -264,34 +254,931 @@ Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
           """
           import heapq
 
-          # This will handle the comparison between ListNode objects
           ListNode.__lt__ = lambda self, other: self.val < other.val
-
           min_heap = []
 
-          # Add the first node of each list into the min-heap
+          # Convert array of arrays to array of ListNodes
           for l in lists:
               if l:
-                  heapq.heappush(min_heap, l)
+                  node = ListNode(l[0])
+                  current = node
+                  for value in l[1:]:
+                      current.next = ListNode(value)
+                      current = current.next
+                  heapq.heappush(min_heap, node)
 
-          # A dummy node to serve as the start of the merged list
-          dummy = ListNode(0)
+          head = ListNode(0)
+          current = head
+
+          while min_heap:
+              smallest_node = heapq.heappop(min_heap)
+              current.next = smallest_node
+              current = current.next
+              if smallest_node.next:
+                  heapq.heappush(min_heap, smallest_node.next)
+
+          return head.next
+
+      ]
+    [11512 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+4. After
+5. Invalid tests
+6. Failing tests, ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING ERROR
+ 0 ms]
+Exception (['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 64.97911643981934]]
+  [32610 ms]
+[32612 ms]
+
+
+Running iteration 2 of Pythoness on 23_config1_2.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          from heapq import heappush, heappop
+    
+          min_heap = []
+          for index, head in enumerate(lists):
+              if head:
+                  heappush(min_heap, (head.val, index, head))
+
+          dummy = ListNode(0, None)
           current = dummy
 
           while min_heap:
-              # Extract the node with the smallest value
-              node = heapq.heappop(min_heap)
+              val, index, node = heappop(min_heap)
               current.next = node
               current = current.next
-
-              # If there's a next node, add it to the heap
               if node.next:
-                  heapq.heappush(min_heap, node.next)
+                  heappush(min_heap, (node.next.val, index, node.next))
 
           return dummy.next
 
       ]
-    [11030 ms]
+    [8314 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 8.31428575515747]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          from heapq import heappush, heappop
+    
+          min_heap = []
+          # Build the initial heap
+          for index, head in enumerate(lists):
+              while head:
+                  heappush(min_heap, head.val)
+                  head = head.next
+
+          dummy = ListNode(0)
+          current = dummy
+
+          # Construct the merged sorted linked list
+          while min_heap:
+              min_value = heappop(min_heap)
+              current.next = ListNode(min_value)
+              current = current.next
+
+          return dummy.next
+
+      ]
+    [9851 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 26.479408025741577]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          from heapq import heappush, heappop
+    
+          min_heap = []
+
+          # Initialize the heap
+          for index, node in enumerate(lists):
+              if node:
+                  heappush(min_heap, (node.val, index, node))
+    
+          # Dummy node to build the result list
+          dummy = ListNode(0)
+          current = dummy
+
+          # Extract nodes from heap and build the new sorted list
+          while min_heap:
+              val, index, node = heappop(min_heap)
+              current.next = ListNode(val)
+              current = current.next
+              if node.next:
+                  heappush(min_heap, (node.next.val, index, node.next))
+
+          return dummy.next
+
+      ]
+    [9004 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 53.64874053001404]]
+  [27208 ms]
+[27209 ms]
+
+
+Running iteration 3 of Pythoness on 23_config1_3.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+    
+          dummy = ListNode(0)
+          current = dummy
+          heap = []
+    
+          # Initialize the heap with the head node of each list.
+          for i in range(len(lists)):
+              if lists[i]:
+                  heapq.heappush(heap, (lists[i].val, i, lists[i]))
+    
+          # Process the heap until it's empty.
+          while heap:
+              val, idx, node = heapq.heappop(heap)
+              current.next = ListNode(val)
+              current = current.next
+              if node.next:
+                  heapq.heappush(heap, (node.next.val, idx, node.next))
+    
+          return dummy.next
+
+      ]
+    [8450 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 8.450191974639893]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+    
+          dummy = ListNode(0)
+          current = dummy
+          heap = []
+    
+          # Initialize the heap with the head node of each list.
+          for i, lst in enumerate(lists):
+              if lst:
+                  heapq.heappush(heap, (lst.val, i, lst))
+    
+          # Process the heap until it's empty.
+          while heap:
+              val, idx, node = heapq.heappop(heap)
+              current.next = ListNode(val)
+              current = current.next
+              if node.next:
+                  heapq.heappush(heap, (node.next.val, idx, node.next))
+    
+          return dummy.next
+
+      ]
+    [8846 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 25.746870517730713]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+    
+          # Create a dummy node as the start of the merged list.
+          dummy = ListNode(0)
+          current = dummy
+          heap = []
+
+          # Initialize the heap with the head node of each list.
+          for i, l in enumerate(lists):
+              if l is not None:
+                  heapq.heappush(heap, (l.val, i, l))
+
+          # Process the heap until it's empty.
+          while heap:
+              val, idx, node = heapq.heappop(heap)
+              current.next = node
+              current = current.next
+              if node.next:
+                  heapq.heappush(heap, (node.next.val, idx, node.next))
+
+          return dummy.next
+
+      ]
+    [8096 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 51.13991355895996]]
+  [24484 ms]
+[24485 ms]
+
+
+Running iteration 4 of Pythoness on 23_config1_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+          from typing import List, Optional
+
+          ListNode.__lt__ = lambda self, other: self.val < other.val
+
+          heap = []
+          for l in lists:
+              if l:
+                  heapq.heappush(heap, l)
+    
+          dummy = ListNode(0)
+          current = dummy
+
+          while heap:
+              node = heapq.heappop(heap)
+              current.next = node
+              current = current.next
+              if node.next:
+                  heapq.heappush(heap, node.next)
+
+          return dummy.next
+
+      ]
+    [9525 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 9.525043249130249]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+          from typing import List, Optional
+
+          ListNode.__lt__ = lambda self, other: self.val < other.val
+
+          heap = []
+          for l in lists:
+              if l:
+                  heapq.heappush(heap, l)
+    
+          dummy = ListNode(0)
+          current = dummy
+
+          while heap:
+              node = heapq.heappop(heap)
+              current.next = node
+              current = current.next
+              if node.next:
+                  heapq.heappush(heap, node.next)
+
+          return dummy.next
+
+      ]
+    [9971 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 29.021573543548584]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+          from typing import List, Optional
+
+          # To ensure ListNode can be compared while being inserted in the heap
+          ListNode.__lt__ = lambda self, other: self.val < other.val
+
+          heap = []
+
+          # Push the head nodes of all lists onto the heap
+          for l in lists:
+              if l:
+                  heapq.heappush(heap, l)
+
+          # Establish a dummy node to act as the head of the result list
+          dummy = ListNode(0)
+          current = dummy
+
+          # While the heap is not empty
+          while heap:
+              # Pop the smallest node
+              node = heapq.heappop(heap)
+              # Append it to the result
+              current.next = node
+              current = current.next
+              # If the popped node has a next node, push it onto the heap
+              if node.next:
+                  heapq.heappush(heap, node.next)
+
+          # Return the node following the dummy node as the head of the merged list
+          return dummy.next
+
+      ]
+    [11518 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -305,10 +1192,316 @@ Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
     [
     [Total cost so far: ~$0.03 USD]]
     [
-    [Total time so far: 56.821680545806885]]
-  [29295 ms]
-[29296 ms]
+    [Total time so far: 60.03641152381897]]
+  [31052 ms]
+[31053 ms]
 
 
-Running iteration 2 of Pythoness on 23_config1_2.py
+Running iteration 5 of Pythoness on 23_config1_5.py
 
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named mergeKLists that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+    Local Symbols:
+
+    class ListNode(val, next):
+        No documentation available.
+        def __init__(self, val, next):
+            No documentation available.
+    ```
+
+    Task:
+
+        You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+        Merge all the linked-lists into one sorted linked-list and return it.
+
+        Constraints:
+
+        k == lists.length
+        0 <= k <= 10^4
+        0 <= lists[i].length <= 500
+        -10^4 <= lists[i][j] <= 10^4
+        lists[i] is sorted in ascending order.
+        The sum of lists[i].length will not exceed 10^4.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+        mergeKLists(lists = []) == []
+        mergeKLists(lists = [[]]) == []
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+          if not lists or len(lists) == 0:
+              return None
+
+          min_heap = []
+
+          # Initialize the heap
+          for index, linked_list in enumerate(lists):
+              if linked_list:
+                  heapq.heappush(min_heap, (linked_list.val, index, linked_list))
+
+          dummy = ListNode(0)
+          current = dummy
+
+          while min_heap:
+              val, index, node = heapq.heappop(min_heap)
+
+              current.next = node
+              current = current.next
+
+              if node.next:
+                  heapq.heappush(min_heap, (node.next.val, index, node.next))
+
+          return dummy.next
+
+      ]
+    [9379 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.00 USD]]
+    [
+    [Total time so far: 9.378886938095093]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+          from typing import List, Optional
+
+          if not lists or len(lists) == 0:
+              return None
+
+          min_heap = []
+
+          # Initialize the heap
+          for index, linked_list in enumerate(lists):
+              if linked_list:
+                  heapq.heappush(min_heap, (linked_list.val, index, linked_list))
+
+          dummy = ListNode(0)
+          current = dummy
+
+          while min_heap:
+              val, index, node = heapq.heappop(min_heap)
+
+              current.next = node
+              current = current.next
+
+              if node.next:
+                  heapq.heappush(min_heap, (node.next.val, index, node.next))
+
+          return dummy.next
+
+      ]
+    [7791 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'val'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 26.548686027526855]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+          """
+          You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+          Merge all the linked-lists into one sorted linked-list and return it.
+
+          Constraints:
+
+          k == lists.length
+          0 <= k <= 10^4
+          0 <= lists[i].length <= 500
+          -10^4 <= lists[i][j] <= 10^4
+          lists[i] is sorted in ascending order.
+          The sum of lists[i].length will not exceed 10^4.
+          """
+          import heapq
+          from typing import List, Optional
+
+          # A comparator for the heap to manage ListNode comparison
+          ListNode.__lt__ = lambda self, other: self.val < other.val
+
+          min_heap = []
+
+          # Build the initial heap
+          for linked_list in lists:
+              if linked_list:
+                  heapq.heappush(min_heap, linked_list)
+
+          dummy = ListNode(0)
+          current = dummy
+
+          while min_heap:
+              # Extract the node with the smallest value
+              node = heapq.heappop(min_heap)
+              current.next = node
+              current = current.next
+
+              # If there is a next node, push it onto the heap
+              if node.next:
+                  heapq.heappush(min_heap, node.next)
+
+          return dummy.next
+
+      ]
+    [5155 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]', 'mergeKLists(lists = []) == []', 'mergeKLists(lists = [[]]) == []']
+RAISING EXCEPTION ERROR 'list' object has no attribute 'next'
+ 0 ms]
+Exception mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]
+    [[Pythoness] This test failed to execute properly: mergeKLists(lists = [[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 48.87320613861084]]
+  [22368 ms]
+[22369 ms]

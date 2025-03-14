@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Solution:
     def minSwapsCouples(self, row: List[int]) -> int:
         def find(x: int) -> int:

@@ -289,52 +289,54 @@ def main():
     list_problems = {
         # "4": "median-of-two-sorted-arrays",
         # "10": "regular-expression-matching",
-        # "23": "merge-k-sorted-lists",
+        # "23": "merge-k-sorted-lists",  # 23 AND 25 DO NOT WORK. Given tests are "simplified" and not formatted correctly.
         # "25": "reverse-nodes-in-k-group",
         # "30": "substring-with-concatenation-of-all-words",
         # "32": "longest-valid-parentheses",
-        # "37": "sudoku-solver",
         # "41": "first-missing-positive",
         # "42": "trapping-rain-water",
         # "44": "wildcard-matching",
-        ###################
-        # "51": "n-queens",
-        # "466": "count-the-repetitions",
+        # ##################
         # "493": "reverse-pairs",
-        # "552": "student-attendance-record-ii",
         # "600": "non-negative-integers-without-consecutive-ones",
         # "668": "kth-smallest-number-in-multiplication-table",
         # "699": "falling-squares",
         # "765": "couples-holding-hands",
         # "801": "minimum-swaps-to-make-sequences-increasing",
-        # "850": "rectangle-area-ii",
-        ###################
+        # ##################
         # "871": "minimum-number-of-refueling-stops",
         # "902": "numbers-at-most-n-given-digit-set",
-        # "1416": "restore-the-array",    # No repo sol
+        # "1416": "restore-the-array",  # No repo sol
         # "1923": "longest-common-subpath",
         # "2251": "number-of-flowers-in-full-bloom",
         # "2334": "subarray-with-elements-greater-than-varying-threshold",
-        # "2872": "maximum-number-of-k-divisible-components",
-        # "3197": "length-of-longest-v-shaped-diagonal-segment",
-        # "3229": "separate-squares-ii",
         # "3312": "sorted-gcd-pair-queries",
-        ###################
-        "3445": "maximum-difference-between-even-and-odd-frequency-ii",
-        # "3448": "count-substrings-divisible-by-last-digit",
-        # "3449": "maximize-the-minimum-game-score",
-        # "3454": "separate-squares-ii",    # No repo sol
-        # "3455": "shortest-matching-substring",
-        # "3459": "length-of-longest-v-shaped-diagonal-segment",
+        # ##################
+        # "3445": "maximum-difference-between-even-and-odd-frequency-ii",
+        # "3454": "separate-squares-ii",  # No repo sol
         # "3463": "check-if-digits-are-equal-in-string-after-operations-ii",
         # "3464": "maximize-the-distance-between-points-on-a-square",
         # "3470": "permutations-iv",
-        # "3474": "lexicographically-smallest-generated-string",
+    }
+    list_problems = {
+        "37": "sudoku-solver",
+        "51": "n-queens",
+        "466": "count-the-repetitions",
+        "552": "student-attendance-record-ii",
+        "850": "rectangle-area-ii",
+        "2872": "maximum-number-of-k-divisible-components",
+        "3197": "length-of-longest-v-shaped-diagonal-segment",
+        "3229": "separate-squares-ii",
+        "3448": "count-substrings-divisible-by-last-digit",
+        "3449": "maximize-the-minimum-game-score",
+        "3455": "shortest-matching-substring",
+        "3459": "length-of-longest-v-shaped-diagonal-segment",
+        "3474": "lexicographically-smallest-generated-string",
     }
 
-    config = 1
+    config = 4
     # GET problem -> id_problem.json, id_config#.py
-    # generate_py_problem(list_problems, config)
+    generate_py_problem(list_problems, config)
     # Run Pythoness -> id_config#.out, id_config#_#.py
     # run_pythoness(list_problems.keys(), config, 5)
     # make_solution(list_problems, config)  # -> id_config#.txt

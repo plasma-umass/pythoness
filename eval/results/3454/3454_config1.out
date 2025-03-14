@@ -124,44 +124,81 @@ Running iteration 1 of Pythoness on 3454_config1_1.py
           1 <= li <= 10^9
           The total area of all the squares will not exceed 10^15.
 
-          Include a docstring containing the task description above (without the word "Task:").  The function should be entirely self-contained, with all imports, code, and data, except for the above helper functions. Do not define any other functions, classes, or methods inside the function you are writing.
           """
-          from typing import List
-          import itertools
-
-          all_y_coords = set()
+          from sortedcontainers import SortedList
+    
+          # Create events for each square, representing the entering and leaving of a square.
+          events = []
           for x, y, l in squares:
-              all_y_coords.add(y)
-              all_y_coords.add(y + l)
+              events.append((y, x, x + l, 1))   # Enter event at y
+              events.append((y + l, x, x + l, -1))  # Leave event at y + l
+    
+          # Sort events by y coordinate, then by type (-1 should come before +1), then by x.
+          events.sort()
 
-          sorted_y_coords = sorted(all_y_coords)
+          total_area = 0
+          last_y = 0
+          active_x_intervals = SortedList()
+          active_length = 0
 
-          def calculate_area_up_to(y_coord):
-              total_area = 0
-              for x, y, l in squares:
-                  top = min(y + l, y_coord)
-                  bottom = max(y, y_coord - l)
-                  if top > bottom:  # There is an overlap
-                      total_area += (top - bottom) * l
-              return total_area
+          for y, x_start, x_end, typ in events:
+              # Calculate the area covered by the currently active intervals since last_y
+              total_area += active_length * (y - last_y)
+              last_y = y
 
-          total_area = calculate_area_up_to(float('inf'))
-          low, high = 0, len(sorted_y_coords)
-          while low < high:
-              mid = (low + high) // 2
-              current_y = sorted_y_coords[mid]
-              area_below = calculate_area_up_to(current_y)
-              if area_below * 2 == total_area:
-                  return float(current_y)
-              elif area_below * 2 < total_area:
-                  low = mid + 1
+              if typ == 1:  # Entering square
+                  active_x_intervals.add((x_start, x_end))
+              else:  # Leaving square
+                  active_x_intervals.remove((x_start, x_end))
+        
+              # Recalculate the total active length
+              current = 0
+              active_length = 0
+              for x1, x2 in active_x_intervals:
+                  if x1 > current:
+                      active_length += x2 - x1
+                      current = x2
+                  elif x2 > current:
+                      active_length += x2 - current
+                      current = x2
+
+          # Binary search to find the level line that divides the area in half
+          left, right = 0, 10**9
+          while right - left > 1e-5:
+              mid = (left + right) / 2
+              area_below_mid = 0
+              last_y = 0
+              active_x_intervals = SortedList()
+              active_length = 0
+              for y, x_start, x_end, typ in events:
+                  if y >= mid:
+                      break
+                  area_below_mid += active_length * (y - last_y)
+                  last_y = y
+
+                  if typ == 1:  # Entering square
+                      active_x_intervals.add((x_start, x_end))
+                  else:  # Leaving square
+                      active_x_intervals.remove((x_start, x_end))
+
+                  # Recalculate the total active length
+                  current = 0
+                  active_length = 0
+                  for x1, x2 in active_x_intervals:
+                      if x1 > current:
+                          active_length += x2 - x1
+                          current = x2
+                      elif x2 > current:
+                          active_length += x2 - current
+                          current = x2
+
+              if area_below_mid < total_area / 2:
+                  left = mid
               else:
-                  high = mid
-
-          # If not found, return the closest y
-          return float(sorted_y_coords[low])
+                  right = mid
+          return (left + right) / 2
       ]
-    [21065 ms]
+    [36431 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -182,7 +219,7 @@ Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separate
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 21.06484317779541]]
+    [Total time so far: 36.431662797927856]]
     [[Pythoness] Attempt 2]
     [[Pythoness] New prompt:
 
@@ -209,39 +246,55 @@ Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separate
           0 <= xi, yi <= 10^9
           1 <= li <= 10^9
           The total area of all the squares will not exceed 10^15.
+
           """
           from typing import List
 
-          def compute_total_area(y_coord):
-              total_area = 0
+          def calculate_area(squares, line_y):
+              events = []
               for x, y, l in squares:
-                  if y_coord >= y + l:
-                      total_area += l * l
-                  elif y_coord > y:
-                      total_area += l * (y_coord - y)
-              return total_area
+                  if y < line_y:
+                      if y + l <= line_y:
+                          events.append((x, x + l, y, '+'))
+                      else:
+                          events.append((x, x + l, y, '+'))
+                          events.append((x, x + l, line_y, '-'))
+                  elif y == line_y:
+                      events.append((x, x + l, y, '+'))
+              events.sort()
 
-          # Get the unique y-coordinates from the bottom left of squares and their top
-          y_coords = sorted(set(y for _, y, _ in squares) | set(y + l for _, y, l in squares))
-          total_area = compute_total_area(float('inf'))
+              active_x_intervals = []
+              last_x = -1
+              area = 0
 
-          low, high = 0, len(y_coords) - 1
+              for event in events:
+                  current_x, x_end, current_y, typ = event
+                  if current_x != last_x and active_x_intervals:
+                      active_length = sum(e - s for s, e in active_x_intervals)
+                      area += active_length * (current_x - last_x)
+                  if typ == '+':
+                      active_x_intervals.append((current_x, x_end))
+                      active_x_intervals.sort()
+                  elif typ == '-':
+                      active_x_intervals = [(s, e) for s, e in active_x_intervals if not (s == current_x and e == x_end)]
+                  last_x = current_x
 
-          # Binary search
-          while low <= high:
-              mid = (low + high) // 2
-              current_y = y_coords[mid]
-              area_below = compute_total_area(current_y)
-              if 2 * area_below == total_area:
-                  return float(current_y)
-              elif 2 * area_below < total_area:
-                  low = mid + 1
+              return area
+
+          left, right = 0, 10**9
+          total_area = calculate_area(squares, float('inf'))
+
+          while right - left > 1e-5:
+              mid = (left + right) / 2
+              area_below = calculate_area(squares, mid)
+              if area_below < total_area / 2:
+                  left = mid
               else:
-                  high = mid - 1
+                  right = mid
 
-          return float(y_coords[low])
+          return left
       ]
-    [15875 ms]
+    [18147 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -250,25 +303,25 @@ Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separate
 3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
 4. After
 5. Invalid tests
-6. Failing tests, ['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+6. Failing tests, ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
 RAISING ERROR
  0 ms]
-Exception (['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
     [[Pythoness] Tests failed.
 
-    These tests failed: ['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+    These tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
 
     ]
     [
-    [Total cost so far: ~$0.02 USD]]
+    [Total cost so far: ~$0.03 USD]]
     [
-    [Total time so far: 58.00451683998108]]
+    [Total time so far: 91.0106520652771]]
     [[Pythoness] Attempt 3]
     [[Pythoness] New prompt:
 
             Your previous attempt failed because tests failed.
 
-    The following tests failed: ['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+    The following tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
 
      Try again.
     ]
@@ -289,41 +342,54 @@ Exception (['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
           0 <= xi, yi <= 10^9
           1 <= li <= 10^9
           The total area of all the squares will not exceed 10^15.
+
           """
           from typing import List
 
-          # Function to calculate total covered area of squares up to a given y
-          def compute_total_area(y_coord):
-              total_area = 0
+          # Function to count area below a given line_y
+          def area_below_y(squares, line_y):
+              # Calculate the sum of areas of square sections below the line
+              active_intervals = []
+              area = 0
+              events = []
               for x, y, l in squares:
-                  if y_coord >= y + l:
-                      total_area += l * l
-                  elif y_coord > y:
-                      total_area += l * (y_coord - y)
-              return total_area
+                  if y < line_y:
+                      if y + l <= line_y:
+                          height = l
+                      else:
+                          height = line_y - y
+                      events.append((x, 1, height))  # Add starting line event
+                      events.append((x + l, -1, height))  # Add ending line event
+              events.sort()
 
-          # Get the unique y-coordinates where line may pass
-          y_coords = sorted(set(y for _, y, _ in squares) | set(y + l for _, y, l in squares))
-          total_area = compute_total_area(float('inf'))
+              prev_x = -1
+              total_length = 0
+              for x, typ, height in events:
+                  if prev_x != -1 and total_length > 0:
+                      area += total_length * (x - prev_x)
+                  if typ == 1:
+                      active_intervals.append(height)
+                  else:
+                      active_intervals.remove(height)
+                  total_length = sum(active_intervals)
+                  prev_x = x
 
-          low, high = 0, len(y_coords) - 1
+              return area
 
-          # Binary search to find the correct y-coordinate
-          while low < high:
-              mid = (low + high) // 2
-              current_y = y_coords[mid]
-              area_below = compute_total_area(current_y)
-              if 2 * area_below == total_area:
-                  return float(current_y)
-              elif 2 * area_below < total_area:
-                  low = mid + 1
+          # Calculate the total area considering squares completely
+          total_area = area_below_y(squares, float('inf'))
+
+          # Perform a binary search to find the optimal y-value
+          low, high = 0, 1e9
+          while high - low > 1e-5:
+              mid = (low + high) / 2
+              if area_below_y(squares, mid) < total_area / 2:
+                  low = mid
               else:
                   high = mid
 
-          # Correctly returns the minimum y-coordinate
-          return float(y_coords[low])
-      ]
-    [19291 ms]
+          return round(low, 5)]
+    [13641 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -342,11 +408,11 @@ Exception (['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
 
     ]
     [
-    [Total cost so far: ~$0.05 USD]]
+    [Total cost so far: ~$0.06 USD]]
     [
-    [Total time so far: 114.23486685752869]]
-  [56278 ms]
-[56279 ms]
+    [Total time so far: 159.23085761070251]]
+  [68261 ms]
+[68263 ms]
 
 
 Running iteration 2 of Pythoness on 3454_config1_2.py
@@ -457,9 +523,7 @@ Running iteration 2 of Pythoness on 3454_config1_2.py
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
- 
-
-      def separateSquares(squares: List[List[int]]) -> float:
+       def separateSquares(squares: List[List[int]]) -> float:
           """
           You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
           Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
@@ -476,115 +540,126 @@ Running iteration 2 of Pythoness on 3454_config1_2.py
           The total area of all the squares will not exceed 10^15.
           """
           from typing import List
-          import itertools
+          import bisect
 
-          # Create events for sorting the given squares in terms of start and end of their edges
+          # Collect all unique y-positions from the bottom and top edges of squares
+          ypos = set()
+          for x, y, l in squares:
+              ypos.add(y)
+              ypos.add(y + l)
+          ypos = sorted(ypos)
+
+          # Calculate the total area of all squares using a coordinate sweep
+          total_area = 0
           events = []
           for x, y, l in squares:
-              events.append((y, x, x + l, 1))  # square enters at y
-              events.append((y + l, x, x + l, -1))  # square leaves at y + l
+              events.append((x, y, y + l, 1))    # Square opening
+              events.append((x + l, y, y + l, -1))  # Square closing
 
-          # Sort the events by y-coordinate, and for ties, process incoming+1 before leaving-1
+          # Sort events by x-coordinate
           events.sort()
 
-          total_area = 0
-          last_y = 0
-          active_intervals = []  # Active x-intervals at the current y-coordinate
-
-          current_coverage = 0
-
-          # Calculate total area by processing all events
-          for y, start_x, end_x, delta in events:
-              # Calculate the width of total x coverage at the current y from active intervals
-              coverage = sum(end - start for start, end in active_intervals)
-              total_area += coverage * (y - last_y)
-              last_y = y
-
-              # Add/remove the interval
-              if delta == 1:
-                  active_intervals.append((start_x, end_x))
+          # Process events to calculate total area
+          active_intervals = []
+          last_x = events[0][0]
+          for x, y1, y2, typ in events:
+              # Calculate covered area since last x
+              if active_intervals:
+                  length = 0
+                  last_y = -1
                   active_intervals.sort()
-              else:
-                  active_intervals.remove((start_x, end_x))
-
-              # Merge intervals
-              merged_intervals = []
-              for x1, x2 in active_intervals:
-                  if merged_intervals and merged_intervals[-1][1] >= x1:
-                      merged_intervals[-1] = (merged_intervals[-1][0], max(merged_intervals[-1][1], x2))
-                  else:
-                      merged_intervals.append((x1, x2))
-
-              active_intervals = merged_intervals
-
-          # Now, use binary search to find minimal y where areas are equal
-          low, high = 0, 10**9
-          while high - low > 1e-6:
-              mid = (low + high) / 2
-
-              # Calculate area below mid y-coordinate
-              active_intervals.clear()
-              current_area = 0
-              last_y = 0
-
-              for y, start_x, end_x, delta in events:
-                  if y >= mid:
-                      break
-                  # Calculate coverage at this y
-                  coverage = sum(end - start for start, end in active_intervals)
-                  current_area += coverage * (y - last_y)
-                  last_y = y
-
-                  # Modify active intervals
-                  if delta == 1:
-                      active_intervals.append((start_x, end_x))
-                      active_intervals.sort()
-                  else:
-                      active_intervals.remove((start_x, end_x))
-
-                  # Merge intervals
-                  merged_intervals = []
-                  for x1, x2 in active_intervals:
-                      if merged_intervals and merged_intervals[-1][1] >= x1:
-                          merged_intervals[-1] = (merged_intervals[-1][0], max(merged_intervals[-1][1], x2))
+                  for low, high in active_intervals:
+                      if low > last_y:
+                          length += high - low
+                          last_y = high
                       else:
-                          merged_intervals.append((x1, x2))
-
-                  active_intervals = merged_intervals
-
-              # Compare areas covertly without exact total_area needed
-              if 2 * current_area >= total_area:
-                  high = mid
+                          last_y = max(last_y, high)
+                  total_area += length * (x - last_x)
+              # Update active intervals
+              if typ == 1:
+                  active_intervals.append((y1, y2))
               else:
-                  low = mid
+                  active_intervals.remove((y1, y2))
+              last_x = x
 
-          return low
-          ]
-    [44600 ms]
+          # Now find the y-coordinate where the top half equals the bottom half
+          left = ypos[0]
+          right = ypos[-1]
+          while right - left > 1e-7:
+              mid = (left + right) / 2
+              # Calculate area above and below mid
+              covered_area_above = covered_area_below = 0
+              active_intervals = []
+              last_x = events[0][0]
+              for x, y1, y2, typ in events:
+                  if active_intervals:
+                      length_above = length_below = 0
+                      last_y = -1
+                      active_intervals.sort()
+                      for low, high in active_intervals:
+                          if low > last_y:
+                              if high <= mid:
+                                  length_below += high - low
+                              elif low >= mid:
+                                  length_above += high - low
+                              else:
+                                  length_below += mid - low
+                                  length_above += high - mid
+                              last_y = high
+                          else:
+                              if last_y < mid:
+                                  length_below += max(0, mid - last_y)
+                              length_above += max(0, high - max(mid, last_y))
+                              last_y = max(last_y, high)
+                      covered_area_above += length_above * (x - last_x)
+                      covered_area_below += length_below * (x - last_x)
+                  if typ == 1:
+                      active_intervals.append((y1, y2))
+                  else:
+                      active_intervals.remove((y1, y2))
+                  last_x = x
+
+              if covered_area_below < total_area / 2:
+                  left = mid
+              else:
+                  right = mid
+
+          return left
+      ]
+    [21698 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
     [[Pythoness] Validating tests......1. Validating tests.
 2. Loaded hypothesis imports
 3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
-RAISING EXCEPTION ERROR list.remove(x): x not in list
+4. After
+5. Invalid tests
+6. Failing tests, ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING ERROR
  0 ms]
-Exception separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000
-    [[Pythoness] This test failed to execute properly: separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000]
+Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+    ]
     [
     [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 44.60062336921692]]
+    [Total time so far: 21.697954893112183]]
     [[Pythoness] Attempt 2]
     [[Pythoness] New prompt:
 
-            Your previous attempt failed because this test failed to execute properly: separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000. Try again.
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+     Try again.
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
- 
-
-      def separateSquares(squares: List[List[int]]) -> float:
+       def separateSquares(squares: List[List[int]]) -> float:
           """
           You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
           Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
@@ -601,64 +676,42 @@ Exception separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000
           The total area of all the squares will not exceed 10^15.
           """
           from typing import List
+
+          # Helper function to calculate the covered area split by a given y-coordinate
+          def calculate_area(y_split):
+              covered_above = 0
+              covered_below = 0
+              for x, y, l in squares:
+                  top = y + l
+                  bottom = y
+                  if top <= y_split:
+                      covered_below += l * l
+                  elif bottom >= y_split:
+                      covered_above += l * l
+                  else:
+                      # Part of the square is above and part is below
+                      area_below = (y_split - bottom) * l
+                      area_above = (top - y_split) * l
+                      covered_below += area_below
+                      covered_above += area_above
+              return covered_below, covered_above
     
-          def calculate_area(events, y_limit):
-              """
-              Calculate how much area is covered up to a certain y_limit using a sweep line algorithm.
-              """
-              active_intervals = []
-              last_y = 0
-              covered_area = 0
+          # Binary search for the balance line
+          low = min(y for _, y, _ in squares)
+          high = max(y + l for _, y, l in squares)
 
-              for y, x1, x2, delta in events:
-                  if y > y_limit:
-                      break
+          while high - low > 1e-5:
+              mid = (low + high) / 2
+              area_below, area_above = calculate_area(mid)
 
-                  # Calculate the length of active coverage on x-axis
-                  covered_x = 0
-                  previous_end = -1
-                  for (start, end) in active_intervals:
-                      if end > previous_end:
-                          covered_x += max(0, end - max(start, previous_end))
-                          previous_end = max(previous_end, end)
-
-                  covered_area += covered_x * (y - last_y)
-                  last_y = y
-
-                  if delta == 1:
-                      active_intervals.append((x1, x2))
-                      active_intervals.sort()
-                  elif delta == -1:
-                      active_intervals.remove((x1, x2))
-
-              return covered_area
-
-          # Prepare events of square edges
-          events = []  # (y, x_start, x_end, entering/exiting flag)
-          for x, y, l in squares:
-              events.append((y, x, x + l, 1))        # square starts
-              events.append((y + l, x, x + l, -1))    # square ends
-
-          # Sort events by y, then by entering before exiting
-          events.sort()
-
-          # Total area
-          total_area = calculate_area(events, float('inf'))
-
-          # Binary search to find the height
-          low, high = 0.0, max(y + l for _, y, l in squares)
-          while high - low > 1e-6:
-              mid = (low + high) / 2.0
-              lower_area = calculate_area(events, mid)
-
-              if lower_area * 2 >= total_area:
-                  high = mid
-              else:
+              if area_below < area_above:
                   low = mid
+              else:
+                  high = mid
 
           return low
       ]
-    [25902 ms]
+    [10863 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -679,7 +732,7 @@ Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separate
     [
     [Total cost so far: ~$0.03 USD]]
     [
-    [Total time so far: 115.1032943725586]]
+    [Total time so far: 54.259151220321655]]
     [[Pythoness] Attempt 3]
     [[Pythoness] New prompt:
 
@@ -691,9 +744,7 @@ Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separate
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
- 
-
-      def separateSquares(squares: List[List[int]]) -> float:
+       def separateSquares(squares: List[List[int]]) -> float:
           """
           You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
           Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
@@ -710,72 +761,40 @@ Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separate
           The total area of all the squares will not exceed 10^15.
           """
           from typing import List
-          from collections import defaultdict
 
-          def compute_covered_area(active_intervals, y_diff):
-              """ Helper function to compute covered area for the current active intervals. """
-              active_intervals.sort()  # sort intervals based on start and end
-              total_x_coverage = 0
-              prev_end = -1
-              for start, end in active_intervals:
-                  if start > prev_end:
-                      total_x_coverage += end - start
-                      prev_end = end
-                  elif end > prev_end:
-                      total_x_coverage += end - prev_end
-                      prev_end = end
-              return total_x_coverage * y_diff
+          # Get all unique y-coordinates from the corners of squares
+          ypos = set()
+          for _, y, l in squares:
+              ypos.add(y)
+              ypos.add(y + l)
+          ypos = sorted(ypos)
 
-          # Collect events for sweeping line vertically
-          events = []
-          for x, y, l in squares:
-              events.append((y, x, x + l, 1))  # opening event (y starts)
-              events.append((y + l, x, x + l, -1))  # closing event (y ends)
-          events.sort()  # sorting based on y first
+          # Function to calculate total area below a given y-level
+          def calculate_area_below(ycoord):
+              area = 0
+              for x, y, l in squares:
+                  # Calculate if part of the square is below the given y-level
+                  if y < ycoord:
+                      height_below = min(l, ycoord - y)
+                      area += height_below * l
+              return area
 
-          # Total area calculation
-          active_intervals = []
-          prev_y = 0
-          total_area = 0
-          for y, start, end, typ in events:
-              if y != prev_y:  # calculate area since last event
-                  total_area += compute_covered_area(active_intervals, y - prev_y)
-                  prev_y = y
+          # Binary search for y-coordinate such that half the area is covered below
+          left, right = min(y for _, y, _ in squares), max(y + l for _, y, l in squares)
+          total_area = sum(l * l for _, _, l in squares)
 
-              if typ == 1:  # Add interval
-                  active_intervals.append((start, end))
-              else:  # Remove interval
-                  active_intervals.remove((start, end))
+          while right - left > 1e-5:
+              mid = (left + right) / 2
+              area_below = calculate_area_below(mid)
 
-          # Binary search to find the minimum y which balances the area
-          low, high = min(sq[1] for sq in squares), max(sq[1] + sq[2] for sq in squares)
-          precision = 1e-5
-          while high - low > precision:
-              mid = (low + high) / 2.0
-              # Check the area below this mid
-              active_intervals = []
-              prev_y = events[0][0]
-              covered_area = 0
-              for y, start, end, typ in events:
-                  if y > mid:
-                      break
-                  if y != prev_y:
-                      covered_area += compute_covered_area(active_intervals, y - prev_y)
-                      prev_y = y
-
-                  if typ == 1:  # Add interval
-                      active_intervals.append((start, end))
-                  else:  # Remove interval
-                      active_intervals.remove((start, end))
-
-              if 2 * covered_area >= total_area:
-                  high = mid
+              if area_below < total_area / 2:
+                  left = mid
               else:
-                  low = mid
+                  right = mid
 
-          return low
+          return left
       ]
-    [22582 ms]
+    [12702 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -794,11 +813,11 @@ Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separate
 
     ]
     [
-    [Total cost so far: ~$0.07 USD]]
+    [Total cost so far: ~$0.06 USD]]
     [
-    [Total time so far: 208.18823504447937]]
-  [93127 ms]
-[93129 ms]
+    [Total time so far: 99.52214765548706]]
+  [45303 ms]
+[45304 ms]
 
 
 Running iteration 3 of Pythoness on 3454_config1_3.py
@@ -907,3 +926,1051 @@ Running iteration 3 of Pythoness on 3454_config1_3.py
     ```
 
     ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+
+          def calculate_sweep_line(y: float) -> float:
+              total_area_above = 0
+              total_area_below = 0
+              for x, y_bottom, length in squares:
+                  y_top = y_bottom + length
+                  if y <= y_bottom:
+                      # Entire square is above the line
+                      total_area_above += length ** 2
+                  elif y >= y_top:
+                      # Entire square is below the line
+                      total_area_below += length ** 2
+                  else:
+                      # Line passes through the square
+                      area_above = (y_top - y) * length
+                      area_below = (y - y_bottom) * length
+                      total_area_above += area_above
+                      total_area_below += area_below
+              return total_area_above - total_area_below
+
+          # Binary search for the correct y-coordinate
+          left = min(y for _, y, _ in squares)
+          right = max(y + length for _, y, length in squares)
+          precision = 1e-5
+
+          while right - left > precision:
+              mid = (left + right) / 2
+              if calculate_sweep_line(mid) > 0:
+                  left = mid
+              else:
+                  right = mid
+
+          return (left + right) / 2
+
+      ]
+    [9836 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+4. After
+5. Invalid tests
+6. Failing tests, ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING ERROR
+ 0 ms]
+Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 9.836307525634766]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+
+          from bisect import bisect_right
+          from collections import defaultdict
+
+          events = []
+
+          for xi, yi, li in squares:
+              events.append((yi, xi, xi + li, 1))    # Entry event
+              events.append((yi + li, xi, xi + li, -1))  # Exit event
+
+          events.sort()
+
+          active_intervals = []
+          total_area = 0
+          y_prev = events[0][0]
+          interval_count = defaultdict(int)
+
+          for y, x_start, x_end, type in events:
+              # Calculate prior area
+              active_intervals.sort()
+              current_x = -1
+              width = 0
+              for x_start_active, x_end_active in active_intervals:
+                  current_x = max(current_x, x_start_active)
+                  width += max(0, x_end_active - current_x)
+                  current_x = max(current_x, x_end_active)
+              total_area += width * (y - y_prev)
+              y_prev = y
+
+              # Update the list of active intervals
+              if type == 1:
+                  interval_count[(x_start, x_end)] += 1
+                  if interval_count[(x_start, x_end)] == 1:
+                      active_intervals.append((x_start, x_end))
+              else:
+                  interval_count[(x_start, x_end)] -= 1
+                  if interval_count[(x_start, x_end)] == 0:
+                      active_intervals.remove((x_start, x_end))
+
+          target_area = total_area / 2
+          current_area = 0
+          active_intervals = []
+          interval_count = defaultdict(int)
+          prev_y = events[0][0]
+
+          for y, x_start, x_end, type in events:
+              width = 0
+              active_intervals.sort()
+              current_x = -1
+              for x_start_active, x_end_active in active_intervals:
+                  current_x = max(current_x, x_start_active)
+                  width += max(0, x_end_active - current_x)
+                  current_x = max(current_x, x_end_active)
+
+              if current_area + width * (y - prev_y) >= target_area:
+                  return prev_y + (target_area - current_area) / width
+
+              current_area += width * (y - prev_y)
+              prev_y = y
+
+              if type == 1:
+                  interval_count[(x_start, x_end)] += 1
+                  if interval_count[(x_start, x_end)] == 1:
+                      active_intervals.append((x_start, x_end))
+              else:
+                  interval_count[(x_start, x_end)] -= 1
+                  if interval_count[(x_start, x_end)] == 0:
+                      active_intervals.remove((x_start, x_end))
+          return prev_y
+
+      ]
+    [20541 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+4. After
+5. Invalid tests
+6. Failing tests, []
+ 0 ms]
+
+[Pythoness] Output:
+
+
+def separateSquares(squares: List[List[int]]) -> float:
+    """
+    You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+    Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+    Answers within 10^-5 of the actual answer will be accepted.
+    Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+    Constraints:
+
+    1 <= squares.length <= 5 * 10^4
+    squares[i] = [xi, yi, li]
+    squares[i].length == 3
+    0 <= xi, yi <= 10^9
+    1 <= li <= 10^9
+    The total area of all the squares will not exceed 10^15.
+    """
+
+    from bisect import bisect_right
+    from collections import defaultdict
+
+    events = []
+
+    for xi, yi, li in squares:
+        events.append((yi, xi, xi + li, 1))    # Entry event
+        events.append((yi + li, xi, xi + li, -1))  # Exit event
+
+    events.sort()
+
+    active_intervals = []
+    total_area = 0
+    y_prev = events[0][0]
+    interval_count = defaultdict(int)
+
+    for y, x_start, x_end, type in events:
+        # Calculate prior area
+        active_intervals.sort()
+        current_x = -1
+        width = 0
+        for x_start_active, x_end_active in active_intervals:
+            current_x = max(current_x, x_start_active)
+            width += max(0, x_end_active - current_x)
+            current_x = max(current_x, x_end_active)
+        total_area += width * (y - y_prev)
+        y_prev = y
+
+        # Update the list of active intervals
+        if type == 1:
+            interval_count[(x_start, x_end)] += 1
+            if interval_count[(x_start, x_end)] == 1:
+                active_intervals.append((x_start, x_end))
+        else:
+            interval_count[(x_start, x_end)] -= 1
+            if interval_count[(x_start, x_end)] == 0:
+                active_intervals.remove((x_start, x_end))
+
+    target_area = total_area / 2
+    current_area = 0
+    active_intervals = []
+    interval_count = defaultdict(int)
+    prev_y = events[0][0]
+
+    for y, x_start, x_end, type in events:
+        width = 0
+        active_intervals.sort()
+        current_x = -1
+        for x_start_active, x_end_active in active_intervals:
+            current_x = max(current_x, x_start_active)
+            width += max(0, x_end_active - current_x)
+            current_x = max(current_x, x_end_active)
+
+        if current_area + width * (y - prev_y) >= target_area:
+            return prev_y + (target_area - current_area) / width
+
+        current_area += width * (y - prev_y)
+        prev_y = y
+
+        if type == 1:
+            interval_count[(x_start, x_end)] += 1
+            if interval_count[(x_start, x_end)] == 1:
+                active_intervals.append((x_start, x_end))
+        else:
+            interval_count[(x_start, x_end)] -= 1
+            if interval_count[(x_start, x_end)] == 0:
+                active_intervals.remove((x_start, x_end))
+    return prev_y
+
+
+
+    [[Pythoness] Replacing...... 6 ms]
+    [
+    [Total cost so far: ~$0.02 USD]]
+    [
+    [Total time so far: 40.2137291431427]]
+  [30401 ms]
+[30402 ms]
+
+
+Running iteration 4 of Pythoness on 3454_config1_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named separateSquares that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+        Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+        Answers within 10^-5 of the actual answer will be accepted.
+        Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+        Constraints:
+
+        1 <= squares.length <= 5 * 10^4
+        squares[i] = [xi, yi, li]
+        squares[i].length == 3
+        0 <= xi, yi <= 10^9
+        1 <= li <= 10^9
+        The total area of all the squares will not exceed 10^15.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000
+        separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def separateSquares(squares: List[List[int]]) -> float:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named separateSquares that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+        Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+        Answers within 10^-5 of the actual answer will be accepted.
+        Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+        Constraints:
+
+        1 <= squares.length <= 5 * 10^4
+        squares[i] = [xi, yi, li]
+        squares[i].length == 3
+        0 <= xi, yi <= 10^9
+        1 <= li <= 10^9
+        The total area of all the squares will not exceed 10^15.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000
+        separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def separateSquares(squares: List[List[int]]) -> float:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+          from typing import List
+          import itertools
+
+          # Calculate total covered area & generate events for each side of each square
+          events = []
+          total_area = 0
+          for x, y, l in squares:
+              events.append((y, x, x + l, 1))  # Bottom line
+              events.append((y + l, x, x + l, -1))  # Top line
+              total_area += l * l
+
+          # Sort events
+          events.sort()
+
+          # Area under the line logic
+          def calc_covered_area(lines):
+              sorted_lines = sorted(lines)
+              covered_length = 0
+              start = -1
+              for line in sorted_lines:
+                  if line[0] > start:
+                      covered_length += line[1] - line[0]
+                      start = line[1]
+                  else:
+                      start = max(start, line[1])
+              return covered_length
+
+          current_covered_area = 0
+          active_lines = []
+
+          # Sweep line algorithm to find y-coordinate
+          for y, start_x, end_x, status in events:
+              if status == 1:  # Start of a square
+                  active_lines.append((start_x, end_x))
+              else:  # End of a square
+                  active_lines.remove((start_x, end_x))
+
+              if events and y != events[0][0]:  # Only calculate when y changes
+                  new_covered_area = calc_covered_area(active_lines) * (y - events[0][0])
+                  current_covered_area += new_covered_area
+                  if current_covered_area * 2 >= total_area:
+                      # Calculate precise split level using binary partition
+                      low, high = events[0][0], y
+                      while high - low > 1e-7:  # Precision 10^-7
+                          mid = (low + high) / 2.0
+                          current_area = calc_covered_area(active_lines) * (mid - events[0][0])
+                          if current_covered_area - new_covered_area + current_area * 2 < total_area:
+                              low = mid
+                          else:
+                              high = mid
+                      return high
+
+          return 0.0
+
+      ]
+    [17693 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+4. After
+5. Invalid tests
+6. Failing tests, ['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING ERROR
+ 0 ms]
+Exception (['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 17.693516492843628]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+          from typing import List
+
+          # Helper function to calculate the total covered area below a certain y-coordinate
+          def calculate_area_below(y_limit):
+              area = 0
+              for x, y, l in squares:
+                  y_top = min(y + l, y_limit)
+                  if y < y_limit:
+                      area += (y_top - y) * l
+              return area
+
+          # Use binary search to find the minimum y such that the areas above and below are equal
+          total_area = sum(l * l for _, _, l in squares)
+          target_area = total_area / 2
+
+          low, high = 0, max(y + l for _, y, l in squares)
+          while high - low > 1e-5:
+              mid = (low + high) / 2
+              area_below = calculate_area_below(mid)
+              if area_below < target_area:
+                  low = mid
+              else:
+                  high = mid
+
+          return high
+
+      ]
+    [10126 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+4. After
+5. Invalid tests
+6. Failing tests, ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING ERROR
+ 0 ms]
+Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+    ]
+    [
+    [Total cost so far: ~$0.02 USD]]
+    [
+    [Total time so far: 45.51330852508545]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+          from typing import List
+
+          def calculate_covered_area(y_threshold):
+              events = []
+              for x, y, l in squares:
+                  if y < y_threshold:
+                      # Only consider the part of the square below the threshold
+                      low_y = y
+                      high_y = min(y + l, y_threshold)
+                      if high_y > low_y:
+                          events.append((x, low_y, high_y, 1))
+                          events.append((x + l, low_y, high_y, -1))
+
+              events.sort()
+
+              active_intervals = []
+              last_x = events[0][0]
+              area_covered = 0
+
+              for x, low_y, high_y, typ in events:
+                  # Compute the covered length in x-direction
+                  length = 0
+                  prev_y = -1
+                  for ly, hy in active_intervals:
+                      prev_y = max(prev_y, ly)
+                      length += max(0, hy - prev_y)
+                      prev_y = max(prev_y, hy)
+                  # Add area covered by width * length
+                  area_covered += length * (x - last_x)
+                  if typ == 1:
+                      active_intervals.append((low_y, high_y))
+                      active_intervals.sort()
+                  elif typ == -1:
+                      active_intervals.remove((low_y, high_y))
+                  last_x = x
+
+              return area_covered
+
+          total_area = sum(l * l for _, _, l in squares)
+          low, high = 0, max(y + l for _, y, l in squares)
+          target_area = total_area / 2
+
+          while high - low > 1e-6:
+              mid = (low + high) / 2.0
+              if calculate_covered_area(mid) < target_area:
+                  low = mid
+              else:
+                  high = mid
+
+          return low
+
+      ]
+    [13671 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+4. After
+5. Invalid tests
+6. Failing tests, ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING ERROR
+ 0 ms]
+Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+    ]
+    [
+    [Total cost so far: ~$0.05 USD]]
+    [
+    [Total time so far: 87.00493621826172]]
+  [41553 ms]
+[41554 ms]
+
+
+Running iteration 5 of Pythoness on 3454_config1_5.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named separateSquares that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+        Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+        Answers within 10^-5 of the actual answer will be accepted.
+        Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+        Constraints:
+
+        1 <= squares.length <= 5 * 10^4
+        squares[i] = [xi, yi, li]
+        squares[i].length == 3
+        0 <= xi, yi <= 10^9
+        1 <= li <= 10^9
+        The total area of all the squares will not exceed 10^15.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000
+        separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def separateSquares(squares: List[List[int]]) -> float:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named separateSquares that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+        Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+        Answers within 10^-5 of the actual answer will be accepted.
+        Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+        Constraints:
+
+        1 <= squares.length <= 5 * 10^4
+        squares[i] = [xi, yi, li]
+        squares[i].length == 3
+        0 <= xi, yi <= 10^9
+        1 <= li <= 10^9
+        The total area of all the squares will not exceed 10^15.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000
+        separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def separateSquares(squares: List[List[int]]) -> float:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+          # Import necessary standard libraries
+          from sortedcontainers import SortedDict
+
+          # Create an event structure with 'y' as the keys
+          events = SortedDict()
+
+          # Process each square
+          for x, y, l in squares:
+              # Add begin square event
+              if y in events:
+                  events[y] += l * l
+              else:
+                  events[y] = l * l
+
+              # Add end square event
+              y_end = y + l
+              if y_end in events:
+                  events[y_end] -= l * l
+              else:
+                  events[y_end] = -l * l
+
+          # Calculate total sum area of all squares
+          total_area = sum([l for l in events.values() if l > 0])
+
+          # To find the y coordinate
+          bottom_area = 0
+          sorted_y = list(events.keys())
+          for i in range(len(sorted_y) - 1):
+              y = sorted_y[i]
+              next_y = sorted_y[i + 1]
+
+              # Update the current area
+              current_area = sum(events[y:y])
+
+              # Calculate area difference
+              if bottom_area + current_area == total_area / 2:
+                  return y
+              elif bottom_area + current_area > total_area / 2:
+                  remaining_area = (total_area / 2) - bottom_area
+                  return y + remaining_area / current_area
+
+              bottom_area += current_area
+
+          # In case all calculations above do not meet the requirement (due to floating-point precision issues)
+          return 0.0
+
+      ]
+    [12326 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING EXCEPTION ERROR unhashable type: 'slice'
+ 0 ms]
+Exception separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000
+    [[Pythoness] This test failed to execute properly: separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 12.32573390007019]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because this test failed to execute properly: separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000. Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+          # Import necessary standard libraries
+          from sortedcontainers import SortedDict
+
+          # Create an event structure with 'y' as the keys
+          events = SortedDict()
+
+          # Process each square
+          for x, y, l in squares:
+              # Add the area to the starting edge
+              if y in events:
+                  events[y] += l * l
+              else:
+                  events[y] = l * l
+
+              # Subtract the area at the ending edge
+              y_end = y + l
+              if y_end in events:
+                  events[y_end] -= l * l
+              else:
+                  events[y_end] = -l * l
+
+          # Calculate total area
+          total_area = 0
+          current_coverage = 0
+          for y in events.keys():
+              current_coverage += events[y]
+              if current_coverage > 0:
+                  total_area += current_coverage
+
+          # Calculate the Y-coordinate
+          bottom_area = 0
+          current_coverage = 0
+          y_positions = list(events.keys())
+          for i in range(1, len(y_positions)):
+              y = y_positions[i - 1]
+              next_y = y_positions[i]
+
+              # Update the current area covered by current y-slice
+              current_coverage += events[y]
+
+              # Height of the current slice
+              height = next_y - y
+
+              # Check if crossing the median
+              if bottom_area + current_coverage * height > total_area / 2:
+                  remaining_area = (total_area / 2) - bottom_area
+                  return y + remaining_area / current_coverage
+
+              # Update the bottom area
+              bottom_area += current_coverage * height
+
+          # In case of an edge case (all calculations above do not meet the requirement)
+          return 0.0
+
+      ]
+    [17541 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+4. After
+5. Invalid tests
+6. Failing tests, ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING ERROR
+ 0 ms]
+Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+    ]
+    [
+    [Total cost so far: ~$0.02 USD]]
+    [
+    [Total time so far: 42.19286632537842]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def separateSquares(squares: List[List[int]]) -> float:
+          """
+          You are given a 2D integer array squares. Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point and the side length of a square parallel to the x-axis.
+          Find the minimum y-coordinate value of a horizontal line such that the total area covered by squares above the line equals the total area covered by squares below the line.
+          Answers within 10^-5 of the actual answer will be accepted.
+          Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+          Constraints:
+
+          1 <= squares.length <= 5 * 10^4
+          squares[i] = [xi, yi, li]
+          squares[i].length == 3
+          0 <= xi, yi <= 10^9
+          1 <= li <= 10^9
+          The total area of all the squares will not exceed 10^15.
+          """
+          def get_intervals(squares):
+              events = []
+              for x, y, l in squares:
+                  events.append((y, l * l))  # Start of a square adding its full area
+                  events.append((y + l, -l * l))  # End of a square subtracting its full area
+              return events
+
+          events = get_intervals(squares)
+          events.sort()
+
+          total_area = sum(l * l for _, _, l in squares)
+
+          accumulated_area = 0
+          last_y = None
+          for i, (y, delta_area) in enumerate(events):
+              if last_y is not None:
+                  dy = y - last_y
+                  if accumulated_area * 2 == total_area:
+                      return float(last_y)
+                  elif accumulated_area * 2 < total_area < (accumulated_area + dy) * 2:
+                      return float(last_y + (total_area / 2 - accumulated_area) / (delta_area // dy))
+
+              accumulated_area += delta_area
+              last_y = y
+
+          return 0.0
+
+      ]
+    [11341 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests...... 0 ms]
+    [[Pythoness] Validating tests......1. Validating tests.
+2. Loaded hypothesis imports
+3. Storing test names for all_tests,  ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+4. After
+5. Invalid tests
+6. Failing tests, ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+RAISING ERROR
+ 0 ms]
+Exception (['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000'], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ['separateSquares(squares = [[0,0,1],[2,2,1]]) == 1.00000', 'separateSquares(squares = [[0,0,2],[1,1,1]]) == 1.00000']
+
+    ]
+    [
+    [Total cost so far: ~$0.05 USD]]
+    [
+    [Total time so far: 83.40088319778442]]
+  [41253 ms]
+[41254 ms]
