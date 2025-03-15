@@ -1,6 +1,8 @@
 import os
 import shutil
 import subprocess
+import re
+import glob
 
 
 def organize_results(base_dir="results"):
@@ -37,19 +39,8 @@ def organize_results(base_dir="results"):
             print(f"Warning: '{oracle_file}' not found in '{subdir}'.")
 
 
-def run_coverup_in_results():
+def run_coverup_in_results(specific_subdirs):
     results_dir = "results"
-    specific_subdirs = [
-        # "765",
-        # "801",
-        # "2251",
-        # "2334",
-        # "3312",
-        # "3445",
-        "3448",
-        "3449",
-        "3459",
-    ]  # Replace with the subdirectory names you want
 
     if not os.path.isdir(results_dir):
         print(f"Directory '{results_dir}' does not exist.")
@@ -79,10 +70,89 @@ def run_coverup_in_results():
 
             process.wait()
             print(f"Finished running coverup in {subdir_path}\n")
+            # Define source and destination directories
+
+            source_pattern = f"{subdir_path}/tests/test_coverup_*.py"
+
+            # Ensure destination directory exists
+            os.makedirs(subdir_path, exist_ok=True)
+
+            # Make a copy of all coverup files
+            for file_path in glob.glob(source_pattern):
+                file_name = os.path.basename(file_path)
+                destination_path = os.path.join(subdir_path, file_name)
+                shutil.copy(file_path, destination_path)
+                print(f"Copied {file_path} to {destination_path}")
+
+
+def modify_test_file(test_file, new_solution_import):
+    with open(test_file, "r") as f:
+        content = f.read()
+
+    # Step 1: Find the existing import statement and extract the original solution import
+    solution_import_pattern = r"from\s+([\w\.]+)\s+import\s+Solution"
+    match = re.search(solution_import_pattern, content)
+
+    if not match:
+        print("Error: Could not find the original Solution import statement.")
+        return
+
+    original_module = match.group(1)  # e.g., "src.oracle4"
+
+    # Step 2: Modify imports to include the second implementation
+    modified_imports = (
+        f"from {original_module} import Solution as Solution1\n"
+        f"from {new_solution_import} import Solution as Solution2\n"
+    )
+
+    content = re.sub(solution_import_pattern, modified_imports, content, count=1)
+
+    # Step 3: Modify the pytest fixture to test both implementations
+    fixture_pattern = r"@pytest\.fixture\ndef solution\(\):\n\s+return Solution\(\)"
+
+    modified_fixture = (
+        "@pytest.fixture(params=[Solution1, Solution2])\n"
+        "def solution(request):\n"
+        "    return request.param()\n"
+    )
+
+    content = re.sub(fixture_pattern, modified_fixture, content)
+
+    # Step 4: Save the modified test file
+    with open(test_file, "w") as f:
+        f.write(content)
+
+    print(f"Successfully modified {test_file} to compare both implementations.")
 
 
 if __name__ == "__main__":
     # Search results/i/ for "i_oracle.py" and reorganize into src/oraclei.py and empty tests/
     # organize_results()
-    # RUN COVERUP ON EVERYTHING
-    run_coverup_in_results()
+    specific_subdirs = [  # No coverage dirs
+        # "765",
+        # "801",
+        # "2251",
+        # "2334",
+        # "3312",
+        # "3445",
+        # "3448",
+        # "3449",
+        # "3459",
+    ]
+    specific_subdirs = [  # Coverage dirs
+        "4",
+        # "10",
+        # "30",
+        # "32",
+        # "37",
+        # "41",
+        # "42",
+        # "44",
+        # "51",
+    ]
+    # Run coverup (run from eval folder)
+    # run_coverup_in_results(specific_subdirs)
+    # Example usage
+    modify_test_file(
+        "results/4/test_coverup_1.py", "results/4/4_config1_1.py"
+    )  # Replace with actual test filename and new implementation module
