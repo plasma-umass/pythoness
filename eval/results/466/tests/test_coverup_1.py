@@ -3,12 +3,14 @@
 # gained: {"lines": [4, 5, 6, 7], "branches": []}
 
 import pytest
-from src.oracle466 import Record
+from src.p466oracle import Record
+
 
 def test_record_initialization():
     record = Record(count=5, nextIndex=10)
     assert record.count == 5
     assert record.nextIndex == 10
+
 
 def test_record_modification():
     record = Record(count=5, nextIndex=10)

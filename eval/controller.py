@@ -62,11 +62,22 @@ def remove_imports(code):
     return "\n".join(result_lines)
 
 
-def wrap_in_solution_class(code: str, func_name) -> str:
+def wrap_in_solution_class(code: str, func_name: str) -> str:
     lines = code.split("\n")
-    new_code = []
+    import_lines = []
+    non_import_lines = []
+    in_import_section = True
 
-    for i, line in enumerate(lines):
+    for line in lines:
+        if in_import_section and re.match(r"^\s*(import|from\s+\S+\s+import)\s+", line):
+            import_lines.append(line)
+        else:
+            in_import_section = False
+            non_import_lines.append(line)
+
+    # Indent the function and its body
+    new_code = []
+    for i, line in enumerate(non_import_lines):
         if re.match(rf"^\s*def {func_name}\s*\(", line):  # Function definition line
             # Insert "self" as the first argument if it's missing
             line = re.sub(rf"def {func_name}\(\s*", f"def {func_name}(self, ", line)
@@ -74,7 +85,7 @@ def wrap_in_solution_class(code: str, func_name) -> str:
         else:
             new_code.append("    " + line)  # Indent function body
 
-    return "class Solution:\n" + "\n".join(new_code)
+    return "\n".join(import_lines) + "\n\nclass Solution:\n" + "\n".join(new_code)
 
 
 def generate_json_problem(list_problems: dict, id) -> dict:
@@ -86,10 +97,10 @@ def generate_json_problem(list_problems: dict, id) -> dict:
     # Get problem details, write to json
     details = get_problem_details(name)
 
-    if not os.path.exists(f"./results/p{id}"):
-        os.makedirs(f"./results/p{id}")
+    if not os.path.exists(f"./results/{id}"):
+        os.makedirs(f"./results/{id}")
 
-    with open(f"./results/p{id}/p{id}_problem.json", "w") as json_file:
+    with open(f"./results/{id}/p{id}_problem.json", "w") as json_file:
         json.dump(details, json_file, indent=4)
 
     # Take a break between GET requests
@@ -106,12 +117,12 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
 
         print(f"Creating p{id}_config{config}.py... {i}/{tot}")
 
-        if not os.path.exists(f"./results/p{id}"):
-            os.makedirs(f"./results/p{id}")
+        if not os.path.exists(f"./results/{id}"):
+            os.makedirs(f"./results/{id}")
 
         # Retrieve prompt and template code
-        if os.path.exists(f"./results/p{id}/p{id}_problem.json"):
-            with open(f"./results/p{id}/p{id}_problem.json", "r") as file:
+        if os.path.exists(f"./results/{id}/p{id}_problem.json"):
+            with open(f"./results/{id}/p{id}_problem.json", "r") as file:
                 details = json.load(file)
         else:
             details = generate_json_problem(list_problems, id)
@@ -190,7 +201,7 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
                 print("Multiple runtime bound match")
 
         # Write full program to id_config#.py
-        with open(f"./results/p{id}/p{id}_config{config}.py", "w") as target_file:
+        with open(f"./results/{id}/p{id}_config{config}.py", "w") as target_file:
             target_file.write(content)
 
 
@@ -199,8 +210,8 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
         i = 0
 
         # Clear output contents if pre-existing
-        if os.path.exists(f"./results/p{id}/p{id}_config{config}.out"):
-            open(f"./results/p{id}/p{id}_config{config}.out", "w").close()
+        if os.path.exists(f"./results/{id}/p{id}_config{config}.out"):
+            open(f"./results/{id}/p{id}_config{config}.out", "w").close()
 
         while i < runs:
             i += 1
@@ -209,13 +220,13 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
             )
 
             # Create file for output Python code, replacing it if necessary
-            out_file = f"./results/p{id}/p{id}_config{config}_{i}.py"
+            out_file = f"./results/{id}/p{id}_config{config}_{i}.py"
             if os.path.exists(out_file):
                 os.remove(out_file)
-            shutil.copy(f"./results/p{id}/p{id}_config{config}.py", out_file)
+            shutil.copy(f"./results/{id}/p{id}_config{config}.py", out_file)
 
             # Open the file for writing the output
-            with open(f"./results/p{id}/p{id}_config{config}.out", "a") as file:
+            with open(f"./results/{id}/p{id}_config{config}.out", "a") as file:
                 file.write(
                     f"\n\nRunning iteration {i} of Pythoness on p{id}_config{config}_{i}.py\n\n"
                 )
@@ -223,7 +234,7 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
                 process = subprocess.Popen(
                     [
                         "python3",
-                        f"./results/p{id}/p{id}_config{config}_{i}.py",
+                        f"./results/{id}/p{id}_config{config}_{i}.py",
                     ],
                     stdout=subprocess.PIPE,  # Capture stdout
                     stderr=subprocess.PIPE,  # Capture stderr
@@ -242,7 +253,7 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
 def make_solution(list_problems: dict, config: int) -> dict:
     for id in list_problems.keys():
 
-        pattern = os.path.join(f"./results/p{id}/", f"p{id}_config{config}_*.py")
+        pattern = os.path.join(f"./results/{id}/", f"p{id}_config{config}_*.py")
         all_files = [f for f in glob.glob(pattern) if not f.endswith("_pytest.py")]
 
         # Loop through all matching files
@@ -261,8 +272,8 @@ def make_solution(list_problems: dict, config: int) -> dict:
                 continue
 
             # Get func_name
-            if os.path.exists(f"./results/p{id}/p{id}_problem.json"):
-                with open(f"./results/p{id}/p{id}_problem.json", "r") as file:
+            if os.path.exists(f"./results/{id}/p{id}_problem.json"):
+                with open(f"./results/{id}/p{id}_problem.json", "r") as file:
                     details = json.load(file)
             else:
                 details = generate_json_problem(list_problems, id)
@@ -284,59 +295,60 @@ def make_solution(list_problems: dict, config: int) -> dict:
 
 
 def main():
-    list_problems = {
-        "4": "median-of-two-sorted-arrays",
-        # "10": "regular-expression-matching",
-        # "23": "merge-k-sorted-lists",  # 23 AND 25 DO NOT WORK. Given tests are "simplified" and not formatted correctly.
-        # "25": "reverse-nodes-in-k-group",
-        # "30": "substring-with-concatenation-of-all-words",
-        # "32": "longest-valid-parentheses",
-        # "41": "first-missing-positive",
-        # "42": "trapping-rain-water",
-        # "44": "wildcard-matching",
-        # "493": "reverse-pairs",
-        # ##################
-        # "600": "non-negative-integers-without-consecutive-ones",
-        # "668": "kth-smallest-number-in-multiplication-table",
-        # "699": "falling-squares",
-        # "765": "couples-holding-hands",
-        # "801": "minimum-swaps-to-make-sequences-increasing",
-        # "871": "minimum-number-of-refueling-stops",
-        # "902": "numbers-at-most-n-given-digit-set",
-        # "1416": "restore-the-array",  # No repo sol
-        # "1923": "longest-common-subpath",
-        # "2251": "number-of-flowers-in-full-bloom",
-        # ##################
-        # "2334": "subarray-with-elements-greater-than-varying-threshold",
-        # "3312": "sorted-gcd-pair-queries",
-        # "3445": "maximum-difference-between-even-and-odd-frequency-ii",
-        # "3454": "separate-squares-ii",  # No repo sol
-        # "3463": "check-if-digits-are-equal-in-string-after-operations-ii",
-        # "3464": "maximize-the-distance-between-points-on-a-square",
-        # "3470": "permutations-iv",
-    }
     # list_problems = {
-    #     "37": "sudoku-solver",
-    #     "51": "n-queens",
-    #     "466": "count-the-repetitions",
-    #     "552": "student-attendance-record-ii",
-    #     "850": "rectangle-area-ii",
-    #     "2872": "maximum-number-of-k-divisible-components",
-    #     "3197": "length-of-longest-v-shaped-diagonal-segment",
-    #     "3229": "separate-squares-ii",
-    #     "3448": "count-substrings-divisible-by-last-digit",
-    #     "3449": "maximize-the-minimum-game-score",
-    #     "3455": "shortest-matching-substring",
-    #     "3459": "length-of-longest-v-shaped-diagonal-segment",
-    #     "3474": "lexicographically-smallest-generated-string",
+    #     # "4": "median-of-two-sorted-arrays",
+    #     # "10": "regular-expression-matching",
+    #     # "23": "merge-k-sorted-lists",  # 23 AND 25 DO NOT WORK. Given tests are "simplified" and not formatted correctly.
+    #     # "25": "reverse-nodes-in-k-group",
+    #     # "30": "substring-with-concatenation-of-all-words",
+    #     # "32": "longest-valid-parentheses",
+    #     # "41": "first-missing-positive",
+    #     # "42": "trapping-rain-water",
+    #     # "44": "wildcard-matching",
+    #     # "493": "reverse-pairs",
+    #     # ##################
+    #     # "600": "non-negative-integers-without-consecutive-ones",
+    #     # "668": "kth-smallest-number-in-multiplication-table",
+    #     # "699": "falling-squares",
+    #     # "765": "couples-holding-hands",
+    #     # "801": "minimum-swaps-to-make-sequences-increasing",
+    #     # "871": "minimum-number-of-refueling-stops",
+    #     # "902": "numbers-at-most-n-given-digit-set",
+    #     # "1416": "restore-the-array",  # No repo sol
+    #     # "1923": "longest-common-subpath",
+    #     # "2251": "number-of-flowers-in-full-bloom",
+    #     # ##################
+    #     # "2334": "subarray-with-elements-greater-than-varying-threshold",
+    #     # "3312": "sorted-gcd-pair-queries",
+    #     # "3445": "maximum-difference-between-even-and-odd-frequency-ii",
+    #     # "3463": "check-if-digits-are-equal-in-string-after-operations-ii",
+    #     # "3464": "maximize-the-distance-between-points-on-a-square",
+    #     "3470": "permutations-iv",
     # }
+    list_problems = {
+        "37": "sudoku-solver",
+        # "51": "n-queens",
+        # "466": "count-the-repetitions",
+        # "552": "student-attendance-record-ii",
+        # "850": "rectangle-area-ii",
+        # "2872": "maximum-number-of-k-divisible-components",
+        # "3197": "find-the-minimum-area-to-cover-all-ones-ii",
+        # "3229": "separate-squares-ii",
+        # "3448": "count-substrings-divisible-by-last-digit",
+        # "3449": "maximize-the-minimum-game-score",
+        # "3454": "separate-squares-ii",  # No repo sol
+        # "3455": "shortest-matching-substring",
+        # "3459": "length-of-longest-v-shaped-diagonal-segment",
+        # "3474": "lexicographically-smallest-generated-string",
+    }
 
-    config = 1
-    # GET problem -> p[id]_problem.json, p[id]_config#.py
-    # generate_py_problem(list_problems, config)
-    # Run Pythoness -> p[id]_config#.out, p[id]_config#_#.py
-    # run_pythoness(list_problems.keys(), config, 5)
-    make_solution(list_problems, config)  # -> p[id]_config#_#_pytest.py
+    configs = [2]
+    for config in configs:
+        # GET problem -> p[id]_problem.json, p[id]_config#.py
+        generate_py_problem(list_problems, config)
+        # Run Pythoness -> p[id]_config#.out, p[id]_config#_#.py
+        run_pythoness(list_problems.keys(), config, 5)
+        make_solution(list_problems, config)  # -> p[id]_config#_#_pytest.py
 
 
 if __name__ == "__main__":

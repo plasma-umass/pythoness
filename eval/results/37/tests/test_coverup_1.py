@@ -4,7 +4,8 @@
 
 import pytest
 from typing import List
-from src.oracle37 import Solution
+from src.p37oracle import Solution
+
 
 @pytest.fixture
 def sudoku_board():
@@ -17,13 +18,14 @@ def sudoku_board():
         ["7", ".", ".", ".", "2", ".", ".", ".", "6"],
         [".", "6", ".", ".", ".", ".", "2", "8", "."],
         [".", ".", ".", "4", "1", "9", ".", ".", "5"],
-        [".", ".", ".", ".", "8", ".", ".", "7", "9"]
+        [".", ".", ".", ".", "8", ".", ".", "7", "9"],
     ]
+
 
 def test_solve_sudoku(sudoku_board):
     solution = Solution()
     solution.solveSudoku(sudoku_board)
-    
+
     # Verify the board is solved correctly
     expected_solution = [
         ["5", "3", "4", "6", "7", "8", "9", "1", "2"],
@@ -34,7 +36,7 @@ def test_solve_sudoku(sudoku_board):
         ["7", "1", "3", "9", "2", "4", "8", "5", "6"],
         ["9", "6", "1", "5", "3", "7", "2", "8", "4"],
         ["2", "8", "7", "4", "1", "9", "6", "3", "5"],
-        ["3", "4", "5", "2", "8", "6", "1", "7", "9"]
+        ["3", "4", "5", "2", "8", "6", "1", "7", "9"],
     ]
-    
+
     assert sudoku_board == expected_solution

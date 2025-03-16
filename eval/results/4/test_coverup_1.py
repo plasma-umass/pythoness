@@ -1,61 +1,70 @@
-# file: src/oracle.py:1-23
-# asked: {"lines": [1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23], "branches": [[5, 6], [5, 8], [11, 0], [11, 12], [18, 19], [18, 20], [20, 21], [20, 23]]}
-# gained: {"lines": [1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23], "branches": [[5, 6], [5, 8], [11, 12], [18, 19], [18, 20], [20, 23]]}
+# file: src/oracle4.py:1-23
+# asked: {"lines": [21], "branches": [[11, 0], [20, 21]]}
+# gained: {"lines": [21], "branches": [[20, 21]]}
 
 import pytest
-from src.p4oracle import Solution as Solution1
-from p4_config1_1_pytest import Solution as Solution2
+from p4_config1_3_pytest import Solution
 
 
-@pytest.fixture(params=[Solution1, Solution2])
-def solution(request):
-    return request.param()
-
-
-def test_findMedianSortedArrays_case1(solution):
+def test_findMedianSortedArrays_case1():
+    solution = Solution()
     nums1 = [1, 3]
     nums2 = [2]
-    result = solution.findMedianSortedArrays(nums1, nums2)
-    assert result == 2.0
+    expected_median = 2.0
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median
 
 
-def test_findMedianSortedArrays_case2(solution):
+def test_findMedianSortedArrays_case2():
+    solution = Solution()
     nums1 = [1, 2]
     nums2 = [3, 4]
-    result = solution.findMedianSortedArrays(nums1, nums2)
-    assert result == 2.5
+    expected_median = 2.5
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median
 
 
-def test_findMedianSortedArrays_case3(solution):
+def test_findMedianSortedArrays_case3():
+    solution = Solution()
     nums1 = [0, 0]
     nums2 = [0, 0]
-    result = solution.findMedianSortedArrays(nums1, nums2)
-    assert result == 0.0
+    expected_median = 0.0
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median
 
 
-def test_findMedianSortedArrays_case4(solution):
+def test_findMedianSortedArrays_case4():
+    solution = Solution()
     nums1 = []
     nums2 = [1]
-    result = solution.findMedianSortedArrays(nums1, nums2)
-    assert result == 1.0
+    expected_median = 1.0
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median
 
 
-def test_findMedianSortedArrays_case5(solution):
+def test_findMedianSortedArrays_case5():
+    solution = Solution()
     nums1 = [2]
     nums2 = []
-    result = solution.findMedianSortedArrays(nums1, nums2)
-    assert result == 2.0
+    expected_median = 2.0
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median
 
 
-def test_findMedianSortedArrays_case6(solution):
-    nums1 = [1, 3]
-    nums2 = [2, 7]
-    result = solution.findMedianSortedArrays(nums1, nums2)
-    assert result == 2.5
+def test_findMedianSortedArrays_case6():
+    solution = Solution()
+    nums1 = [1, 3, 8, 9, 15]
+    nums2 = [7, 11, 18, 19, 21, 25]
+    expected_median = 11.0
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median
 
 
-def test_findMedianSortedArrays_case7(solution):
-    nums1 = [1, 2, 3, 4]
-    nums2 = [5, 6, 7, 8, 9]
-    result = solution.findMedianSortedArrays(nums1, nums2)
-    assert result == 5.0
+def test_findMedianSortedArrays_case7():
+    solution = Solution()
+    nums1 = [23, 26, 31, 35]
+    nums2 = [3, 5, 7, 9, 11, 16]
+    expected_median = 13.5
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median
+
+
+def test_findMedianSortedArrays_case8():
+    solution = Solution()
+    nums1 = [1, 2, 3, 4, 5, 6]
+    nums2 = [7, 8, 9, 10, 11, 12]
+    expected_median = 6.5
+    assert solution.findMedianSortedArrays(nums1, nums2) == expected_median

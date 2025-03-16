@@ -3,25 +3,26 @@
 # gained: {"lines": [1, 2, 9, 10, 12, 14, 16, 17, 18, 20, 21, 22, 24, 25, 26, 28, 29], "branches": [[16, 17], [16, 20], [17, 16], [17, 18], [20, 21], [24, 25], [24, 28]]}
 
 import pytest
-from src.oracle2872 import Solution
+from src.p2872oracle import Solution
+
 
 def test_maxKDivisibleComponents():
     solution = Solution()
-    
+
     # Test case 1
     n = 3
     edges = [[0, 1], [1, 2]]
     values = [3, 6, 9]
     k = 3
     assert solution.maxKDivisibleComponents(n, edges, values, k) == 3
-    
+
     # Test case 2
     n = 4
     edges = [[0, 1], [1, 2], [1, 3]]
     values = [2, 4, 6, 8]
     k = 2
     assert solution.maxKDivisibleComponents(n, edges, values, k) == 4
-    
+
     # Test case 3
     n = 5
     edges = [[0, 1], [0, 2], [1, 3], [1, 4]]

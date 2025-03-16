@@ -3,13 +3,14 @@
 # gained: {"lines": [4, 5, 6, 7, 8, 9, 10, 11, 12], "branches": []}
 
 import pytest
-from src.oracle699 import Node
+from src.p699oracle import Node
+
 
 def test_node_initialization():
     # Test initialization of Node
     l, r = 0, 10
     node = Node(l, r)
-    
+
     assert node.left is None
     assert node.right is None
     assert node.l == l

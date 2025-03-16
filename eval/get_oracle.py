@@ -5,12 +5,17 @@ import re
 import glob
 
 
-def organize_results(base_dir="results"):
-    if not os.path.exists(base_dir):
-        print(f"Error: Directory '{base_dir}' does not exist.")
-        return
+def organize_results(subdirs=None):
+    base_dir = "results"
 
-    for subdir in os.listdir(base_dir):
+    all_subdirs = [
+        d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))
+    ]
+
+    # If no specific subdirectories are provided, loop over all
+    subdirs = specific_subdirs if specific_subdirs is not None else all_subdirs
+
+    for subdir in subdirs:
         subdir_path = os.path.join(base_dir, subdir)
         if not os.path.isdir(subdir_path):
             continue  # Skip non-directory entries
@@ -18,36 +23,45 @@ def organize_results(base_dir="results"):
         src_path = os.path.join(subdir_path, "src")
         tests_path = os.path.join(subdir_path, "tests")
 
+        # Make dirs src and tests if not already existing
         try:
             os.makedirs(src_path, exist_ok=True)
             os.makedirs(tests_path, exist_ok=True)
-            print(f"Created directories: {src_path}, {tests_path}")
         except Exception as e:
             print(f"Error creating directories in '{subdir}': {e}")
             continue
 
-        oracle_file = os.path.join(subdir_path, f"{subdir}_oracle.py")
-        new_oracle_name = os.path.join(src_path, f"oracle{subdir}.py")
+        # Get the oracle file
+        base_dir = "../../LeetCode/solutions/"
+        list = os.listdir(base_dir)
+        filtered = [s for s in list if s.startswith(f"{subdir}.")]
 
-        if os.path.exists(oracle_file):
-            try:
-                shutil.move(oracle_file, new_oracle_name)
-                print(f"Moved and renamed '{oracle_file}' to '{new_oracle_name}'")
-            except Exception as e:
-                print(f"Error moving '{oracle_file}' to '{src_path}': {e}")
+        if filtered:
+            target_dir = os.path.join(base_dir, filtered[0])
+            python_files = [
+                file for file in os.listdir(target_dir) if file.endswith(".py")
+            ]
+            if python_files:
+
+                oracle_file = os.path.join(target_dir, python_files[0])
+                new_oracle_name = os.path.join(src_path, f"p{subdir}oracle.py")
+
+                try:
+                    shutil.move(oracle_file, new_oracle_name)
+                    print(f"Copied '{oracle_file}' to '{new_oracle_name}'")
+                except Exception as e:
+                    print(f"Error moving '{oracle_file}' to '{src_path}': {e}")
+            else:
+                print("No Python files found in", target_dir)
         else:
-            print(f"Warning: '{oracle_file}' not found in '{subdir}'.")
+            print(f"No directory starting with '{subdir}.' found in {base_dir}")
 
 
-def run_coverup_in_results(specific_subdirs):
+def run_coverup(specific_subdirs):
 
     for subdir in specific_subdirs:
 
         subdir_path = os.path.join("results", subdir)
-
-        # if os.path.exists(os.path.join(subdir_path, "coverup-log")):
-        #     print("Coverup already run here. Skip.")
-        #     continue
 
         if os.path.isdir(subdir_path):
             print(f"Entering {subdir_path} and running coverup...")
@@ -67,60 +81,8 @@ def run_coverup_in_results(specific_subdirs):
             print(f"Finished running coverup in {subdir_path}\n")
             # Define source and destination directories
 
-            source_pattern = f"{subdir_path}/tests/test_coverup_*.py"
 
-            # Ensure destination directory exists
-            os.makedirs(subdir_path, exist_ok=True)
-
-            # Make a copy of all coverup files
-            for file_path in glob.glob(source_pattern):
-                file_name = os.path.basename(file_path)
-                destination_path = os.path.join(subdir_path, file_name)
-                shutil.copy(file_path, destination_path)
-                print(f"Copied {file_path} to {destination_path}")
-
-
-def modify_test_file(test_file, new_solution_import):
-    with open(test_file, "r") as f:
-        content = f.read()
-
-    # Step 1: Find the existing import statement and extract the original solution import
-    solution_import_pattern = r"from\s+([\w\.]+)\s+import\s+Solution"
-    match = re.search(solution_import_pattern, content)
-
-    if not match:
-        print("Error: Could not find the original Solution import statement.")
-        return
-
-    original_module = match.group(1)  # e.g., "src.oracle4"
-
-    # Step 2: Modify imports to include the second implementation
-    modified_imports = (
-        f"from {original_module} import Solution as Solution1\n"
-        f"from {new_solution_import} import Solution as Solution2\n"
-    )
-
-    content = re.sub(solution_import_pattern, modified_imports, content, count=1)
-
-    # Step 3: Modify the pytest fixture to test both implementations
-    fixture_pattern = r"@pytest\.fixture\ndef solution\(\):\n\s+return Solution\(\)"
-
-    modified_fixture = (
-        "@pytest.fixture(params=[Solution1, Solution2])\n"
-        "def solution(request):\n"
-        "    return request.param()\n"
-    )
-
-    content = re.sub(fixture_pattern, modified_fixture, content)
-
-    # Step 4: Save the modified test file
-    with open(test_file, "w") as f:
-        f.write(content)
-
-    print(f"Successfully modified {test_file} to compare both implementations.")
-
-
-def evaluate(config: int, specific_subdirs=None):
+def setup_pytest_and_evaluate(config: int, specific_subdirs=None):
     parent_dir = "results"
     # Get full paths of all subdirectories
     all_subdirs = [
@@ -129,40 +91,88 @@ def evaluate(config: int, specific_subdirs=None):
 
     # If no specific subdirectories are provided, loop over all
     subdirs = specific_subdirs if specific_subdirs is not None else all_subdirs
-
     for subdir in subdirs:
 
         subdir_path = os.path.join("results", subdir)
 
-        if os.path.isdir(subdir_path):
-            print(f"Entering {subdir_path} and evaluating config {config}...")
+        # Ensure destination directory exists
+        os.makedirs(subdir_path, exist_ok=True)
+        coverup_tests_pattern = f"{subdir_path}/tests/test_coverup_*.py"
+        coverup_test_files = []
 
-            # Define the file pattern
-            file_pattern = f"p{id}_config{config}_*_pytest.py"
-            file_path_pattern = os.path.join(subdir_path, file_pattern)
+        # Make a copy of all coverup files
+        for file_path in glob.glob(coverup_tests_pattern):
+            file_name = os.path.basename(file_path)
+            destination_path = os.path.join(subdir_path, file_name)
+            shutil.copy(file_path, destination_path)
+            print(f"Copied {file_path} to {destination_path}")
+            coverup_test_files.append(destination_path)
 
-            # Loop over matching files
-            for file in glob.glob(file_path_pattern):
-                print(f"  Found file: {file}")
-                # Add your file processing logic here
+        # Iterate over all runs of this config
+        file_pattern = f"p{subdir}_config{config}_*_pytest.py"
+        pytests_pattern = os.path.join(subdir_path, file_pattern)
+        pytests = glob.glob(pytests_pattern)
+
+        # Clear output contents if pre-existing
+        eval_output_file = f"./results/{subdir}/p{subdir}_config{config}_eval.out"
+        if os.path.exists(eval_output_file):
+            open(eval_output_file, "w").close()
+
+        # pytests = ["./results/552/p552_config1_1_pytest.py"]
+
+        for py in pytests:
+
+            for file_to_modify in coverup_test_files:
+                print("Modifying file:", file_to_modify)
+                with open(file_to_modify, "r") as f:
+                    lines = f.readlines()
+
+                # Loop through lines to find the first one starting with "import src"
+                for i, line in enumerate(lines):
+                    # print(f"from src.p{subdir}oracle")
+                    # print(line)
+                    if line.startswith(f"from src.p{subdir}oracle") or line.startswith(
+                        f"from p{subdir}_config{config}_"
+                    ):
+                        # print("Replacing...")
+                        lines[i] = f"from {os.path.basename(py)[:-3]} import Solution\n"
+                        break
+
+                # Write the modified content back to the file
+                with open(file_to_modify, "w") as f:
+                    f.writelines(lines)
+
+                print(f"Evaluating {py}...")
+                with open(
+                    f"./results/{subdir}/p{subdir}_config{config}_eval.out", "a"
+                ) as file:
+                    file.write(
+                        f"\n\nEvaluating Pythoness result {py} on {file_to_modify}\n\n"
+                    )
+                    result = subprocess.run(
+                        ["pytest", file_to_modify],
+                        capture_output=True,
+                        text=True,
+                    )
+                    file.write(result.stdout)
+                    file.write(result.stderr)
 
 
 if __name__ == "__main__":
-    # Search results/i/ for "i_oracle.py" and reorganize into src/oraclei.py and empty tests/
-    # organize_results()
-    specific_subdirs = [  # No coverage dirs
-        # "765",
-        # "801",
-        # "2251",
-        # "2334",
-        # "3312",
-        # "3445",
-        # "3448",
-        # "3449",
-        # "3459",
-    ]
+    # specific_subdirs = [  # No coverage dirs
+    #     # "765",
+    #     # "801",
+    #     # "2251",
+    #     # "2334",
+    #     # "3312",
+    #     # "3445",
+    #     # "3448",
+    #     # "3449",
+    #     # "3459",
+    #     "3197",
+    # ]
     specific_subdirs = [  # Coverage dirs
-        "4",
+        # "4",
         # "10",
         # "30",
         # "32",
@@ -171,13 +181,27 @@ if __name__ == "__main__":
         # "42",
         # "44",
         # "51",
+        # "466"
+        # "493",
+        # "552",
+        # "600",
+        # "668",
+        # "699",
+        "850",
+        # "871",
+        # "902",
+        # "1416",
+        # "1923",
+        # "2872",
+        # "3455",
+        # "3463",
+        # "3470",
     ]
 
     config = 1
-    # Run coverup (run from eval folder)
-    # run_coverup_in_results(specific_subdirs)
-    # Example usage
-    evaluate(config, specific_subdirs)
-    # modify_test_file(
-    #     "results/p4/test_coverup_1.py", "results/p4/4_config1_1.py"
-    # )  # Replace with actual test filename and new implementation module
+    # Search results/i/ for "i_oracle.py" and reorganize into src/oraclei.py and empty tests/
+    # organize_results(specific_subdirs)
+    # Run coverup
+    # run_coverup(specific_subdirs)
+    # Copies pytest files, and modifies and evals each run
+    setup_pytest_and_evaluate(config, specific_subdirs)

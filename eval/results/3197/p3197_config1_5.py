@@ -13,33 +13,30 @@ def minimumSum(grid: List[List[int]]) -> int:
     grid[i][j] is either 0 or 1.
     The input is generated such that there are at least three 1's in grid.
     """
-    # Flatten the grid to get all the positions of 1s
-    ones = [(i, j) for (i, row) in enumerate(grid) for (j, val) in enumerate(row) if val == 1]
-    n = len(ones)
-    # We need at least 3 rectangles
-    if n < 3:
-        return 0  # edge case that should not happen due to problem constraints
-    # Initialize the minimum area sum to a large number
-    min_area_sum = float('inf')
-    # Generate all possible combinations of splitting the 1s into 3 groups
-    for i in range(1, n - 1):
-        for j in range(i + 1, n):
-            # First rectangle includes ones[0] to ones[i-1]
-            # Second rectangle includes ones[i] to ones[j-1]
-            # Third rectangle includes ones[j] to ones[n-1]
-            rect1 = ones[:i]
-            rect2 = ones[i:j]
-            rect3 = ones[j:]
-            # Compute area of each rectangle necessary to cover the points
 
-            def compute_area(points):
-                min_x = min((p[0] for p in points))
-                max_x = max((p[0] for p in points))
-                min_y = min((p[1] for p in points))
-                max_y = max((p[1] for p in points))
-                return (max_x - min_x + 1) * (max_y - min_y + 1)
-            area_sum = compute_area(rect1) + compute_area(rect2) + compute_area(rect3)
-            # Update the minimum area sum
+    def get_ones_positions(grid):
+        positions = []
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 1:
+                    positions.append((i, j))
+        return positions
+
+    def calculate_area(positions):
+        (x_coords, y_coords) = zip(*positions)
+        return (max(x_coords) - min(x_coords) + 1) * (max(y_coords) - min(y_coords) + 1)
+    ones_positions = get_ones_positions(grid)
+    if len(ones_positions) < 3:
+        return 0
+    from itertools import combinations
+    min_area_sum = float('inf')
+    # Try all combinations of dividing the 1s positions into 3 groups for 3 rectangles
+    for split1 in range(1, len(ones_positions) - 1):
+        for split2 in range(split1 + 1, len(ones_positions)):
+            rect1_positions = ones_positions[:split1]
+            rect2_positions = ones_positions[split1:split2]
+            rect3_positions = ones_positions[split2:]
+            area_sum = calculate_area(rect1_positions) + calculate_area(rect2_positions) + calculate_area(rect3_positions)
             min_area_sum = min(min_area_sum, area_sum)
     return min_area_sum
 minimumSum(grid=[[1, 0, 1], [1, 1, 1]])

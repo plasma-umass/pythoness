@@ -3,11 +3,13 @@
 # gained: {"lines": [4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27], "branches": [[10, 11], [10, 27], [15, 16], [15, 24], [16, 17], [16, 18], [18, 19], [18, 23], [24, 10], [24, 25]]}
 
 import pytest
-from src.oracle3470 import Solution
+from src.p3470oracle import Solution
+
 
 @pytest.fixture
 def solution():
     return Solution()
+
 
 def test_permute_full_coverage(solution):
     # Test case to cover the branch where n is even and k is within range
