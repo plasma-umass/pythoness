@@ -1,8 +1,22 @@
 class Solution:
+    import pythoness
+    from typing import List, Optional
     from typing import List
     
     def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
-        
+        """
+        Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.
+        The overall run time complexity should be O(log (m+n)).
+    
+        Constraints:
+    
+        nums1.length == m
+        nums2.length == n
+        0 <= m <= 1000
+        0 <= n <= 1000
+        1 <= m + n <= 2000
+        -10^6 <= nums1[i], nums2[i] <= 10^6
+        """
         (m, n) = (len(nums1), len(nums2))
         if m > n:
             (nums1, nums2, m, n) = (nums2, nums1, n, m)

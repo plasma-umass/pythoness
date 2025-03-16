@@ -86,10 +86,10 @@ def generate_json_problem(list_problems: dict, id) -> dict:
     # Get problem details, write to json
     details = get_problem_details(name)
 
-    if not os.path.exists(f"./results/{id}"):
-        os.makedirs(f"./results/{id}")
+    if not os.path.exists(f"./results/p{id}"):
+        os.makedirs(f"./results/p{id}")
 
-    with open(f"./results/{id}/p{id}_problem.json", "w") as json_file:
+    with open(f"./results/p{id}/p{id}_problem.json", "w") as json_file:
         json.dump(details, json_file, indent=4)
 
     # Take a break between GET requests
@@ -106,12 +106,12 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
 
         print(f"Creating p{id}_config{config}.py... {i}/{tot}")
 
-        if not os.path.exists(f"./results/{id}"):
-            os.makedirs(f"./results/{id}")
+        if not os.path.exists(f"./results/p{id}"):
+            os.makedirs(f"./results/p{id}")
 
         # Retrieve prompt and template code
-        if os.path.exists(f"./results/{id}/p{id}_problem.json"):
-            with open(f"./results/{id}/p{id}_problem.json", "r") as file:
+        if os.path.exists(f"./results/p{id}/p{id}_problem.json"):
+            with open(f"./results/p{id}/p{id}_problem.json", "r") as file:
                 details = json.load(file)
         else:
             details = generate_json_problem(list_problems, id)
@@ -158,9 +158,7 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
         # Extract examples as unit tests
         func_name = get_function_name(template)
         unittests = extract_examples(prompt, func_name)
-        # print(unittests)
         all_unittests = ", ".join([f"'{i}'" for i in unittests])
-        # print(all_unittests)
 
         prompt = re.sub(r"\nExample 1.*?(?=\nConstraints)", "", prompt, flags=re.DOTALL)
         content = re.sub(r"tests=\[\]", f"tests=[{all_unittests}]", content)
@@ -192,7 +190,7 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
                 print("Multiple runtime bound match")
 
         # Write full program to id_config#.py
-        with open(f"./results/{id}/p{id}_config{config}.py", "w") as target_file:
+        with open(f"./results/p{id}/p{id}_config{config}.py", "w") as target_file:
             target_file.write(content)
 
 
@@ -201,8 +199,8 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
         i = 0
 
         # Clear output contents if pre-existing
-        if os.path.exists(f"./results/{id}/p{id}_config{config}.out"):
-            open(f"./results/{id}/p{id}_config{config}.out", "w").close()
+        if os.path.exists(f"./results/p{id}/p{id}_config{config}.out"):
+            open(f"./results/p{id}/p{id}_config{config}.out", "w").close()
 
         while i < runs:
             i += 1
@@ -211,13 +209,13 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
             )
 
             # Create file for output Python code, replacing it if necessary
-            out_file = f"./results/{id}/p{id}_config{config}_{i}.py"
+            out_file = f"./results/p{id}/p{id}_config{config}_{i}.py"
             if os.path.exists(out_file):
                 os.remove(out_file)
-            shutil.copy(f"./results/{id}/p{id}_config{config}.py", out_file)
+            shutil.copy(f"./results/p{id}/p{id}_config{config}.py", out_file)
 
             # Open the file for writing the output
-            with open(f"./results/{id}/p{id}_config{config}.out", "a") as file:
+            with open(f"./results/p{id}/p{id}_config{config}.out", "a") as file:
                 file.write(
                     f"\n\nRunning iteration {i} of Pythoness on p{id}_config{config}_{i}.py\n\n"
                 )
@@ -225,7 +223,7 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
                 process = subprocess.Popen(
                     [
                         "python3",
-                        f"./results/{id}/p{id}_config{config}_{i}.py",
+                        f"./results/p{id}/p{id}_config{config}_{i}.py",
                     ],
                     stdout=subprocess.PIPE,  # Capture stdout
                     stderr=subprocess.PIPE,  # Capture stderr
@@ -242,12 +240,13 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
 
 
 def make_solution(list_problems: dict, config: int) -> dict:
-    for id, name in list_problems.items():
+    for id in list_problems.keys():
 
-        pattern = os.path.join(f"./results/{id}/", f"{id}_config{config}_*.py")
+        pattern = os.path.join(f"./results/p{id}/", f"p{id}_config{config}_*.py")
+        all_files = [f for f in glob.glob(pattern) if not f.endswith("_pytest.py")]
 
         # Loop through all matching files
-        for filepath in glob.glob(pattern):
+        for filepath in all_files:
 
             with open(filepath, "r") as file:
                 llm_code = file.read()
@@ -261,24 +260,24 @@ def make_solution(list_problems: dict, config: int) -> dict:
                 print("Pythoness failed! Skipping.")
                 continue
 
-            # Strip Pythoness import, function call, docstring
-            llm_code = re.sub(r"import pythoness\n", "", llm_code)
-            llm_code = re.sub(r"from typing import List, Optional\n", "", llm_code)
-            # llm_code = "\n".join(llm_code.splitlines()[:-1])
-            llm_code = re.sub(r'"""(.*?)"""', "", llm_code, flags=re.DOTALL)
-
-            # Wrap in Solution class (including imports)
-            if os.path.exists(f"./results/{id}/{id}_problem.json"):
-                with open(f"./results/{id}/{id}_problem.json", "r") as file:
+            # Get func_name
+            if os.path.exists(f"./results/p{id}/p{id}_problem.json"):
+                with open(f"./results/p{id}/p{id}_problem.json", "r") as file:
                     details = json.load(file)
             else:
                 details = generate_json_problem(list_problems, id)
             func_name = get_function_name(details["template_code_definition"])
 
+            # Strip Pythoness import, docstring, function call
+            # llm_code = re.sub(r"import pythoness\n", "", llm_code)
+            # llm_code = re.sub(r'"""(.*?)"""', "", llm_code, flags=re.DOTALL)
+            llm_code = llm_code[: llm_code.rfind(func_name)].strip()
+
+            # Wrap in Solution class (including imports)
             llm_code = wrap_in_solution_class(llm_code, func_name)
 
-            print(f"Writing to {os.path.basename(filepath)[:-3]}.txt...")
-            with open(f"{filepath[:-3]}.txt", "w") as file:
+            print(f"Writing to {os.path.basename(filepath)[:-3]}_pytest.py...")
+            with open(f"{filepath[:-3]}_pytest.py", "w") as file:
                 file.write(llm_code)
 
     return
@@ -286,7 +285,7 @@ def make_solution(list_problems: dict, config: int) -> dict:
 
 def main():
     list_problems = {
-        # "4": "median-of-two-sorted-arrays",
+        "4": "median-of-two-sorted-arrays",
         # "10": "regular-expression-matching",
         # "23": "merge-k-sorted-lists",  # 23 AND 25 DO NOT WORK. Given tests are "simplified" and not formatted correctly.
         # "25": "reverse-nodes-in-k-group",
@@ -316,28 +315,28 @@ def main():
         # "3464": "maximize-the-distance-between-points-on-a-square",
         # "3470": "permutations-iv",
     }
-    list_problems = {
-        "37": "sudoku-solver",
-        "51": "n-queens",
-        "466": "count-the-repetitions",
-        "552": "student-attendance-record-ii",
-        "850": "rectangle-area-ii",
-        "2872": "maximum-number-of-k-divisible-components",
-        "3197": "length-of-longest-v-shaped-diagonal-segment",
-        "3229": "separate-squares-ii",
-        "3448": "count-substrings-divisible-by-last-digit",
-        "3449": "maximize-the-minimum-game-score",
-        "3455": "shortest-matching-substring",
-        "3459": "length-of-longest-v-shaped-diagonal-segment",
-        "3474": "lexicographically-smallest-generated-string",
-    }
+    # list_problems = {
+    #     "37": "sudoku-solver",
+    #     "51": "n-queens",
+    #     "466": "count-the-repetitions",
+    #     "552": "student-attendance-record-ii",
+    #     "850": "rectangle-area-ii",
+    #     "2872": "maximum-number-of-k-divisible-components",
+    #     "3197": "length-of-longest-v-shaped-diagonal-segment",
+    #     "3229": "separate-squares-ii",
+    #     "3448": "count-substrings-divisible-by-last-digit",
+    #     "3449": "maximize-the-minimum-game-score",
+    #     "3455": "shortest-matching-substring",
+    #     "3459": "length-of-longest-v-shaped-diagonal-segment",
+    #     "3474": "lexicographically-smallest-generated-string",
+    # }
 
-    config = 4
-    # GET problem -> id_problem.json, id_config#.py
+    config = 1
+    # GET problem -> p[id]_problem.json, p[id]_config#.py
     # generate_py_problem(list_problems, config)
-    # Run Pythoness -> id_config#.out, id_config#_#.py
+    # Run Pythoness -> p[id]_config#.out, p[id]_config#_#.py
     # run_pythoness(list_problems.keys(), config, 5)
-    # make_solution(list_problems, config)  # -> id_config#.txt
+    make_solution(list_problems, config)  # -> p[id]_config#_#_pytest.py
 
 
 if __name__ == "__main__":

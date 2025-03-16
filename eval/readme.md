@@ -5,6 +5,7 @@ Problem Generation files:
 * "p[id]_config[config#].py" The Python file containing the problem function to run Pythoness, wrapped in the Pythoness decorator and with tests and Pythoness specs formatted according to desired Pythoness configuration.
 * "p[id]_config[config#]_[#].py" The code produced by Pythoness on iteration [#].
 * "p[id]_config[config#].out" The Pythoness stdout log for all runs under a single config.
+* "p[id]_config[config#]_[#]_pytest.py" The produced code, formatted as a standalone module
 
 Testing files:
 * "src/p[id]oracle.py" The ground truth Python code, taken from either (1) LeetCode (2) leetcode (3) LeetCode discussion boards

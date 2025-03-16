@@ -4,14 +4,12 @@
 
 import pytest
 from src.p4oracle import Solution as Solution1
-from results.4.p4_config1_1.py import Solution as Solution2
-
+from p4_config1_1_pytest import Solution as Solution2
 
 
 @pytest.fixture(params=[Solution1, Solution2])
 def solution(request):
     return request.param()
-
 
 
 def test_findMedianSortedArrays_case1(solution):

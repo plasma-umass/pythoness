@@ -40,15 +40,10 @@ def organize_results(base_dir="results"):
 
 
 def run_coverup_in_results(specific_subdirs):
-    results_dir = "results"
-
-    if not os.path.isdir(results_dir):
-        print(f"Directory '{results_dir}' does not exist.")
-        return
 
     for subdir in specific_subdirs:
 
-        subdir_path = os.path.join(results_dir, subdir)
+        subdir_path = os.path.join("results", subdir)
 
         # if os.path.exists(os.path.join(subdir_path, "coverup-log")):
         #     print("Coverup already run here. Skip.")
@@ -125,6 +120,33 @@ def modify_test_file(test_file, new_solution_import):
     print(f"Successfully modified {test_file} to compare both implementations.")
 
 
+def evaluate(config: int, specific_subdirs=None):
+    parent_dir = "results"
+    # Get full paths of all subdirectories
+    all_subdirs = [
+        d for d in os.listdir(parent_dir) if os.path.isdir(os.path.join(parent_dir, d))
+    ]
+
+    # If no specific subdirectories are provided, loop over all
+    subdirs = specific_subdirs if specific_subdirs is not None else all_subdirs
+
+    for subdir in subdirs:
+
+        subdir_path = os.path.join("results", subdir)
+
+        if os.path.isdir(subdir_path):
+            print(f"Entering {subdir_path} and evaluating config {config}...")
+
+            # Define the file pattern
+            file_pattern = f"p{id}_config{config}_*_pytest.py"
+            file_path_pattern = os.path.join(subdir_path, file_pattern)
+
+            # Loop over matching files
+            for file in glob.glob(file_path_pattern):
+                print(f"  Found file: {file}")
+                # Add your file processing logic here
+
+
 if __name__ == "__main__":
     # Search results/i/ for "i_oracle.py" and reorganize into src/oraclei.py and empty tests/
     # organize_results()
@@ -150,9 +172,12 @@ if __name__ == "__main__":
         # "44",
         # "51",
     ]
+
+    config = 1
     # Run coverup (run from eval folder)
     # run_coverup_in_results(specific_subdirs)
     # Example usage
-    modify_test_file(
-        "results/4/test_coverup_1.py", "results/4/4_config1_1.py"
-    )  # Replace with actual test filename and new implementation module
+    evaluate(config, specific_subdirs)
+    # modify_test_file(
+    #     "results/p4/test_coverup_1.py", "results/p4/4_config1_1.py"
+    # )  # Replace with actual test filename and new implementation module
