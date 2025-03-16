@@ -89,7 +89,7 @@ def generate_json_problem(list_problems: dict, id) -> dict:
     if not os.path.exists(f"./results/{id}"):
         os.makedirs(f"./results/{id}")
 
-    with open(f"./results/{id}/{id}_problem.json", "w") as json_file:
+    with open(f"./results/{id}/p{id}_problem.json", "w") as json_file:
         json.dump(details, json_file, indent=4)
 
     # Take a break between GET requests
@@ -104,14 +104,14 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
     for id, name in list_problems.items():
         i += 1
 
-        print(f"Creating {id} {name}.py... {i}/{tot}")
+        print(f"Creating p{id}_config{config}.py... {i}/{tot}")
 
         if not os.path.exists(f"./results/{id}"):
             os.makedirs(f"./results/{id}")
 
         # Retrieve prompt and template code
-        if os.path.exists(f"./results/{id}/{id}_problem.json"):
-            with open(f"./results/{id}/{id}_problem.json", "r") as file:
+        if os.path.exists(f"./results/{id}/p{id}_problem.json"):
+            with open(f"./results/{id}/p{id}_problem.json", "r") as file:
                 details = json.load(file)
         else:
             details = generate_json_problem(list_problems, id)
@@ -192,7 +192,7 @@ def generate_py_problem(list_problems: dict, config: int) -> str:
                 print("Multiple runtime bound match")
 
         # Write full program to id_config#.py
-        with open(f"./results/{id}/{id}_config{config}.py", "w") as target_file:
+        with open(f"./results/{id}/p{id}_config{config}.py", "w") as target_file:
             target_file.write(content)
 
 
@@ -201,43 +201,42 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
         i = 0
 
         # Clear output contents if pre-existing
-        if os.path.exists(f"./results/{id}/{id}_config{config}.out"):
-            open(f"./results/{id}/{id}_config{config}.out", "w").close()
+        if os.path.exists(f"./results/{id}/p{id}_config{config}.out"):
+            open(f"./results/{id}/p{id}_config{config}.out", "w").close()
 
         while i < runs:
             i += 1
             print(
-                f"Running iteration {i} of Pythoness on {id}_config{config}_{i}.py..."
+                f"Running iteration {i} of Pythoness on p{id}_config{config}_{i}.py..."
             )
 
             # Create file for output Python code, replacing it if necessary
-            out_file = f"./results/{id}/{id}_config{config}_{i}.py"
+            out_file = f"./results/{id}/p{id}_config{config}_{i}.py"
             if os.path.exists(out_file):
                 os.remove(out_file)
-            shutil.copy(f"./results/{id}/{id}_config{config}.py", out_file)
+            shutil.copy(f"./results/{id}/p{id}_config{config}.py", out_file)
 
             # Open the file for writing the output
-            with open(f"./results/{id}/{id}_config{config}.out", "a") as file:
+            with open(f"./results/{id}/p{id}_config{config}.out", "a") as file:
                 file.write(
-                    f"\n\nRunning iteration {i} of Pythoness on {id}_config{config}_{i}.py\n\n"
+                    f"\n\nRunning iteration {i} of Pythoness on p{id}_config{config}_{i}.py\n\n"
                 )
                 # Run the process and capture stdout
                 process = subprocess.Popen(
                     [
                         "python3",
-                        f"./results/{id}/{id}_config{config}_{i}.py",
-                    ],  # Replace with your command
+                        f"./results/{id}/p{id}_config{config}_{i}.py",
+                    ],
                     stdout=subprocess.PIPE,  # Capture stdout
-                    stderr=subprocess.PIPE,  # Capture stderr if needed
-                    text=True,  # Ensure output is in text format (not bytes)
+                    stderr=subprocess.PIPE,  # Capture stderr
+                    text=True,
                 )
 
                 # Read and print the output line by line
                 for line in process.stdout:
                     # print(line, end="")  # Print to terminal
-                    file.write(line)  # Write to the file
+                    file.write(line)
 
-                # Wait for the process to finish
                 process.stdout.close()
                 process.wait()
 
@@ -254,8 +253,8 @@ def make_solution(list_problems: dict, config: int) -> dict:
                 llm_code = file.read()
 
             # Only run specific files
-            if os.path.basename(filepath)[:-3] != "3459_config1_1":
-                continue
+            # if os.path.basename(filepath)[:-3] != "3459_config1_1":
+            #     continue
 
             # Check if Pythoness was successful, if not, skip
             if llm_code.find('""""""') != -1:
@@ -335,7 +334,7 @@ def main():
 
     config = 4
     # GET problem -> id_problem.json, id_config#.py
-    generate_py_problem(list_problems, config)
+    # generate_py_problem(list_problems, config)
     # Run Pythoness -> id_config#.out, id_config#_#.py
     # run_pythoness(list_problems.keys(), config, 5)
     # make_solution(list_problems, config)  # -> id_config#.txt

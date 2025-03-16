@@ -1,22 +1,17 @@
 import os
-import re
 
+# Define the parent directory
+parent_dir = "results"
 
-def rename_oracle_files(directory="results"):
-    pattern = re.compile(r"oracle(\d+)\.py")
+# Iterate over all subdirectories in the parent directory
+for subdir in os.listdir(parent_dir):
+    subdir_path = os.path.join(parent_dir, subdir)
 
-    for root, _, files in os.walk(directory):
-        for filename in files:
-            match = pattern.fullmatch(filename)
-            if match:
-                number = match.group(1)
-                new_filename = f"p{number}_oracle.py"
-                old_path = os.path.join(root, filename)
-                new_path = os.path.join(root, new_filename)
+    # Check if the subdirectory name is a number
+    if os.path.isdir(subdir_path) and subdir.isdigit():
+        new_name = f"p{subdir}"
+        new_subdir_path = os.path.join(parent_dir, new_name)
 
-                os.rename(old_path, new_path)
-                print(f"Renamed: {old_path} -> {new_path}")
-
-
-if __name__ == "__main__":
-    rename_oracle_files()
+        # Rename the subdirectory
+        os.rename(subdir_path, new_subdir_path)
+        print(f"Renamed {subdir} to {new_name}")
