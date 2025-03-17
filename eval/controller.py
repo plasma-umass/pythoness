@@ -326,23 +326,23 @@ def main():
     #     "3470": "permutations-iv",
     # }
     list_problems = {
-        "37": "sudoku-solver",
+        # "37": "sudoku-solver",
         # "51": "n-queens",
         # "466": "count-the-repetitions",
         # "552": "student-attendance-record-ii",
         # "850": "rectangle-area-ii",
         # "2872": "maximum-number-of-k-divisible-components",
         # "3197": "find-the-minimum-area-to-cover-all-ones-ii",
-        # "3229": "separate-squares-ii",
+        "3229": "separate-squares-ii",
         # "3448": "count-substrings-divisible-by-last-digit",
         # "3449": "maximize-the-minimum-game-score",
-        # "3454": "separate-squares-ii",  # No repo sol
+        "3454": "separate-squares-ii",  # No repo sol
         # "3455": "shortest-matching-substring",
         # "3459": "length-of-longest-v-shaped-diagonal-segment",
         # "3474": "lexicographically-smallest-generated-string",
     }
 
-    configs = [2]
+    configs = [2, 3, 4]
     for config in configs:
         # GET problem -> p[id]_problem.json, p[id]_config#.py
         generate_py_problem(list_problems, config)
