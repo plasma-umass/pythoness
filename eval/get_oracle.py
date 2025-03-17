@@ -187,7 +187,7 @@ if __name__ == "__main__":
         # "600",
         # "668",
         # "699",
-        "850",
+        # "850",
         # "871",
         # "902",
         # "1416",
@@ -202,6 +202,6 @@ if __name__ == "__main__":
     # Search results/i/ for "i_oracle.py" and reorganize into src/oraclei.py and empty tests/
     # organize_results(specific_subdirs)
     # Run coverup
-    # run_coverup(specific_subdirs)
+    run_coverup(specific_subdirs)
     # Copies pytest files, and modifies and evals each run
-    setup_pytest_and_evaluate(config, specific_subdirs)
+    # setup_pytest_and_evaluate(config, specific_subdirs)
