@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from time import sleep
-from query import get_problem_details
+from setup import generate_py_problem, get_function_name, generate_json_problem
+import assistant
 
 import glob
 import json
@@ -9,31 +9,6 @@ import os
 import re
 import shutil
 import subprocess
-
-
-def extract_examples(text, func_name):
-    pattern = r"Input:\s*(.*?)\nOutput:\s*(.*?)\n(?:Explanation|Example|Constraints)"
-    matches = re.findall(pattern, text, re.DOTALL)
-
-    # Find all matches in the input string
-    results = []
-    for inputs, output in matches:
-        inputs = "".join(line.strip() for line in inputs.splitlines())
-        output = "".join(line.strip() for line in output.splitlines())
-
-        inputs = inputs.strip().replace("false", "False").replace("true", "True")
-        output = output.strip().replace("false", "False").replace("true", "True")
-        results.append(f"{func_name}({inputs}) == {output}")
-
-    return results
-
-
-def get_function_name(code):
-    matches = re.findall(r"\bdef\s+(\w+)", code)  # Finds all function names
-    if matches:
-        return matches[-1]  # Returns the last function name
-    else:
-        return None  # Returns None if no match is found
 
 
 def remove_imports(code):
@@ -86,123 +61,6 @@ def wrap_in_solution_class(code: str, func_name: str) -> str:
             new_code.append("    " + line)  # Indent function body
 
     return "\n".join(import_lines) + "\n\nclass Solution:\n" + "\n".join(new_code)
-
-
-def generate_json_problem(list_problems: dict, id) -> dict:
-    if isinstance(list_problems[id], tuple):
-        name = list_problems[id][0]
-    else:
-        name = list_problems[id]
-
-    # Get problem details, write to json
-    details = get_problem_details(name)
-
-    if not os.path.exists(f"./results/{id}"):
-        os.makedirs(f"./results/{id}")
-
-    with open(f"./results/{id}/p{id}_problem.json", "w") as json_file:
-        json.dump(details, json_file, indent=4)
-
-    # Take a break between GET requests
-    sleep(5)
-
-    return details
-
-
-def generate_py_problem(list_problems: dict, config: int) -> str:
-    i = 0
-    tot = len(list_problems)
-    for id, name in list_problems.items():
-        i += 1
-
-        print(f"Creating p{id}_config{config}.py... {i}/{tot}")
-
-        if not os.path.exists(f"./results/{id}"):
-            os.makedirs(f"./results/{id}")
-
-        # Retrieve prompt and template code
-        if os.path.exists(f"./results/{id}/p{id}_problem.json"):
-            with open(f"./results/{id}/p{id}_problem.json", "r") as file:
-                details = json.load(file)
-        else:
-            details = generate_json_problem(list_problems, id)
-
-        if "difficulty" not in details or "premium" not in details:
-            print("Problem details not found")
-            print(details.keys())
-            return
-
-        if details["difficulty"] != "Hard" or details["premium"]:
-            print(
-                f"Problem is either not Hard or not free. Difficulty: {details['difficulty']}, Premium: {details['premium']}",
-            )
-            return
-        prompt = details["problem_statement"].replace("\xa0", "")
-        template = details["template_code_snippet"]
-
-        if config == 1:
-            template_insert = "\n    llm_unit=False,\n    llm_prop=False,"
-        elif config == 2:
-            template_insert = "\n    llm_prop=False,"
-        elif config == 4:
-            template_insert = "\n    runtime=True,"
-        else:
-            template_insert = ""
-
-        # Overwrite test.py with template code and insert chosen config
-        with open("pythoness_template.txt", "r") as template_file:
-            content = template_file.read()
-
-        content = content.replace("tests=[],", "tests=[]," + template_insert)
-
-        for line in template.splitlines():
-            if line.lstrip().startswith(
-                "def "
-            ):  # Stripping leading spaces to allow for indentation
-                f_def = line.strip()
-        content = (
-            content.replace("def dummy_func():", f_def)
-            .replace("self, ", "")
-            .replace("self", "")
-        )
-
-        # Extract examples as unit tests
-        func_name = get_function_name(template)
-        unittests = extract_examples(prompt, func_name)
-        all_unittests = ", ".join([f"'{i}'" for i in unittests])
-
-        prompt = re.sub(r"\nExample 1.*?(?=\nConstraints)", "", prompt, flags=re.DOTALL)
-        content = re.sub(r"tests=\[\]", f"tests=[{all_unittests}]", content)
-
-        # Remove any Follow-up section
-        index = prompt.find("\nFollow-up:")
-        prompt = prompt[:index].strip() if index != -1 else prompt
-
-        # Insert prompt as func docstring
-        index = content.find('"""')
-        content = content[: index + 3] + prompt.strip() + content[index + 3 :]
-
-        # Replace call to foo
-        content = content.replace(
-            "dummy_func()", unittests[0][: unittests[0].find("==")]
-        )
-
-        # Find all O() mentions
-        pattern = r"O\((?:[^()]*|(?:[^()]*\([^()]*\)))*\)"
-        matches = re.findall(pattern, prompt)
-        if len(matches) > 0:
-            if len(matches) == 1:
-                print("One runtime bound match")
-                content = content.replace(
-                    "time_bound=None,",
-                    f'time_bound="{matches[0]}",\n    range=(),',
-                )
-            else:
-                print("Multiple runtime bound match")
-
-        # Write full program to id_config#.py
-        with open(f"./results/{id}/p{id}_config{config}.py", "w") as target_file:
-            target_file.write(content)
 
 
 def run_pythoness(ids: list, config: int, runs: int) -> None:
@@ -294,6 +152,249 @@ def make_solution(list_problems: dict, config: int) -> dict:
     return
 
 
+def setup_pytest_and_evaluate(config: int, specific_subdirs=None):
+    parent_dir = "results"
+    # Get full paths of all subdirectories
+    all_subdirs = [
+        d for d in os.listdir(parent_dir) if os.path.isdir(os.path.join(parent_dir, d))
+    ]
+
+    # If no specific subdirectories are provided, loop over all
+    subdirs = specific_subdirs if specific_subdirs is not None else all_subdirs
+    for subdir in subdirs:
+
+        subdir_path = os.path.join("results", subdir)
+
+        # Ensure destination directory exists
+        os.makedirs(subdir_path, exist_ok=True)
+        coverup_tests_pattern = f"{subdir_path}/tests/test_coverup_*.py"
+        coverup_test_files = []
+
+        # Make a copy of all coverup files
+        for file_path in glob.glob(coverup_tests_pattern):
+            file_name = os.path.basename(file_path)
+            destination_path = os.path.join(subdir_path, file_name)
+            shutil.copy(file_path, destination_path)
+            print(f"Copied {file_path} to {destination_path}")
+            coverup_test_files.append(destination_path)
+
+        # Iterate over all runs of this config
+        file_pattern = f"p{subdir}_config{config}_*_pytest.py"
+        pytests_pattern = os.path.join(subdir_path, file_pattern)
+        pytests = glob.glob(pytests_pattern)
+
+        # Clear output contents if pre-existing
+        eval_output_file = f"./results/{subdir}/p{subdir}_config{config}_eval.out"
+        if os.path.exists(eval_output_file):
+            open(eval_output_file, "w").close()
+
+        # pytests = ["./results/552/p552_config1_1_pytest.py"]
+
+        for py in pytests:
+
+            for file_to_modify in coverup_test_files:
+                print("Modifying file:", file_to_modify)
+                with open(file_to_modify, "r") as f:
+                    lines = f.readlines()
+
+                # Loop through lines to find the first one starting with "import src"
+                for i, line in enumerate(lines):
+                    # print(f"from src.p{subdir}oracle")
+                    # print(line)
+                    if line.startswith(f"from src.p{subdir}oracle") or line.startswith(
+                        f"from p{subdir}_config{config}_"
+                    ):
+                        # print("Replacing...")
+                        lines[i] = f"from {os.path.basename(py)[:-3]} import Solution\n"
+                        break
+
+                # Write the modified content back to the file
+                with open(file_to_modify, "w") as f:
+                    f.writelines(lines)
+
+                print(f"Evaluating {py}...")
+                with open(
+                    f"./results/{subdir}/p{subdir}_config{config}_eval.out", "a"
+                ) as file:
+                    file.write(
+                        f"\n\nEvaluating Pythoness result {py} on {file_to_modify}\n\n"
+                    )
+                    result = subprocess.run(
+                        ["pytest", file_to_modify],
+                        capture_output=True,
+                        text=True,
+                    )
+                    file.write(result.stdout)
+                    file.write(result.stderr)
+
+
+def _query_inputs(prompt, subdir, test_file_path):
+    print(f"Prompting GPT for unit tests for {subdir}...")
+    client = assistant.Assistant()
+
+    result = client.query(prompt)
+
+    # Get inputs list and write to tests.json file
+    try:
+        inputs_list = json.loads(result)["inputs"]
+
+        data = {"inputs": inputs_list}
+        with open(test_file_path, "w") as json_file:
+            json.dump(data, json_file, indent=4)
+    except (json.JSONDecodeError, KeyError, TypeError) as e:
+        print("Error parsing JSON:", e)
+        with open(test_file_path, "w") as json_file:
+            json_file.write("")
+
+
+def generate_unit_tests(list_problems):
+    specific_subdirs = list_problems.keys()
+    for subdir in specific_subdirs:
+        subdir_path = os.path.join("results", subdir)
+        test_file = f"p{subdir}_tests.json"
+        test_file_path = os.path.join(subdir_path, test_file)
+
+        # Get func_name
+        if os.path.exists(f"./results/{subdir}/p{subdir}_problem.json"):
+            with open(f"./results/{subdir}/p{subdir}_problem.json", "r") as file:
+                details = json.load(file)
+        else:
+            details = generate_json_problem(list_problems, subdir)
+        func_name = get_function_name(details["template_code_definition"])
+
+        with open(os.path.join(subdir_path, f"p{subdir}_prompt_full.txt"), "r") as f:
+            docstring = f.read().strip()
+
+        with open(os.path.join(subdir_path, f"p{subdir}oracle.py"), "r") as f:
+            func = f.read()
+
+        for line in func.splitlines():
+            if line.lstrip().startswith("def "):
+                func = line.strip() + f'\n    """{docstring}"""'
+                break
+
+        # Ask GPT for validation set
+        prompt = (
+            f"""Generate 20 diverse inputs to fuzz-test the following function signature and description:\n\n```\n"""
+            + func
+            + "\n```\n"
+            + """Return the result as a JSON object with the following structure:
+```
+{  
+  "inputs": [  
+    {"arg_name": value1, "arg_name": value2, ...},  
+    {"arg_name": value3, "arg_name": value4, ...},  
+    ... (20 entries)  
+  ]  
+}
+```"""
+        )
+
+        # print(prompt)
+
+        # _query_inputs(prompt, subdir, test_file_path)
+
+        with open(test_file_path, "r") as file:
+            inputs_list = json.load(file)["inputs"]
+
+        print("Running oracle and collecting unit tests...")
+        # Run ground truth and collect results
+        runner = os.path.join(subdir_path, f"p{subdir}oracle_runner.py")
+        with open(runner, "w") as f:
+            f.write(
+                f"""
+from p{subdir}oracle import Solution
+
+inputs_list = {inputs_list}
+
+for i in range(len(inputs_list)):
+    try:
+        print(Solution().shortestMatchingSubstring(**inputs_list[i]))
+    except Exception as e:
+        print("Input failed: ", inputs_list[i], "    Error: ", e)
+"""
+            )
+
+        result = subprocess.run(
+            ["python3", runner],
+            capture_output=True,
+            text=True,
+        )
+
+        data = {"inputs": inputs_list, "outputs": result.stdout.splitlines()}
+
+        # Write the result to the test file
+        print("Writing to file:", test_file)
+        try:
+            with open(test_file_path, "w") as json_file:
+                json.dump(data, json_file, indent=4)
+        except Exception as e:
+            print("Error writing to file:", e)
+
+
+def evaluate_results(specific_subdirs, config):
+
+    for subdir in specific_subdirs:
+
+        subdir_path = os.path.join("results", subdir)
+
+        # Ensure destination directory exists
+        os.makedirs(subdir_path, exist_ok=True)
+        test_file = os.path.join(subdir_path, f"p{subdir}_tests.py")
+
+        if os.path.exists(test_file):
+
+            # Iterate over all runs of this config
+            file_pattern = f"p{subdir}_config{config}_*_pytest.py"
+            pytests_pattern = os.path.join(subdir_path, file_pattern)
+            pytests = glob.glob(pytests_pattern)
+
+            # Clear output contents if pre-existing
+            eval_output_file = f"./results/{subdir}/p{subdir}_config{config}_eval.out"
+            if os.path.exists(eval_output_file):
+                open(eval_output_file, "w").close()
+
+            # pytests = ["./results/552/p552_config1_1_pytest.py"]
+
+            for py in pytests:
+
+                print("Modifying file:", test_file)
+                with open(test_file, "r") as f:
+                    lines = f.readlines()
+
+                # Loop through lines to find the first one starting with "import src"
+                for i, line in enumerate(lines):
+                    # print(f"from src.p{subdir}oracle")
+                    # print(line)
+                    if line.startswith(f"from src.p{subdir}oracle") or line.startswith(
+                        f"from p{subdir}_config{config}_"
+                    ):
+                        # print("Replacing...")
+                        lines[i] = f"from {os.path.basename(py)[:-3]} import Solution\n"
+                        break
+
+                # Write the modified content back to the file
+                with open(test_file, "w") as f:
+                    f.writelines(lines)
+
+                print(f"Evaluating {py}...")
+                with open(
+                    f"./results/{subdir}/p{subdir}_config{config}_eval.out", "a"
+                ) as file:
+                    file.write(
+                        f"\n\nEvaluating Pythoness result {py} on {test_file}\n\n"
+                    )
+                    result = subprocess.run(
+                        ["pytest", test_file],
+                        capture_output=True,
+                        text=True,
+                    )
+                    file.write(result.stdout)
+                    file.write(result.stderr)
+        else:
+            print(f"Tests file not found in {subdir}.")
+
+
 def main():
     # list_problems = {
     #     # "4": "median-of-two-sorted-arrays",
@@ -321,9 +422,12 @@ def main():
     #     # "2334": "subarray-with-elements-greater-than-varying-threshold",
     #     # "3312": "sorted-gcd-pair-queries",
     #     # "3445": "maximum-difference-between-even-and-odd-frequency-ii",
-    #     # "3463": "check-if-digits-are-equal-in-string-after-operations-ii",
-    #     # "3464": "maximize-the-distance-between-points-on-a-square",
-    #     "3470": "permutations-iv",
+    #     # ##################
+    #     # "3410": "maximize-subarray-sum-after-removing-all-occurrences-of-one-element",
+    #     # "3425": "longest-special-path",
+    #     # "3430": "maximum-and-minimum-sums-of-at-most-size-k-subarrays",
+    #     # "3435": "frequencies-of-shortest-supersequences",
+    #     # "3444": "minimum-increments-for-target-multiples-in-an-array",
     # }
     list_problems = {
         # "37": "sudoku-solver",
@@ -333,22 +437,42 @@ def main():
         # "850": "rectangle-area-ii",
         # "2872": "maximum-number-of-k-divisible-components",
         # "3197": "find-the-minimum-area-to-cover-all-ones-ii",
-        "3229": "separate-squares-ii",
+        # "3229": "separate-squares-ii",
         # "3448": "count-substrings-divisible-by-last-digit",
         # "3449": "maximize-the-minimum-game-score",
-        "3454": "separate-squares-ii",  # No repo sol
-        # "3455": "shortest-matching-substring",
+        # "3454": "separate-squares-ii",  # No repo sol
+        "3455": "shortest-matching-substring",
         # "3459": "length-of-longest-v-shaped-diagonal-segment",
+        # "3463": "check-if-digits-are-equal-in-string-after-operations-ii",
+        # "3464": "maximize-the-distance-between-points-on-a-square",
+        # "3470": "permutations-iv",
         # "3474": "lexicographically-smallest-generated-string",
+        # ##################
+        # "3405": "count-the-number-of-arrays-with-k-matching-adjacent-elements",
+        # "3414": "maximum-score-of-non-overlapping-intervals",
+        # "3420": "count-non-decreasing-subarrays-after-k-operations",
+        # "3426": "manhattan-distances-of-all-arrangements-of-pieces",
+        # "3441": "minimum-cost-good-caption",
     }
 
-    configs = [2, 3, 4]
+    # Config 1 - Baseline: Prompt is short as possible, no tests
+    # Config 2 - Some unit tests provided
+    # Config 3 - Some property-based tests provided
+    configs = [1]
+
+    # Get validation set
+    generate_unit_tests(list_problems)
+
     for config in configs:
+        pass
         # GET problem -> p[id]_problem.json, p[id]_config#.py
-        generate_py_problem(list_problems, config)
+        # generate_py_problem(list_problems, config)
+
         # Run Pythoness -> p[id]_config#.out, p[id]_config#_#.py
-        run_pythoness(list_problems.keys(), config, 5)
-        make_solution(list_problems, config)  # -> p[id]_config#_#_pytest.py
+        # run_pythoness(list_problems.keys(), config, 5)
+        # make_solution(list_problems, config)  # -> p[id]_config#_#_pytest.py
+        # Evaluate Results
+        # evaluate_results(list_problems, config)
 
 
 if __name__ == "__main__":

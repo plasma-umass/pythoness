@@ -2,14 +2,13 @@ import pythoness
 from typing import List, Optional
 
 @pythoness.spec(
-    """Given two integers, n and k, an alternating permutation is a permutation of the first n positive integers such that no two adjacent elements are both odd or both even.
-Return the k-th alternating permutation sorted in lexicographical order. If there are fewer than k valid alternating permutations, return an empty list.
- 
-Constraints:
+    """Calculate the k-th lexicographically ordered alternating permutation of the first n positive integers, 
+where no two adjacent elements share the same parity. If fewer than k permutations exist, return an empty list.
 
+Constraints:
 1 <= n <= 100
 1 <= k <= 10^15""",
-    tests=['permute(n = 4, k = 6) == [3,4,1,2]', 'permute(n = 3, k = 2) == [3,2,1]', 'permute(n = 2, k = 3) == []'],
+    tests=[],
     llm_unit=False,
     llm_prop=False,
     regenerate=True,
