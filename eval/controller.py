@@ -6,35 +6,10 @@ import assistant
 import glob
 import json
 import os
+import random
 import re
 import shutil
 import subprocess
-
-
-def remove_imports(code):
-    # Split the multiline string into lines
-    lines = code.splitlines()
-
-    # List to store the resulting lines after removing the imports
-    result_lines = []
-
-    # Flag to determine if we've reached the function definition
-    reached_def = False
-
-    # Loop through each line
-    for line in lines:
-        if reached_def:
-            result_lines.append(line)  # Add all lines after reaching 'def'
-        elif line.strip().startswith(("from", "import")):
-            continue  # Skip the lines starting with 'from' or 'import'
-        elif line.strip().startswith("def "):
-            reached_def = (
-                True  # Stop skipping lines once we reach a function definition
-            )
-            result_lines.append(line)  # Add the function definition itself
-
-    # Join the remaining lines back into a single string
-    return "\n".join(result_lines)
 
 
 def wrap_in_solution_class(code: str, func_name: str) -> str:
@@ -63,7 +38,8 @@ def wrap_in_solution_class(code: str, func_name: str) -> str:
     return "\n".join(import_lines) + "\n\nclass Solution:\n" + "\n".join(new_code)
 
 
-def run_pythoness(ids: list, config: int, runs: int) -> None:
+def run_pythoness(list_problems: list, config: int, runs: int) -> None:
+    ids = list_problems.keys()
     for id in ids:
         i = 0
 
@@ -101,28 +77,13 @@ def run_pythoness(ids: list, config: int, runs: int) -> None:
 
                 # Read and print the output line by line
                 for line in process.stdout:
-                    # print(line, end="")  # Print to terminal
                     file.write(line)
 
                 process.stdout.close()
                 process.wait()
 
-
-def make_solution(list_problems: dict, config: int) -> dict:
-    for id in list_problems.keys():
-
-        pattern = os.path.join(f"./results/{id}/", f"p{id}_config{config}_*.py")
-        all_files = [f for f in glob.glob(pattern) if not f.endswith("_pytest.py")]
-
-        # Loop through all matching files
-        for filepath in all_files:
-
-            with open(filepath, "r") as file:
+            with open(out_file, "r") as file:
                 llm_code = file.read()
-
-            # Only run specific files
-            # if os.path.basename(filepath)[:-3] != "3459_config1_1":
-            #     continue
 
             # Check if Pythoness was successful, if not, skip
             if llm_code.find('""""""') != -1:
@@ -145,87 +106,11 @@ def make_solution(list_problems: dict, config: int) -> dict:
             # Wrap in Solution class (including imports)
             llm_code = wrap_in_solution_class(llm_code, func_name)
 
-            print(f"Writing to {os.path.basename(filepath)[:-3]}_pytest.py...")
-            with open(f"{filepath[:-3]}_pytest.py", "w") as file:
+            print(
+                f"Writing corrected Pythoness code to {os.path.basename(out_file)}..."
+            )
+            with open(f"{out_file}", "w") as file:
                 file.write(llm_code)
-
-    return
-
-
-def setup_pytest_and_evaluate(config: int, specific_subdirs=None):
-    parent_dir = "results"
-    # Get full paths of all subdirectories
-    all_subdirs = [
-        d for d in os.listdir(parent_dir) if os.path.isdir(os.path.join(parent_dir, d))
-    ]
-
-    # If no specific subdirectories are provided, loop over all
-    subdirs = specific_subdirs if specific_subdirs is not None else all_subdirs
-    for subdir in subdirs:
-
-        subdir_path = os.path.join("results", subdir)
-
-        # Ensure destination directory exists
-        os.makedirs(subdir_path, exist_ok=True)
-        coverup_tests_pattern = f"{subdir_path}/tests/test_coverup_*.py"
-        coverup_test_files = []
-
-        # Make a copy of all coverup files
-        for file_path in glob.glob(coverup_tests_pattern):
-            file_name = os.path.basename(file_path)
-            destination_path = os.path.join(subdir_path, file_name)
-            shutil.copy(file_path, destination_path)
-            print(f"Copied {file_path} to {destination_path}")
-            coverup_test_files.append(destination_path)
-
-        # Iterate over all runs of this config
-        file_pattern = f"p{subdir}_config{config}_*_pytest.py"
-        pytests_pattern = os.path.join(subdir_path, file_pattern)
-        pytests = glob.glob(pytests_pattern)
-
-        # Clear output contents if pre-existing
-        eval_output_file = f"./results/{subdir}/p{subdir}_config{config}_eval.out"
-        if os.path.exists(eval_output_file):
-            open(eval_output_file, "w").close()
-
-        # pytests = ["./results/552/p552_config1_1_pytest.py"]
-
-        for py in pytests:
-
-            for file_to_modify in coverup_test_files:
-                print("Modifying file:", file_to_modify)
-                with open(file_to_modify, "r") as f:
-                    lines = f.readlines()
-
-                # Loop through lines to find the first one starting with "import src"
-                for i, line in enumerate(lines):
-                    # print(f"from src.p{subdir}oracle")
-                    # print(line)
-                    if line.startswith(f"from src.p{subdir}oracle") or line.startswith(
-                        f"from p{subdir}_config{config}_"
-                    ):
-                        # print("Replacing...")
-                        lines[i] = f"from {os.path.basename(py)[:-3]} import Solution\n"
-                        break
-
-                # Write the modified content back to the file
-                with open(file_to_modify, "w") as f:
-                    f.writelines(lines)
-
-                print(f"Evaluating {py}...")
-                with open(
-                    f"./results/{subdir}/p{subdir}_config{config}_eval.out", "a"
-                ) as file:
-                    file.write(
-                        f"\n\nEvaluating Pythoness result {py} on {file_to_modify}\n\n"
-                    )
-                    result = subprocess.run(
-                        ["pytest", file_to_modify],
-                        capture_output=True,
-                        text=True,
-                    )
-                    file.write(result.stdout)
-                    file.write(result.stderr)
 
 
 def _query_inputs(prompt, subdir, test_file_path):
@@ -292,7 +177,7 @@ def generate_unit_tests(list_problems):
 
         # print(prompt)
 
-        # _query_inputs(prompt, subdir, test_file_path)
+        _query_inputs(prompt, subdir, test_file_path)
 
         with open(test_file_path, "r") as file:
             inputs_list = json.load(file)["inputs"]
@@ -330,6 +215,33 @@ for i in range(len(inputs_list)):
                 json.dump(data, json_file, indent=4)
         except Exception as e:
             print("Error writing to file:", e)
+
+
+def separate_gen_and_valid_tests(list_problems):
+    specific_subdirs = list_problems.keys()
+    for subdir in specific_subdirs:
+        subdir_path = os.path.join("results", subdir)
+        test_file = f"p{subdir}_tests.json"
+        test_file_path = os.path.join(subdir_path, test_file)
+
+        with open(test_file_path, "r") as file:
+            data = json.load(file)
+
+        numbers = list(range(20))
+
+        # Shuffle the list to randomize the order
+        random.shuffle(numbers)
+
+        # Split the list into two lists of size 10 each
+        list1 = numbers[:10]
+        list2 = numbers[10:]
+
+        # Create a dictionary with the two lists as values
+        data["generation"] = list1
+        data["validation"] = list2
+
+        with open(test_file_path, "w") as json_file:
+            json.dump(data, json_file, indent=4)
 
 
 def evaluate_results(specific_subdirs, config):
@@ -456,21 +368,20 @@ def main():
     }
 
     # Config 1 - Baseline: Prompt is short as possible, no tests
-    # Config 2 - Some unit tests provided
-    # Config 3 - Some property-based tests provided
+    # Config 2 - Half unit tests provided
+    # Config 3 - Pythoness allowed to LLM-generate property-based tests
     configs = [1]
 
     # Get validation set
-    generate_unit_tests(list_problems)
+    # generate_unit_tests(list_problems)
+    # separate_gen_and_valid_tests(list_problems)
 
     for config in configs:
         pass
         # GET problem -> p[id]_problem.json, p[id]_config#.py
         # generate_py_problem(list_problems, config)
-
         # Run Pythoness -> p[id]_config#.out, p[id]_config#_#.py
-        # run_pythoness(list_problems.keys(), config, 5)
-        # make_solution(list_problems, config)  # -> p[id]_config#_#_pytest.py
+        run_pythoness(list_problems, config, 5)
         # Evaluate Results
         # evaluate_results(list_problems, config)
 
