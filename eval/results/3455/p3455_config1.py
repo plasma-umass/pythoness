@@ -2,9 +2,7 @@ import pythoness
 from typing import List, Optional
 
 @pythoness.spec(
-    """Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.""",
+    """Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.""",
     tests=[],
     llm_unit=False,
     llm_prop=False,
@@ -17,4 +15,4 @@ Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only low
 def shortestMatchingSubstring(s: str, p: str) -> int:
     """"""
 
-shortestMatchingSubstring(s = "abaacbaecebce", p = "ba*c*ce") 
+shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) 

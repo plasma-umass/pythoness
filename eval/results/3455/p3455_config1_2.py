@@ -4,32 +4,25 @@ from typing import List, Optional
 class Solution:
     
     def shortestMatchingSubstring(self, s: str, p: str) -> int:
-        """
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-    
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
-        """
-        # Split the pattern `p` on '*' characters.
-        parts = p.split('*')
-        if len(parts) != 3:
+        """Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid."""
+        if p.count('*') != 2:
             return -1
-        (left, middle, right) = parts
-        # Initialize variables.
-        min_length = float('inf')
-        left_len = len(left)
-        right_len = len(right)
-        # Check all possible substrings in `s`.
-        for i in range(len(s)):
-            if s[i:i + left_len] == left:
-                # Find the starting index after the left part.
-                start = i + left_len
-                # Look for `right` starting from `start` position.
-                for j in range(start, len(s) + 1):
-                    # If `right` is matched, check the middle part in between.
-                    if s[j:j + right_len] == right:
-                        if middle in s[start:j]:
-                            # Update the minimum length.
-                            min_length = min(min_length, j + right_len - i)
-                        break
-        # Return the result.
-        return min_length if min_length != float('inf') else -1
+        # Split the pattern p by the '*' characters
+        parts = p.split('*')
+        # Define a function to check if a given substring matches the pattern
+    
+        def matches(sub: str) -> bool:
+            # Attempt to match the start, middle, and end of the pattern to the substring
+            # If the total length of parts exceeds the substring length, matching is impossible.
+            if len(parts[0]) + len(parts[1]) + len(parts[2]) > len(sub):
+                return False
+            return sub.startswith(parts[0]) and sub.endswith(parts[2]) and (parts[1] in sub[len(parts[0]):len(sub) - len(parts[2])])
+        # Initialize the length for shortest matching substring
+        shortest_length = len(s) + 1
+        # Iterate over all possible substrings of s
+        for start in range(len(s)):
+            for end in range(start, len(s) + 1):
+                substring = s[start:end]
+                if matches(substring):
+                    shortest_length = min(shortest_length, end - start)
+        return shortest_length if shortest_length <= len(s) else -1

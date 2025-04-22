@@ -2,11 +2,7 @@ import pythoness
 from typing import List, Optional
 
 @pythoness.spec(
-    """Repeatedly transform the string `s` by replacing each pair of consecutive digits 
-with their sum modulo 10, reducing `s` to two digits. Return true if the final 
-two digits are the same, otherwise return false.
-
-Constraints: 3 <= s.length <= 10^5; `s` consists only of digits.""",
+    """Process a string of digits by repeatedly replacing it with a sequence of the sum of each pair of consecutive digits modulo 10 until only two digits remain. Return True if the final two digits are the same, otherwise return False. The input string has a length between 3 and 100,000 digits and consists solely of digits.""",
     tests=[],
     llm_unit=False,
     llm_prop=False,
@@ -19,4 +15,4 @@ Constraints: 3 <= s.length <= 10^5; `s` consists only of digits.""",
 def hasSameDigits(s: str) -> bool:
     """"""
 
-hasSameDigits(s = "3902") 
+hasSameDigits(**{'s': '1234567890'}) 

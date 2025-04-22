@@ -1,5 +1,5 @@
-import math
 import collections
+import math
 
 
 class Solution:

@@ -2,12 +2,9 @@ import pythoness
 from typing import List, Optional
 
 @pythoness.spec(
-    """Calculate the k-th lexicographically ordered alternating permutation of the first n positive integers, 
-where no two adjacent elements share the same parity. If fewer than k permutations exist, return an empty list.
-
-Constraints:
-1 <= n <= 100
-1 <= k <= 10^15""",
+    """Returns the k-th lexicographically sorted alternating permutation of the first n positive integers.
+An alternating permutation ensures no two adjacent elements are both odd or both even.
+If fewer than k valid permutations exist, returns an empty list.""",
     tests=[],
     llm_unit=False,
     llm_prop=False,
@@ -20,4 +17,4 @@ Constraints:
 def permute(n: int, k: int) -> List[int]:
     """"""
 
-permute(n = 4, k = 6) 
+permute(n=5, k=10) 

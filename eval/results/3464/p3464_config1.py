@@ -15,4 +15,4 @@ from typing import List, Optional
 def maxDistance(side: int, points: List[List[int]], k: int) -> int:
     """"""
 
-maxDistance(side = 2, points = [[0,2],[2,0],[2,2],[0,0]], k = 4) 
+maxDistance(**{'side': 1, 'points': [[0, 0], [0, 1], [1, 0], [1, 1]], 'k': 4}) 

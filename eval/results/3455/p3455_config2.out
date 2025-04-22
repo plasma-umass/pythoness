@@ -1,0 +1,1424 @@
+
+
+Running iteration 1 of Pythoness on p3455_config2_1.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          def matches_pattern(sub: str, p: str) -> bool:
+              # This helper function checks if a given substring matches the pattern.
+              # Since the problem guarantees exactly two '*', we need to check that.
+              parts = p.split('*')
+              first, middle, last = parts[0], parts[1], parts[2]
+
+              # Check if the substring follows the pattern structure
+              if not sub.startswith(first):
+                  return False
+
+              # Remove the head matching the first pattern
+              sub = sub[len(first):]
+
+              # Find middle pattern in sub
+              middle_index = sub.find(middle)
+              if middle_index == -1:
+                  return False
+
+              # Remove till the found middle
+              sub = sub[middle_index+len(middle):]
+
+              # Check for the last part of pattern
+              if not sub.endswith(last):
+                  return False
+
+              return True
+
+          min_length = float('inf')
+
+          # Use two pointers to find the correct window
+          for i in range(len(s)):
+              for j in range(i, len(s)):
+                  sub = s[i:j+1]
+                  if matches_pattern(sub, p):
+                      min_length = min(min_length, len(sub))
+
+          return min_length if min_length != float('inf') else -1
+      ]
+    [6022 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('abcde', 'a*e*') == 5", "assert shortestMatchingSubstring('abcdefghijkl', '*f*j') == 6", "assert shortestMatchingSubstring('helloworld', 'h*d') == 10", "assert shortestMatchingSubstring('foobar', '*o*b*') == 3", "assert shortestMatchingSubstring('abcdefg', '*g*h') == -1", "assert shortestMatchingSubstring('mississippi', 'm*p*') == 11", "assert shortestMatchingSubstring('123456789', '*4*7') == 4", "assert shortestMatchingSubstring('ababababab', '*a*b*b*') == 4"]]
+    [1758 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 7.780690670013428]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+    
+          # Split the pattern `p` into three parts based on '*'
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1  # Invalid pattern if there aren't two '*'
+
+          prefix, infix, suffix = parts
+
+          min_len = float('inf')
+
+          for i in range(len(s) + 1):
+              if s[i:].startswith(prefix):
+                  for j in range(i + len(prefix), len(s) + 1):
+                      if s[j:].startswith(suffix):
+                          # Check the infix pattern
+                          if infix in s[i + len(prefix):j]:
+                              min_len = min(min_len, j + len(suffix) - i)
+
+          return min_len if min_len != float('inf') else -1
+      ]
+    [2644 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('hello', 'h*o*') == 5", "assert shortestMatchingSubstring('abcdefgh', '*e*h') == 5", "assert shortestMatchingSubstring('1234567890', '1*5*0') == 10", "assert shortestMatchingSubstring('mississippi', 'mis*is*') == 8", "assert shortestMatchingSubstring('abracadabra', '*bra*ra') == 6", "assert shortestMatchingSubstring('pythonic', 'p*c*nic') == 8", "assert shortestMatchingSubstring('patternmatch', '*tch*pa') == -1", "assert shortestMatchingSubstring('onlytwostar', '*two*') == -1", "assert shortestMatchingSubstring('startend', '*t*d') == 6"]]
+    [2561 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 1 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 20.766948223114014]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+    
+          # Split the pattern into segments around the '*' (wildcards)
+          segments = p.split('*')
+          if len(segments) != 3:
+              return -1  # pattern must include exactly two '*'
+
+          prefix, middle, suffix = segments
+
+          min_len = float('inf')
+
+          # Iterate over start indices of the string s
+          for start in range(len(s)):
+              # Check if the prefix can match
+              if s[start:].startswith(prefix):
+                  # Find the starting point after the prefix
+                  sub_start = start + len(prefix)
+                  # Find the earliest occurrence of middle pattern
+                  middle_start = s.find(middle, sub_start)
+                  if middle_start != -1:
+                      # Find the starting point after the middle pattern
+                      sub_end_start = middle_start + len(middle)
+                      # Check if suffix matches
+                      suffix_start = s.find(suffix, sub_end_start)
+                      if suffix_start != -1:
+                          # Calculate the length of the substring
+                          substring_length = suffix_start + len(suffix) - start
+                          min_len = min(min_len, substring_length)
+
+          return min_len if min_len != float('inf') else -1
+      ]
+    [3495 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring(**{'s': 'abcde', 'p': '*c*'}) == '1'", "assert shortestMatchingSubstring(**{'s': 'abababababab', 'p': 'a*b*'}) == '2'", "assert shortestMatchingSubstring(**{'s': 'zzzyzzzx', 'p': 'z*y*z'}) == '4'", "assert shortestMatchingSubstring(**{'s': 'abcdefg', 'p': '*fg*'}) == '2'", "assert shortestMatchingSubstring(**{'s': 'banana', 'p': '*an*'}) == '2'", "assert shortestMatchingSubstring(**{'s': 'aaaaaaaaa', 'p': '*a*a'}) == '2'", "assert shortestMatchingSubstring(**{'s': 'programming', 'p': 'prog*a*g'}) == '10'", "assert shortestMatchingSubstring(**{'s': 'whereisthesystem', 'p': 'w*s*m'}) == '17'"]]
+    [965 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 38.2137451171875]]
+  [17497 ms]
+[17498 ms]
+
+
+Running iteration 2 of Pythoness on p3455_config2_2.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1  # Malformed pattern as it should split into exactly three parts
+          prefix, middle, suffix = parts
+          min_length = float('inf')
+          found = False
+          n = len(s)
+
+          for start in range(n):
+              if not s.startswith(prefix, start):
+                  continue
+              end = start + len(prefix)
+              # search for middle pattern
+              mid_start = s.find(middle, end)
+              if mid_start == -1:
+                  continue
+              mid_end = mid_start + len(middle)
+              # search for suffix pattern
+              suf_start = s.find(suffix, mid_end)
+              if suf_start == -1:
+                  continue
+              suf_end = suf_start + len(suffix)
+              # Calculate the length of the matching substring
+              total_length = suf_end - start
+              found = True
+              min_length = min(min_length, total_length)
+
+          return min_length if found else -1
+      ]
+    [3989 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('zaccdz', 'z*d*z') == 5", "assert shortestMatchingSubstring('mississippi', 'm*i*') == 11", "assert shortestMatchingSubstring('hello', 'h*l*o') == 5", "assert shortestMatchingSubstring('substring', '*sub*ng') == 9", "assert shortestMatchingSubstring('abcdefgh', 'a*f*h') == 8", "assert shortestMatchingSubstring('prefixsuffix', 'pre*z*ix') == 12", "assert shortestMatchingSubstring('nopatternhere', 'n*e*r*') == -1", "assert shortestMatchingSubstring('twostarpattern', '*s*r*t*') == 12"]]
+    [2289 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 6.278571367263794]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1  # Pattern should split into exactly three parts
+          prefix, middle, suffix = parts
+
+          min_length = float('inf')
+          n = len(s)
+          start = 0
+
+          while start <= n:
+              # Match prefix
+              if not (prefix == '' or s.startswith(prefix, start)):
+                  start += 1
+                  continue
+
+              # Move to end of prefix
+              end = start + len(prefix)
+
+              # Match middle
+              mid_start = s.find(middle, end)
+              if mid_start == -1:
+                  start += 1
+                  continue
+
+              # Move to end of middle
+              mid_end = mid_start + len(middle)
+
+              # Match suffix
+              suf_start = s.find(suffix, mid_end)
+              if suf_start == -1:
+                  start += 1
+                  continue
+
+              # Calculate total length
+              total_length = suf_start + len(suffix) - start
+
+              # Update minimum length
+              if total_length < min_length:
+                  min_length = total_length
+
+              # Try next position
+              start += 1
+
+          return min_length if min_length != float('inf') else -1
+      ]
+    [3199 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('abcdef', '*d*') == 1", "assert shortestMatchingSubstring('abcdefgh', '*f*g*') == 3", "assert shortestMatchingSubstring('patterninthisstring', 'p*n*g') == 18", "assert shortestMatchingSubstring('mississippi', '*sip*') == 3", "assert shortestMatchingSubstring('lookforthepattern', '*for*') == 4", "assert shortestMatchingSubstring('uniquechars', '*u*e*') == -1", "assert shortestMatchingSubstring('abababababab', 'a*b*b') == 4", "assert shortestMatchingSubstring('xyzabcxyz', '*a*c*') == 5", "assert shortestMatchingSubstring('concatenate', '*c*t*e') == 6", "assert shortestMatchingSubstring('randomstringtest', 'r*n*t') == 14"]]
+    [2273 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 18.029869318008423]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1  # Pattern should split into exactly three parts
+    
+          prefix, middle, suffix = parts
+          min_length = float('inf')
+          found = False
+
+          n = len(s)
+          # Iterate over each possible starting position for prefix
+          for start in range(n + 1):
+              # Check if prefix matches
+              if not s.startswith(prefix, start) and prefix != '':
+                  continue
+              end = start + len(prefix)
+              # Find middle starting from 'end'
+              mid_start = s.find(middle, end)
+              if mid_start == -1:
+                  continue
+              mid_end = mid_start + len(middle)
+              # Find the suffix starting from 'mid_end'
+              suf_start = s.find(suffix, mid_end)
+              if suf_start == -1:
+                  continue
+              # Calculate length
+              total_length = suf_start + len(suffix) - start
+              found = True
+              min_length = min(min_length, total_length)
+
+          return min_length if found else -1
+      ]
+    [2716 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('abcdef', '*b*') == 1", "assert shortestMatchingSubstring('abcde', 'a*e') == 5", "assert shortestMatchingSubstring('abcabcabc', 'a*b*') == 3", "assert shortestMatchingSubstring('abcd', '*x*') == -1", "assert shortestMatchingSubstring('abacabadabacabae', 'a*b*e') == 16", "assert shortestMatchingSubstring('hello', 'h*o') == 5", "assert shortestMatchingSubstring('nmannik', 'n*k') == 6", "assert shortestMatchingSubstring('thisisatest', '*s*a*') == 12", "assert shortestMatchingSubstring('testing123', 't*3') == 10", "assert shortestMatchingSubstring('zyxwvuts', 'z*s') == 8"]]
+    [1962 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 34.45873999595642]]
+  [16475 ms]
+[16476 ms]
+
+
+Running iteration 3 of Pythoness on p3455_config2_3.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          n = len(s)
+          m = len(p)
+          if p.count('*') != 2:
+              return -1
+
+          # Split pattern by '*' for matching
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1
+
+          start_part, middle_part, end_part = parts
+          min_len = float('inf')
+
+          # Traverse through each valid combination of start and end parts
+          for i in range(n + 1):
+              for j in range(i, n + 1):
+                  # Check the corresponding substrings
+                  prefix = s[:i]
+                  suffix = s[j:]
+                  middle = s[i:j]
+
+                  # Attempt to match pattern parts
+                  if (prefix.endswith(start_part) and 
+                      suffix.startswith(end_part) and 
+                      middle_part in middle):
+                      min_len = min(min_len, j)
+
+          return min_len if min_len != float('inf') else -1
+      ]
+    [3219 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring(**{'s': 'mississippi', 'p': 'm*i*i'}) == 7", "assert shortestMatchingSubstring(**{'s': '', 'p': '*a*b*'}) == -1", "assert shortestMatchingSubstring(**{'s': 'hello', 'p': 'h*o'}) == 5", "assert shortestMatchingSubstring(**{'s': 'applepie', 'p': 'a*e'}) == 8", "assert shortestMatchingSubstring(**{'s': 'basketball', 'p': 'b*l'}) == 10", "assert shortestMatchingSubstring(**{'s': 'abcdef', 'p': 'a*f*g'}) == -1", "assert shortestMatchingSubstring(**{'s': 'codingchallenge', 'p': 'c*g*e'}) == 15", "assert shortestMatchingSubstring(**{'s': 'mountain', 'p': 'm*n'}) == 8", "assert shortestMatchingSubstring(**{'s': 'abracadabra', 'p': 'a*a*a'}) == 6"]]
+    [773 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 3.992429256439209]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          n = len(s)
+          if p.count('*') != 2:
+              return -1
+
+          # Split pattern by '*'
+          first, second, third = p.split('*')
+
+          # Initialize variables to track the shortest matching substring
+          min_len = float('inf')
+          found = False
+
+          # Iterate through all possible starting points
+          for i in range(n):
+              if s[i:].startswith(first):
+                  # Iterate through possible ending points
+                  for j in range(i + len(first), n + 1):
+                      if s[:j].endswith(third) and second in s[i + len(first):j - len(third)]:
+                          found = True
+                          min_len = min(min_len, j - i)
+
+          return min_len if found else -1
+      ]
+    [2786 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring(s='hello', p='*e*o') == 3", "assert shortestMatchingSubstring(s='mississippi', p='m*s*ppi') == 10", "assert shortestMatchingSubstring(s='abcdef', p='a*f*') == 6", "assert shortestMatchingSubstring(s='abcdefgh', p='*b*e*') == 4", "assert shortestMatchingSubstring(s='xyxyxyx', p='*y*y*') == 2"]]
+    [1331 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 12.102153778076172]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          if p.count('*') != 2:
+              return -1
+
+          # Split pattern at '*'
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1
+
+          start, middle, end = parts
+          n = len(s)
+          min_length = float('inf')
+          found = False
+
+          # Try to find the shortest substring matching the pattern
+          for i in range(n):
+              # Ensure the substring from current index can start with the pattern's start part
+              if s[i:].startswith(start):
+                  for j in range(i + len(start), n + 1):
+                      # Ensure we can end with the pattern's end part
+                      if s[j - len(end):j] == end:
+                          # Check if middle part found in between
+                          if middle in s[i + len(start):j - len(end)]:
+                              found = True
+                              min_length = min(min_length, j - i)
+
+          return min_length if found else -1
+      ]
+    [2645 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring(**{'s': 'abcdef', 'p': '*d*f'}) == 4", "assert shortestMatchingSubstring(**{'s': 'bbacbacb', 'p': 'b*a*b*'}) == 6", "assert shortestMatchingSubstring(**{'s': 'abracadabra', 'p': 'ab*r*'}) == 4", "assert shortestMatchingSubstring(**{'s': 'mississippi', 'p': 'mi*ip*'}) == 10", "assert shortestMatchingSubstring(**{'s': 'openai', 'p': '*p*n*'}) == 4", "assert shortestMatchingSubstring(**{'s': 'teststring', 'p': '*s*in*'}) == 6", "assert shortestMatchingSubstring(**{'s': 'patternmatching', 'p': 'pa*in*g'}) == 16", "assert shortestMatchingSubstring(**{'s': 'shortestsub', 'p': 'sh*ub'}) == 10", "assert shortestMatchingSubstring(**{'s': 'complexity', 'p': '*p*x*'}) == 6", "assert shortestMatchingSubstring(**{'s': 'identical', 'p': '*i*l'}) == 4"]]
+    [2897 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 25.754512786865234]]
+  [13717 ms]
+[13719 ms]
+
+
+Running iteration 4 of Pythoness on p3455_config2_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          # Find positions of '*' in the pattern
+          try:
+              first_star_idx = p.index('*')
+              second_star_idx = p.index('*', first_star_idx + 1)
+          except ValueError:
+              return -1
+
+          # Extract the subpatterns around '*'
+          first_part = p[:first_star_idx]
+          middle_part = p[first_star_idx + 1:second_star_idx]
+          last_part = p[second_star_idx + 1:]
+
+          min_length = float('inf')
+          found = False
+
+          # Iterate over the string s
+          for i in range(len(s)):
+              # Check if the first part matches
+              if s.startswith(first_part, i):
+                  # Find start position for the middle part
+                  start_middle = i + len(first_part)
+                  if start_middle > len(s):
+                      continue
+
+                  # Search for middle part
+                  mid_pos = s.find(middle_part, start_middle)
+                  while mid_pos != -1:
+                      # Find start position for the last part
+                      start_last = mid_pos + len(middle_part)
+                      if start_last > len(s):
+                          break
+
+                      # Check if the last part matches
+                      if s.startswith(last_part, start_last):
+                          # Calculate the length of the matching substring
+                          end_last = start_last + len(last_part)
+                          current_length = end_last - i
+                          min_length = min(min_length, current_length)
+                          found = True
+
+                      # Move to the next occurrence of middle_part
+                      mid_pos = s.find(middle_part, mid_pos + 1)
+
+          return min_length if found else -1
+      ]
+    [7027 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('hello', '*e*o') == 4", "assert shortestMatchingSubstring('patternmatch', 'p*t*h') == 12", "assert shortestMatchingSubstring('abcdefgh', '*d*g*') == 3", "assert shortestMatchingSubstring('simpletest', 's*e*t') == 8", "assert shortestMatchingSubstring('findthesubstring', 'f*g') == 17", "assert shortestMatchingSubstring('twostar', 't*a*r') == 7", "assert shortestMatchingSubstring('tryout', '*r*o*') == 4"]]
+    [1915 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 8.942785024642944]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+          import re
+
+          # Escape the patterns for regex and replace '*' with '.*' to match any sequence
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1
+
+          # The regex pattern, ensuring non-greedy matching by using '.*?' for the stars
+          pattern = re.compile(re.escape(parts[0]) + '.*?' + re.escape(parts[1]) + '.*?' + re.escape(parts[2]))
+
+          matches = [match for match in re.finditer(pattern, s)]
+
+          if not matches:
+              return -1
+
+          # Find the minimum length among all matches
+          min_length = min(len(match.group(0)) for match in matches)
+
+          return min_length]
+    [3003 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('abcdabc', 'a*c') == 3", "assert shortestMatchingSubstring('hello', 'h*o') == 5", "assert shortestMatchingSubstring('mississippi', 'mi*si') == 7", "assert shortestMatchingSubstring('abracadabra', '*cad*') == 5", "assert shortestMatchingSubstring('patternmatching', 'p*n*g') == 16", "assert shortestMatchingSubstring('frontback', 'f*k') == 9", "assert shortestMatchingSubstring('thisisatest', 't*t') == 10", "assert shortestMatchingSubstring('longestsubstring', 'l*g*g') == 16", "assert shortestMatchingSubstring('substring', 'sub*ing') == 9", "assert shortestMatchingSubstring('nocharneeded', '*no*') == 2"]]
+    [2450 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 2 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 23.339624643325806]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+          """
+
+          # Split the pattern by '*'
+          parts = p.split('*')
+
+          if len(parts) != 3:
+              return -1
+
+          part1, part2, part3 = parts
+          min_length = float('inf')
+          found = False
+
+          # Iterate through each possible start of the match
+          for start in range(len(s) - len(part1) - len(part3) + 1):
+              if s.startswith(part1, start):
+                  # Find the position of part2 after part1
+                  pos2_start = start + len(part1)
+                  pos2 = s.find(part2, pos2_start)
+                  while pos2 != -1:
+                      # The position for part3 should be after part2
+                      pos3_start = pos2 + len(part2)
+                      if s.startswith(part3, pos3_start):
+                          # Calculate the current matching substring length
+                          current_length = pos3_start + len(part3) - start
+                          min_length = min(min_length, current_length)
+                          found = True
+                      # Find the next occurrence of part2
+                      pos2 = s.find(part2, pos2 + 1)
+
+          return min_length if found else -1
+      ]
+    [2554 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring(**{'s': 'abc', 'p': 'a*c'}) == 3", "assert shortestMatchingSubstring(**{'s': '', 'p': '*a*'}) == -1", "assert shortestMatchingSubstring(**{'s': 'abcdabcd', 'p': 'a*d'}) == 4", "assert shortestMatchingSubstring(**{'s': 'fizzbuzz', 'p': 'f*z*z'}) == 8", "assert shortestMatchingSubstring(**{'s': 'mississippi', 'p': '*issi*'}) == 3", "assert shortestMatchingSubstring(**{'s': 'unittesting', 'p': 'u*g'}) == 11", "assert shortestMatchingSubstring(**{'s': 'python', 'p': '*t*o'}) == 3", "assert shortestMatchingSubstring(**{'s': 'wildcard', 'p': 'w*d'}) == 5", "assert shortestMatchingSubstring(**{'s': 'example', 'p': '*x*le'}) == 4"]]
+    [2680 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 42.97016644477844]]
+  [19683 ms]
+[19685 ms]
+
+
+Running iteration 5 of Pythoness on p3455_config2_5.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named shortestMatchingSubstring that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'
+        shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'
+        shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'
+        shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'
+        shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'
+        shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'
+        shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'
+        shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def shortestMatchingSubstring(s: str, p: str) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, 
+          where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. 
+          Return the length of the shortest matching substring or -1 if no such substring exists. 
+          The empty substring is considered valid.
+          """
+          import re
+
+          # Split pattern by '*'
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1  # Invalid pattern (should have exactly two '*')
+          prefix, middle, suffix = parts
+
+          # Create a regex pattern from the parts
+          regex_pattern = re.escape(prefix) + '.*' + re.escape(middle) + '.*' + re.escape(suffix)
+
+          # Find all matches
+          matches = [match for match in re.finditer(regex_pattern, s)]
+
+          if not matches:
+              return -1
+
+          # Find shortest match
+          shortest = min(matches, key=lambda x: x.end() - x.start())
+
+          # Return the length of the shortest matching substring
+          return shortest.end() - shortest.start()]
+    [4091 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring(**{'s': 'mississippi', 'p': 'm*i*i'}) == 4", "assert shortestMatchingSubstring(**{'s': 'hellohelloworld', 'p': 'h*d'}) == 14", "assert shortestMatchingSubstring(**{'s': 'hooray', 'p': 'h*r*'}) == 5", "assert shortestMatchingSubstring(**{'s': 'missile', 'p': '*s*'}) == 2", "assert shortestMatchingSubstring(**{'s': 'pineapple', 'p': '*n*p*'}) == 6", "assert shortestMatchingSubstring(**{'s': 'playground', 'p': 'p*d'}) == 10"]]
+    [1900 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 5.990915298461914]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, 
+          where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. 
+          Return the length of the shortest matching substring, or -1 if no such substring exists. 
+          The empty substring is considered valid.
+          """
+          # Split pattern by '*'
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1  # Invalid pattern (should have exactly two '*')
+    
+          prefix, middle, suffix = parts
+
+          # Function to find all starting points for a given pattern part and direction
+          def find_starts(s, part, reverse=False):
+              starts = []
+              start = 0
+              while start < len(s):
+                  idx = (s if not reverse else s[::-1]).find(part, start)
+                  if idx == -1:
+                      break
+                  starts.append(idx if not reverse else len(s) - 1 - idx - len(part) + 1)
+                  start = idx + 1
+              return starts
+
+          # Find possible start and end positions for prefix and suffix
+          prefix_starts = find_starts(s, prefix)
+          suffix_ends = find_starts(s, suffix[::-1], reverse=True)
+
+          if not prefix_starts or not suffix_ends:
+              return -1
+
+          # Try to establish the shortest length
+          min_length = float('inf')
+          for start in prefix_starts:
+              for end in suffix_ends:
+                  if start <= end and middle in s[start:end + len(suffix)]:
+                      min_length = min(min_length, end + len(suffix) - start)
+
+          return min_length if min_length != float('inf') else -1]
+    [5008 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('banana', 'b*n*a') == 3", "assert shortestMatchingSubstring('hellopatternmatching', '*n*m*') == 9", "assert shortestMatchingSubstring('abcdefghi', '*f*g*') == 3", "assert shortestMatchingSubstring('mississippi', 'm*i*ppi') == 7", "assert shortestMatchingSubstring('challenge', 'c*n*e') == 7", "assert shortestMatchingSubstring('findingpatterns', 'f*n*') == 6", "assert shortestMatchingSubstring('abcd', '*m*') == -1", "assert shortestMatchingSubstring('abracadabra', 'a*a*ra') == 11", "assert shortestMatchingSubstring('xyzabcxyz', 'x*z*b') == 7"]]
+    [2330 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 19.32014799118042]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def shortestMatchingSubstring(s: str, p: str) -> int:
+          """
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`,
+          where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters.
+          Return the length of the shortest matching substring or -1 if no such substring exists.
+          The empty substring is considered valid.
+          """
+          # Split pattern into parts
+          parts = p.split('*')
+          if len(parts) != 3:
+              return -1
+    
+          start_part, middle_part, end_part = parts
+
+          min_length = float('inf')
+          n = len(s)
+
+          # Find all valid positions for the start part
+          for i in range(n):
+              if s.startswith(start_part, i):
+                  # Find all valid positions for the end part
+                  for j in range(i, n):
+                      if s.startswith(end_part, j) and middle_part in s[i:j]:
+                          min_length = min(min_length, j + len(end_part) - i)
+
+          return min_length if min_length != float('inf') else -1]
+    [2332 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert shortestMatchingSubstring('abcdefgh', 'a*f*h') == 8", "assert shortestMatchingSubstring('xyzabcxyz', '*z*') == 2", "assert shortestMatchingSubstring('xyzabcxyz', 'x*a*z') == -1", "assert shortestMatchingSubstring('xyzzzzabc', 'x*z*a') == 4", "assert shortestMatchingSubstring('abracadabra', 'a*d*b') == 7", "assert shortestMatchingSubstring('mississippi', 'm*i*i') == 11", "assert shortestMatchingSubstring('prefixandsuffix', '*x*') == 2", "assert shortestMatchingSubstring('onlyone', '*l*e') == 4"]]
+    [1863 ms]
+    [[Pythoness] Validating tests......Failing tests: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+ 0 ms]
+Exception (["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["shortestMatchingSubstring(**{'s': 'aaaabcdef', 'p': '*b*'}) == '1'", "shortestMatchingSubstring(**{'s': 'xyzxyzxyz', 'p': 'x*z*yz'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': 'a*b*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'abacabadabacaba', 'p': '*c*d'}) == '5'", "shortestMatchingSubstring(**{'s': 'racecar', 'p': 'r*e*r'}) == '7'", "shortestMatchingSubstring(**{'s': 'aabbccdd', 'p': 'ab*d*'}) == '6'", "shortestMatchingSubstring(**{'s': 'a', 'p': '*a*'}) == '-1'", "shortestMatchingSubstring(**{'s': 'doesthiswork', 'p': 'd*o*s'}) == '4'", "shortestMatchingSubstring(**{'s': 'lowercasedstring', 'p': 'low*g*'}) == '16'", "shortestMatchingSubstring(**{'s': 'axbycz', 'p': 'a*z*'}) == '6'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 36.84505748748779]]
+  [17620 ms]
+[17621 ms]

@@ -21,9 +21,7 @@ Running iteration 1 of Pythoness on p3455_config1_1.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -59,9 +57,7 @@ Running iteration 1 of Pythoness on p3455_config1_1.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -80,124 +76,82 @@ Running iteration 1 of Pythoness on p3455_config1_1.py
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
- 
-
-      def shortestMatchingSubstring(s: str, p: str) -> int:
+       def shortestMatchingSubstring(s: str, p: str) -> int:
           """
-          Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-          Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
           """
-          # Split the pattern p into three parts based on '*'
-          parts = p.split('*')
-          if len(parts) != 3:
+          def matches(sub: str, pattern: str) -> bool:
+              parts = pattern.split('*')
+              if len(parts) != 3:
+                  return False
+              prefix, middle, suffix = parts
+              if not sub.startswith(prefix):
+                  return False
+              if not sub.endswith(suffix):
+                  return False
+              start = len(prefix)
+              end = len(sub) - len(suffix)
+              return middle in sub[start:end]
+
+          min_length = float('inf')
+          pattern_parts = p.split('*')
+          if len(pattern_parts) != 3:
               return -1
 
-          part1, part2, part3 = parts
+          prefix, middle, suffix = pattern_parts
+          for start in range(len(s) + 1):
+              for end in range(start, len(s) + 1):
+                  substring = s[start:end]
+                  if matches(substring, p):
+                      min_length = min(min_length, len(substring))
 
-          # Initialize the minimum length to be a large number
-          min_length = float('inf')
-
-          # Track start and end positions
-          start = 0
-
-          # Iterate over the string s
-          while start < len(s):
-              # Try to find a starting match for part1
-              start_index = s.find(part1, start)
-        
-              if start_index == -1:
-                  break
-
-              # For a valid beginning, check the end indices
-              # so that it matches part3
-              end_index = start_index + len(part1)
-              sub_start = end_index
-
-              # Try to match part2 anywhere after part1
-              sub_index = s.find(part2, sub_start)
-
-              while sub_index != -1:
-                  sub_end = sub_index + len(part2)
-                  end_index_full = s.find(part3, sub_end)
-
-                  if end_index_full != -1:
-                      total_length = end_index_full + len(part3) - start_index
-                      min_length = min(min_length, total_length)
-
-                  sub_index = s.find(part2, sub_index + 1)
-
-              start = start_index + 1
-
-          return -1 if min_length == float('inf') else min_length
-
+          return min_length if min_length != float('inf') else -1
       ]
-    [6116 ms]
+    [3533 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
 
 [Pythoness] Output:
-
-
 def shortestMatchingSubstring(s: str, p: str) -> int:
     """
-    Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-    Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+    Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
     """
-    # Split the pattern p into three parts based on '*'
-    parts = p.split('*')
-    if len(parts) != 3:
+    def matches(sub: str, pattern: str) -> bool:
+        parts = pattern.split('*')
+        if len(parts) != 3:
+            return False
+        prefix, middle, suffix = parts
+        if not sub.startswith(prefix):
+            return False
+        if not sub.endswith(suffix):
+            return False
+        start = len(prefix)
+        end = len(sub) - len(suffix)
+        return middle in sub[start:end]
+
+    min_length = float('inf')
+    pattern_parts = p.split('*')
+    if len(pattern_parts) != 3:
         return -1
 
-    part1, part2, part3 = parts
+    prefix, middle, suffix = pattern_parts
+    for start in range(len(s) + 1):
+        for end in range(start, len(s) + 1):
+            substring = s[start:end]
+            if matches(substring, p):
+                min_length = min(min_length, len(substring))
 
-    # Initialize the minimum length to be a large number
-    min_length = float('inf')
-
-    # Track start and end positions
-    start = 0
-
-    # Iterate over the string s
-    while start < len(s):
-        # Try to find a starting match for part1
-        start_index = s.find(part1, start)
-        
-        if start_index == -1:
-            break
-
-        # For a valid beginning, check the end indices
-        # so that it matches part3
-        end_index = start_index + len(part1)
-        sub_start = end_index
-
-        # Try to match part2 anywhere after part1
-        sub_index = s.find(part2, sub_start)
-
-        while sub_index != -1:
-            sub_end = sub_index + len(part2)
-            end_index_full = s.find(part3, sub_end)
-
-            if end_index_full != -1:
-                total_length = end_index_full + len(part3) - start_index
-                min_length = min(min_length, total_length)
-
-            sub_index = s.find(part2, sub_index + 1)
-
-        start = start_index + 1
-
-    return -1 if min_length == float('inf') else min_length
+    return min_length if min_length != float('inf') else -1
 
 
-
-    [[Pythoness] Replacing...... 3 ms]
+    [[Pythoness] Replacing...... 2 ms]
     [
-    [Total cost so far: ~$0.01 USD]]
+    [Total cost so far: ~$0.00 USD]]
     [
-    [Total time so far: 6.116187572479248]]
-  [6127 ms]
-[6128 ms]
+    [Total time so far: 3.5335562229156494]]
+  [3554 ms]
+[3556 ms]
 
 
 Running iteration 2 of Pythoness on p3455_config1_2.py
@@ -221,9 +175,7 @@ Running iteration 2 of Pythoness on p3455_config1_2.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -259,9 +211,7 @@ Running iteration 2 of Pythoness on p3455_config1_2.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -281,87 +231,75 @@ Running iteration 2 of Pythoness on p3455_config1_2.py
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
        def shortestMatchingSubstring(s: str, p: str) -> int:
-          """
-          Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-          Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
-          """
-          # Split the pattern `p` on '*' characters.
-          parts = p.split('*')
-          if len(parts) != 3:
+          """Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid."""
+          if p.count('*') != 2:
               return -1
-          left, middle, right = parts
+    
+          # Split the pattern p by the '*' characters
+          parts = p.split('*')
+    
+          # Define a function to check if a given substring matches the pattern
+          def matches(sub: str) -> bool:
+              # Attempt to match the start, middle, and end of the pattern to the substring
+              # If the total length of parts exceeds the substring length, matching is impossible.
+              if len(parts[0]) + len(parts[1]) + len(parts[2]) > len(sub):
+                  return False
+              return sub.startswith(parts[0]) and sub.endswith(parts[2]) and parts[1] in sub[len(parts[0]):len(sub) - len(parts[2])]
 
-          # Initialize variables.
-          min_length = float('inf')
-          left_len = len(left)
-          right_len = len(right)
+          # Initialize the length for shortest matching substring
+          shortest_length = len(s) + 1
 
-          # Check all possible substrings in `s`.
-          for i in range(len(s)):
-              if s[i:i+left_len] == left:
-                  # Find the starting index after the left part.
-                  start = i + left_len
-                  # Look for `right` starting from `start` position.
-                  for j in range(start, len(s) + 1):
-                      # If `right` is matched, check the middle part in between.
-                      if s[j:j+right_len] == right:
-                          if middle in s[start:j]:
-                              # Update the minimum length.
-                              min_length = min(min_length, j + right_len - i)
-                          break
+          # Iterate over all possible substrings of s
+          for start in range(len(s)):
+              for end in range(start, len(s) + 1):
+                  substring = s[start:end]
+                  if matches(substring):
+                      shortest_length = min(shortest_length, end - start)
 
-          # Return the result.
-          return min_length if min_length != float('inf') else -1
+          return shortest_length if shortest_length <= len(s) else -1
       ]
-    [8443 ms]
+    [5433 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
 
 [Pythoness] Output:
 def shortestMatchingSubstring(s: str, p: str) -> int:
-    """
-    Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-    Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
-    """
-    # Split the pattern `p` on '*' characters.
-    parts = p.split('*')
-    if len(parts) != 3:
+    """Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid."""
+    if p.count('*') != 2:
         return -1
-    left, middle, right = parts
+    
+    # Split the pattern p by the '*' characters
+    parts = p.split('*')
+    
+    # Define a function to check if a given substring matches the pattern
+    def matches(sub: str) -> bool:
+        # Attempt to match the start, middle, and end of the pattern to the substring
+        # If the total length of parts exceeds the substring length, matching is impossible.
+        if len(parts[0]) + len(parts[1]) + len(parts[2]) > len(sub):
+            return False
+        return sub.startswith(parts[0]) and sub.endswith(parts[2]) and parts[1] in sub[len(parts[0]):len(sub) - len(parts[2])]
 
-    # Initialize variables.
-    min_length = float('inf')
-    left_len = len(left)
-    right_len = len(right)
+    # Initialize the length for shortest matching substring
+    shortest_length = len(s) + 1
 
-    # Check all possible substrings in `s`.
-    for i in range(len(s)):
-        if s[i:i+left_len] == left:
-            # Find the starting index after the left part.
-            start = i + left_len
-            # Look for `right` starting from `start` position.
-            for j in range(start, len(s) + 1):
-                # If `right` is matched, check the middle part in between.
-                if s[j:j+right_len] == right:
-                    if middle in s[start:j]:
-                        # Update the minimum length.
-                        min_length = min(min_length, j + right_len - i)
-                    break
+    # Iterate over all possible substrings of s
+    for start in range(len(s)):
+        for end in range(start, len(s) + 1):
+            substring = s[start:end]
+            if matches(substring):
+                shortest_length = min(shortest_length, end - start)
 
-    # Return the result.
-    return min_length if min_length != float('inf') else -1
+    return shortest_length if shortest_length <= len(s) else -1
 
 
-    [[Pythoness] Replacing...... 2 ms]
+    [[Pythoness] Replacing...... 3 ms]
     [
     [Total cost so far: ~$0.00 USD]]
     [
-    [Total time so far: 8.443491458892822]]
-  [8451 ms]
-[8452 ms]
+    [Total time so far: 5.433817625045776]]
+  [5442 ms]
+[5443 ms]
 
 
 Running iteration 3 of Pythoness on p3455_config1_3.py
@@ -385,9 +323,7 @@ Running iteration 3 of Pythoness on p3455_config1_3.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -423,9 +359,7 @@ Running iteration 3 of Pythoness on p3455_config1_3.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -446,38 +380,51 @@ Running iteration 3 of Pythoness on p3455_config1_3.py
       [[Pythoness] Synthesized function: 
        def shortestMatchingSubstring(s: str, p: str) -> int:
           """
-          Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-          Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
           """
-          # Split the pattern on '*' to get the fixed parts
+          if len(p) < 2 or p.count('*') != 2:
+              return -1
+
+          # Split the pattern on '*' to handle the fixed parts
           parts = p.split('*')
-          if len(parts) != 3:
-              return -1  # Pattern must contain exactly two '*'
-          left, middle, right = parts[0], parts[1], parts[2]
+          pre_pattern = parts[0]
+          suf_pattern = parts[2] if len(parts) > 2 else ''
 
-          # Use two pointers to find the shortest match
-          n = len(s)
+          if not pre_pattern and not suf_pattern:
+              return 0  # Pattern is "**", so matches any substring
+
           min_length = float('inf')
+          start_index = 0
+          n = len(s)
 
-          # Iterate over each possible starting point for left
-          for i in range(n):
-              # Try to match the left part at position i
-              if s[i:i+len(left)] == left:
-                  # Find where we can start matching the middle part
-                  for j in range(i + len(left), n):
-                      # Try to match the right part starting from j
-                      if s[j:j+len(right)] == right:
-                          # Check if the middle part appears in between
-                          middle_start = s.find(middle, i + len(left), j)
-                          if middle_start != -1:
-                              # Calculate the full match length
-                              match_length = j + len(right) - i
-                              min_length = min(min_length, match_length)
+          while start_index <= n:
+              # Find the start matching pre_pattern
+              if pre_pattern:
+                  start_pos = s.find(pre_pattern, start_index)
+                  if start_pos == -1:
+                      break
+                  start_index = start_pos + len(pre_pattern)
+              else:
+                  start_pos = start_index
+
+              # From the start of the suffix part after matching prefix
+              if suf_pattern:
+                  end_pos = s.find(suf_pattern, start_index)
+                  if end_pos == -1:
+                      break
+              else:
+                  end_pos = n
+
+              # Calculate the matching substring
+              if start_pos <= end_pos:
+                  min_length = min(min_length, end_pos - start_pos + len(suf_pattern))
+
+              # Move start index forward for the next possible match
+              start_index = start_pos + 1
 
           return min_length if min_length != float('inf') else -1
       ]
-    [5634 ms]
+    [7459 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
@@ -485,45 +432,58 @@ Running iteration 3 of Pythoness on p3455_config1_3.py
 [Pythoness] Output:
 def shortestMatchingSubstring(s: str, p: str) -> int:
     """
-    Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-    Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+    Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
     """
-    # Split the pattern on '*' to get the fixed parts
+    if len(p) < 2 or p.count('*') != 2:
+        return -1
+
+    # Split the pattern on '*' to handle the fixed parts
     parts = p.split('*')
-    if len(parts) != 3:
-        return -1  # Pattern must contain exactly two '*'
-    left, middle, right = parts[0], parts[1], parts[2]
+    pre_pattern = parts[0]
+    suf_pattern = parts[2] if len(parts) > 2 else ''
 
-    # Use two pointers to find the shortest match
-    n = len(s)
+    if not pre_pattern and not suf_pattern:
+        return 0  # Pattern is "**", so matches any substring
+
     min_length = float('inf')
+    start_index = 0
+    n = len(s)
 
-    # Iterate over each possible starting point for left
-    for i in range(n):
-        # Try to match the left part at position i
-        if s[i:i+len(left)] == left:
-            # Find where we can start matching the middle part
-            for j in range(i + len(left), n):
-                # Try to match the right part starting from j
-                if s[j:j+len(right)] == right:
-                    # Check if the middle part appears in between
-                    middle_start = s.find(middle, i + len(left), j)
-                    if middle_start != -1:
-                        # Calculate the full match length
-                        match_length = j + len(right) - i
-                        min_length = min(min_length, match_length)
+    while start_index <= n:
+        # Find the start matching pre_pattern
+        if pre_pattern:
+            start_pos = s.find(pre_pattern, start_index)
+            if start_pos == -1:
+                break
+            start_index = start_pos + len(pre_pattern)
+        else:
+            start_pos = start_index
+
+        # From the start of the suffix part after matching prefix
+        if suf_pattern:
+            end_pos = s.find(suf_pattern, start_index)
+            if end_pos == -1:
+                break
+        else:
+            end_pos = n
+
+        # Calculate the matching substring
+        if start_pos <= end_pos:
+            min_length = min(min_length, end_pos - start_pos + len(suf_pattern))
+
+        # Move start index forward for the next possible match
+        start_index = start_pos + 1
 
     return min_length if min_length != float('inf') else -1
 
 
-    [[Pythoness] Replacing...... 2 ms]
+    [[Pythoness] Replacing...... 3 ms]
     [
-    [Total cost so far: ~$0.00 USD]]
+    [Total cost so far: ~$0.01 USD]]
     [
-    [Total time so far: 5.6345624923706055]]
-  [5645 ms]
-[5646 ms]
+    [Total time so far: 7.459510564804077]]
+  [7471 ms]
+[7472 ms]
 
 
 Running iteration 4 of Pythoness on p3455_config1_4.py
@@ -547,9 +507,7 @@ Running iteration 4 of Pythoness on p3455_config1_4.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -585,9 +543,7 @@ Running iteration 4 of Pythoness on p3455_config1_4.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -606,108 +562,76 @@ Running iteration 4 of Pythoness on p3455_config1_4.py
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
- 
-
-      def shortestMatchingSubstring(s: str, p: str) -> int:
+       def shortestMatchingSubstring(s: str, p: str) -> int:
           """
-          Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-          Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
           """
-    
+          # Splitting the pattern into three parts by separating at '*'
           parts = p.split('*')
           if len(parts) != 3:
-              return -1  # should not happen due to constraints, as p is guaranteed to have exactly two '*'
-    
-          # Trim the parts, as there might be empty leading or trailing parts if * is first or last
-          prefix = parts[0]
-          middle = parts[1]
-          suffix = parts[2]
-
-          # Early return if middle is longer than s
-          if len(prefix) + len(suffix) > len(s):
-              return -1
-
+              return -1  # Invalid pattern, as it must contain exactly two '*'
+          start, mid, end = parts
           n = len(s)
-    
-          # Initialize pointers for prefix and suffix
-          min_len = float('inf')
-          start = 0
-          prefix_len = len(prefix)
-          suffix_len = len(suffix)
-    
-          # Attempt to find the prefix and suffix
-          for start in range(n - prefix_len + 1):
-              if s[start:start + prefix_len] == prefix:
-                  # Now find the suffix after matching the prefix
-                  for end in range(n, start + prefix_len + len(middle), -1):
-                      if s[end - suffix_len:end] == suffix:
-                          # Valid substring from start to end
-                          current_len = end - start
-                          if current_len < min_len:
-                              min_len = current_len
-            
-          return min_len if min_len != float('inf') else -1
+          shortest = float('inf')  # Initialize shortest length as infinity
 
+          # Iterate over the string to find potential matches
+          for i in range(n):
+              # Check if the prefix matches
+              if s[i:i + len(start)] == start:
+                  # Now look for a potential end that can make the mid part valid
+                  for j in range(i + len(start), n):
+                      # Check if the suffix matches
+                      if s[j:j + len(end)] == end:
+                          # Check if the middle part is there between these
+                          if mid in s[i + len(start):j]:
+                              # Update shortest length
+                              shortest = min(shortest, j - i + len(end))
+
+          # If shortest is not updated, return -1, else return shortest length found
+          return -1 if shortest == float('inf') else shortest
       ]
-    [5704 ms]
+    [4549 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
 
 [Pythoness] Output:
-
-
 def shortestMatchingSubstring(s: str, p: str) -> int:
     """
-    Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-    Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+    Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
     """
-    
+    # Splitting the pattern into three parts by separating at '*'
     parts = p.split('*')
     if len(parts) != 3:
-        return -1  # should not happen due to constraints, as p is guaranteed to have exactly two '*'
-    
-    # Trim the parts, as there might be empty leading or trailing parts if * is first or last
-    prefix = parts[0]
-    middle = parts[1]
-    suffix = parts[2]
-
-    # Early return if middle is longer than s
-    if len(prefix) + len(suffix) > len(s):
-        return -1
-
+        return -1  # Invalid pattern, as it must contain exactly two '*'
+    start, mid, end = parts
     n = len(s)
-    
-    # Initialize pointers for prefix and suffix
-    min_len = float('inf')
-    start = 0
-    prefix_len = len(prefix)
-    suffix_len = len(suffix)
-    
-    # Attempt to find the prefix and suffix
-    for start in range(n - prefix_len + 1):
-        if s[start:start + prefix_len] == prefix:
-            # Now find the suffix after matching the prefix
-            for end in range(n, start + prefix_len + len(middle), -1):
-                if s[end - suffix_len:end] == suffix:
-                    # Valid substring from start to end
-                    current_len = end - start
-                    if current_len < min_len:
-                        min_len = current_len
-            
-    return min_len if min_len != float('inf') else -1
+    shortest = float('inf')  # Initialize shortest length as infinity
 
+    # Iterate over the string to find potential matches
+    for i in range(n):
+        # Check if the prefix matches
+        if s[i:i + len(start)] == start:
+            # Now look for a potential end that can make the mid part valid
+            for j in range(i + len(start), n):
+                # Check if the suffix matches
+                if s[j:j + len(end)] == end:
+                    # Check if the middle part is there between these
+                    if mid in s[i + len(start):j]:
+                        # Update shortest length
+                        shortest = min(shortest, j - i + len(end))
+
+    # If shortest is not updated, return -1, else return shortest length found
+    return -1 if shortest == float('inf') else shortest
 
 
     [[Pythoness] Replacing...... 2 ms]
     [
-    [Total cost so far: ~$0.01 USD]]
+    [Total cost so far: ~$0.00 USD]]
     [
-    [Total time so far: 5.704675912857056]]
-  [5714 ms]
-[5714 ms]
+    [Total time so far: 4.549373388290405]]
+  [4559 ms]
+[4560 ms]
 
 
 Running iteration 5 of Pythoness on p3455_config1_5.py
@@ -731,9 +655,7 @@ Running iteration 5 of Pythoness on p3455_config1_5.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -769,9 +691,7 @@ Running iteration 5 of Pythoness on p3455_config1_5.py
 
     Task:
 
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
 
     Include a docstring containing the task description above
     (without the word "Task:").  The function should be
@@ -790,103 +710,81 @@ Running iteration 5 of Pythoness on p3455_config1_5.py
     ]
     [[Pythoness] Parsing......]
       [[Pythoness] Synthesized function: 
- 
-
-      def shortestMatchingSubstring(s: str, p: str) -> int:
+       def shortestMatchingSubstring(s: str, p: str) -> int:
           """
-          Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-          Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+          Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
           """
-    
-          # Split the pattern `p` by '*', which will give us three parts: before the first '*', between the two '*', and after the second '*'.
-          parts = p.split('*')
-          if len(parts) != 3:
-              return -1  # Invalid pattern as it doesn't contain exactly two '*'.
-    
-          prefix, middle, suffix = parts
-          n, m = len(s), len(prefix) + len(middle) + len(suffix)
-    
-          min_len = float('inf')
+          if p.count('*') != 2:
+              # Pattern must contain exactly two '*' characters; return -1 otherwise
+              return -1
 
-          # We'll use a sliding window to try and match the prefix and suffix around each possible middle match
-          for start in range(n):
-              # Check if the prefix of `p` matches the start suffix of sliding window
-              if start + len(prefix) > n:
-                  break
-        
-              if s[start:start + len(prefix)] != prefix:
-                  continue
-        
-              for end in range(start + len(prefix), n + 1):
-                  # Check if the suffix of `p` matches the end prefix of sliding window
-                  if end + len(suffix) > n:
-                      break
-            
-                  if (end + len(suffix) > start + len(prefix) and
-                     s[end:end + len(suffix)] == suffix and 
-                     middle in s[start + len(prefix):end]):
-                
-                      min_len = min(min_len, end + len(suffix) - start)
-                      break
-    
-          return -1 if min_len == float('inf') else min_len
+          start_star = p.index('*')
+          end_star = p.index('*', start_star + 1)
 
+          # Parts of the pattern split by '*'
+          start_pattern = p[:start_star]
+          mid_pattern = p[start_star + 1:end_star]
+          end_pattern = p[end_star + 1:]
+
+          min_length = float('inf')
+          found = False
+
+          for i in range(len(s)):
+              if s[i:].startswith(start_pattern):
+                  for j in range(i, len(s)):
+                      if s[j:].endswith(end_pattern):
+                          # Calculate the substring in s from i to j that matches the pattern
+                          sub = s[i:j]
+                          # Check if mid_pattern is in the portion we assume as middle match
+                          if mid_pattern in sub[len(start_pattern):len(sub)-len(end_pattern)]:
+                              found = True
+                              min_length = min(min_length, len(sub))
+
+          return min_length if found else -1
       ]
-    [6497 ms]
+    [4134 ms]
     [[Pythoness] Compiling and executing...... 0 ms]
     [[Pythoness] Validating types...... 0 ms]
     [[Pythoness] Generating tests...... 0 ms]
 
 [Pythoness] Output:
-
-
 def shortestMatchingSubstring(s: str, p: str) -> int:
     """
-    Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-
-    Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+    Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
     """
-    
-    # Split the pattern `p` by '*', which will give us three parts: before the first '*', between the two '*', and after the second '*'.
-    parts = p.split('*')
-    if len(parts) != 3:
-        return -1  # Invalid pattern as it doesn't contain exactly two '*'.
-    
-    prefix, middle, suffix = parts
-    n, m = len(s), len(prefix) + len(middle) + len(suffix)
-    
-    min_len = float('inf')
+    if p.count('*') != 2:
+        # Pattern must contain exactly two '*' characters; return -1 otherwise
+        return -1
 
-    # We'll use a sliding window to try and match the prefix and suffix around each possible middle match
-    for start in range(n):
-        # Check if the prefix of `p` matches the start suffix of sliding window
-        if start + len(prefix) > n:
-            break
-        
-        if s[start:start + len(prefix)] != prefix:
-            continue
-        
-        for end in range(start + len(prefix), n + 1):
-            # Check if the suffix of `p` matches the end prefix of sliding window
-            if end + len(suffix) > n:
-                break
-            
-            if (end + len(suffix) > start + len(prefix) and
-               s[end:end + len(suffix)] == suffix and 
-               middle in s[start + len(prefix):end]):
-                
-                min_len = min(min_len, end + len(suffix) - start)
-                break
-    
-    return -1 if min_len == float('inf') else min_len
+    start_star = p.index('*')
+    end_star = p.index('*', start_star + 1)
 
+    # Parts of the pattern split by '*'
+    start_pattern = p[:start_star]
+    mid_pattern = p[start_star + 1:end_star]
+    end_pattern = p[end_star + 1:]
+
+    min_length = float('inf')
+    found = False
+
+    for i in range(len(s)):
+        if s[i:].startswith(start_pattern):
+            for j in range(i, len(s)):
+                if s[j:].endswith(end_pattern):
+                    # Calculate the substring in s from i to j that matches the pattern
+                    sub = s[i:j]
+                    # Check if mid_pattern is in the portion we assume as middle match
+                    if mid_pattern in sub[len(start_pattern):len(sub)-len(end_pattern)]:
+                        found = True
+                        min_length = min(min_length, len(sub))
+
+    return min_length if found else -1
 
 
     [[Pythoness] Replacing...... 2 ms]
     [
-    [Total cost so far: ~$0.01 USD]]
+    [Total cost so far: ~$0.00 USD]]
     [
-    [Total time so far: 6.496810674667358]]
-  [6506 ms]
-[6507 ms]
+    [Total time so far: 4.134751319885254]]
+  [4143 ms]
+[4144 ms]

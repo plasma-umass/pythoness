@@ -5,29 +5,27 @@ class Solution:
     
     def shortestMatchingSubstring(self, s: str, p: str) -> int:
         """
-        Find the length of the shortest substring in string `s` that matches the pattern `p`, where `p` contains exactly two '*' characters, each matching any sequence of characters. If no such substring exists, return -1. The empty substring is valid.
-    
-        Constraints: 1 <= s.length <= 10^5, 2 <= p.length <= 10^5, `s` contains only lowercase English letters, and `p` contains only lowercase English letters with exactly two '*'.
+        Find the length of the shortest substring in a given string `s` that matches a pattern `p`, where `p` contains exactly two '*' characters, which can match any sequence of zero or more characters. Return the length of the shortest matching substring or -1 if no such substring exists. The empty substring is considered valid.
         """
-        # Split the pattern `p` by '*', which will give us three parts: before the first '*', between the two '*', and after the second '*'.
-        parts = p.split('*')
-        if len(parts) != 3:
-            return -1  # Invalid pattern as it doesn't contain exactly two '*'.
-        (prefix, middle, suffix) = parts
-        (n, m) = (len(s), len(prefix) + len(middle) + len(suffix))
-        min_len = float('inf')
-        # We'll use a sliding window to try and match the prefix and suffix around each possible middle match
-        for start in range(n):
-            # Check if the prefix of `p` matches the start suffix of sliding window
-            if start + len(prefix) > n:
-                break
-            if s[start:start + len(prefix)] != prefix:
-                continue
-            for end in range(start + len(prefix), n + 1):
-                # Check if the suffix of `p` matches the end prefix of sliding window
-                if end + len(suffix) > n:
-                    break
-                if end + len(suffix) > start + len(prefix) and s[end:end + len(suffix)] == suffix and (middle in s[start + len(prefix):end]):
-                    min_len = min(min_len, end + len(suffix) - start)
-                    break
-        return -1 if min_len == float('inf') else min_len
+        if p.count('*') != 2:
+            # Pattern must contain exactly two '*' characters; return -1 otherwise
+            return -1
+        start_star = p.index('*')
+        end_star = p.index('*', start_star + 1)
+        # Parts of the pattern split by '*'
+        start_pattern = p[:start_star]
+        mid_pattern = p[start_star + 1:end_star]
+        end_pattern = p[end_star + 1:]
+        min_length = float('inf')
+        found = False
+        for i in range(len(s)):
+            if s[i:].startswith(start_pattern):
+                for j in range(i, len(s)):
+                    if s[j:].endswith(end_pattern):
+                        # Calculate the substring in s from i to j that matches the pattern
+                        sub = s[i:j]
+                        # Check if mid_pattern is in the portion we assume as middle match
+                        if mid_pattern in sub[len(start_pattern):len(sub) - len(end_pattern)]:
+                            found = True
+                            min_length = min(min_length, len(sub))
+        return min_length if found else -1

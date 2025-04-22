@@ -1,0 +1,1406 @@
+
+
+Running iteration 1 of Pythoness on p3445_config2_1.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 1 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          def get_frequency(substring):
+              freq = {str(i): 0 for i in range(5)}
+              for char in substring:
+                  freq[char] += 1
+              return freq
+
+          max_diff = -1
+          n = len(s)
+          for start in range(n):
+              for end in range(start + k, n + 1):
+                  substring = s[start:end]
+                  freq = get_frequency(substring)
+                  odd_freqs = [v for v in freq.values() if v % 2 == 1]
+                  even_freqs = [v for v in freq.values() if v % 2 == 0]
+                  if odd_freqs and even_freqs:
+                      max_odd = max(odd_freqs)
+                      min_even = min(even_freqs)
+                      max_diff = max(max_diff, max_odd - min_even)
+          return max_diff
+
+      ]
+    [3083 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '0404040404', 'k': 5}) == '1'", "assert maxDifference(**{'s': '345345345345', 'k': 4}) == '-1'", "assert maxDifference(**{'s': '333444555222111', 'k': 10}) == '1'", "assert maxDifference(**{'s': '111122223333', 'k': 6}) == '1'", "assert maxDifference(**{'s': '032143214321432', 'k': 8}) == '1'"]]
+    [1530 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 2 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 4.612795114517212]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          from collections import defaultdict
+
+          def get_frequency(substring):
+              freq = defaultdict(int)
+              for char in substring:
+                  freq[char] += 1
+              return freq
+
+          max_diff = float('-inf')
+          n = len(s)
+          for start in range(n):
+              for end in range(start + k, n + 1):
+                  substring = s[start:end]
+                  freq = get_frequency(substring)
+                  odd_freqs = [v for v in freq.values() if v % 2 == 1]
+                  even_freqs = [v for v in freq.values() if v % 2 == 0 and v > 0]
+                  if odd_freqs and even_freqs:
+                      max_odd = max(odd_freqs)
+                      max_even = max(even_freqs)
+                      min_odd = min(odd_freqs)
+                      min_even = min(even_freqs)
+                      max_diff = max(max_diff, max_odd - min_even, max_even - min_odd)
+          return max_diff if max_diff != float('-inf') else -1
+
+      ]
+    [3332 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(s='000', k=3) == '-1'", "assert maxDifference(s='0011223344', k=5) == '1'", "assert maxDifference(s='123012301230', k=6) == '0'", "assert maxDifference(s='111222333444555', k=5) == '2'", "assert maxDifference(s='341234312431', k=5) == '2'", "assert maxDifference(s='31313', k=3) == '-1'", "assert maxDifference(s='444040444', k=2) == '2'"]]
+    [2255 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 2 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 14.812167644500732]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+ 
+
+      def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          from collections import defaultdict
+
+          def get_frequency(substring):
+              freq = defaultdict(int)
+              for char in substring:
+                  freq[char] += 1
+              return freq
+
+          max_diff = float('-inf')
+          n = len(s)
+          for start in range(n):
+              freq = defaultdict(int)
+              odd_count = odd_total = even_count = even_total = 0
+              for end in range(start, n):
+                  char = s[end]
+                  freq[char] += 1
+                  if freq[char] % 2 == 1:  # odd frequency
+                      odd_count += 1
+                      even_count -= 1
+                      odd_total += 1
+                  else:                   # even frequency
+                      even_count += 1
+                      odd_count -= 1
+                      even_total += 1
+            
+                  if end - start + 1 >= k:
+                      if odd_total > 0 and even_total > 0:
+                          max_diff = max(max_diff, abs(odd_count))
+          return max_diff
+
+      ]
+    [4222 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '3311221100', 'k': 5}) == '1'", "assert maxDifference(**{'s': '44442222111', 'k': 6}) == '1'", "assert maxDifference(**{'s': '110223344', 'k': 4}) == '1'", "assert maxDifference(**{'s': '333444000', 'k': 3}) == '1'", "assert maxDifference(**{'s': '412341234', 'k': 3}) == '1'", "assert maxDifference(**{'s': '020202020202', 'k': 5}) == '1'", "assert maxDifference(**{'s': '1201201201', 'k': 10}) == '-1'", "assert maxDifference(**{'s': '030303030303', 'k': 8}) == '1'", "assert maxDifference(**{'s': '123123123123', 'k': 6}) == '-1'", "assert maxDifference(**{'s': '000111222333', 'k': 6}) == '1'"]]
+    [2877 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 32.111161947250366]]
+  [17364 ms]
+[17366 ms]
+
+
+Running iteration 2 of Pythoness on p3445_config2_2.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, 
+          where one character has an odd frequency and the other an even frequency, and the substring size is 
+          at least k. The substring can contain more than two distinct characters, and the input guarantees the 
+          presence of at least one such valid substring. This problem is constrained by string lengths ranging 
+          from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          max_diff = -1
+          n = len(s)
+
+          # Iterate over all possible starting points of substrings
+          for start in range(n):
+              freq = [0] * 5  # To store frequency of each digit from 0 to 4
+
+              # Expand the substring from the starting point
+              for end in range(start, n):
+                  digit = int(s[end])
+                  freq[digit] += 1
+
+                  # Check if the current substring is at least of length k
+                  if end - start + 1 >= k:
+                      # Calculate the odd and even frequencies
+                      max_odd = max([freq[i] for i in range(5) if freq[i] % 2 == 1], default=0)
+                      max_even = max([freq[i] for i in range(5) if freq[i] % 2 == 0], default=0)
+
+                      # Calculate the difference
+                      if max_odd and max_even:  # Both must be present
+                          max_diff = max(max_diff, abs(max_odd - max_even))
+
+          return max_diff
+      ]
+    [3922 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '111222333444', 'k': 6}) == '3'", "assert maxDifference(**{'s': '4321043210', 'k': 5}) == '1'", "assert maxDifference(**{'s': '001234432100', 'k': 4}) == '2'", "assert maxDifference(**{'s': '111000222333', 'k': 5}) == '2'", "assert maxDifference(**{'s': '32103210321', 'k': 7}) == '1'"]]
+    [2038 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 5.960924386978149]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, 
+          where one character has an odd frequency and the other an even frequency, and the substring size is 
+          at least k. The substring can contain more than two distinct characters, and the input guarantees the 
+          presence of at least one such valid substring. This problem is constrained by string lengths ranging 
+          from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          max_diff = -1
+          n = len(s)
+
+          # Iterate over all possible starting points of substrings
+          for start in range(n):
+              freq = [0] * 5  # To store frequency of each digit from 0 to 4
+
+              # Expand the substring from the starting point
+              for end in range(start, n):
+                  digit = int(s[end])
+                  freq[digit] += 1
+
+                  # Check if the current substring is at least of length k
+                  if end - start + 1 >= k:
+                      # Calculate the possible odd and even frequencies
+                      odd_frequencies = [freq[i] for i in range(5) if freq[i] % 2 == 1]
+                      even_frequencies = [freq[i] for i in range(5) if freq[i] % 2 == 0 and freq[i] > 0]
+
+                      if odd_frequencies and even_frequencies:  # Both must be present
+                          # Calculate the maximum difference
+                          current_max_odd = max(odd_frequencies)
+                          current_max_even = max(even_frequencies)
+                          current_diff = abs(current_max_odd - current_max_even)
+                          max_diff = max(max_diff, current_diff)
+
+          return max_diff
+      ]
+    [1995 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '11111122222233333', 'k': 5}) == '3'", "assert maxDifference(**{'s': '333003330033300', 'k': 5}) == '2'", "assert maxDifference(**{'s': '012345432101234', 'k': 6}) == '1'", "assert maxDifference(**{'s': '1232103210', 'k': 3}) == '1'", "assert maxDifference(**{'s': '222000111', 'k': 4}) == '0'"]]
+    [2507 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 16.423832893371582]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string,
+          where one character has an odd frequency and the other an even frequency, and the substring size is
+          at least k. The substring can contain more than two distinct characters, and the input guarantees the
+          presence of at least one such valid substring. This problem is constrained by string lengths ranging
+          from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          max_diff = -1
+          n = len(s)
+
+          # Iterate over all possible starting points of substrings
+          for start in range(n):
+              freq = [0] * 5  # To store frequency of each digit from 0 to 4
+
+              # Expand the substring from the starting point
+              for end in range(start, n):
+                  digit = int(s[end])
+                  freq[digit] += 1
+
+                  # Check if the current substring is at least of length k
+                  if end - start + 1 >= k:
+                      # Calculate the minimum and maximum frequency
+                      min_freq = min(freq[i] for i in range(5) if freq[i] > 0)
+                      max_freq = max(freq)
+                
+                      # Calculating the difference
+                      if min_freq % 2 != max_freq % 2:  # Ensuring one is odd, one is even
+                          max_diff = max(max_diff, max_freq - min_freq)
+
+          return max_diff
+      ]
+    [2285 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(s='01234', k=1) == '1'", "assert maxDifference(s='111', k=2) == '-1'", "assert maxDifference(s='1234321', k=3) == '1'", "assert maxDifference(s='0011223344', k=5) == '1'", "assert maxDifference(s='04040404', k=4) == '1'"]]
+    [1243 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 30.415332317352295]]
+  [14046 ms]
+[14048 ms]
+
+
+Running iteration 3 of Pythoness on p3445_config2_3.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          n = len(s)
+          max_diff = -1
+
+          for start in range(n):
+              count = {str(x): 0 for x in range(5)}
+              odd_freq = even_freq = 0
+
+              for end in range(start, n):
+                  # Count frequency of the current character
+                  char = s[end]
+                  idx = str(char)
+                  count[idx] += 1
+
+                  # Check if frequency is even or odd
+                  if count[idx] % 2 == 0:
+                      even_freq += 1
+                      odd_freq -= 1 if count[idx] != 1 else 0
+                  else:
+                      odd_freq += 1
+                      even_freq -= 1 if count[idx] != 0 else 0
+
+                  if end - start + 1 >= k:
+                      # Calculate max difference
+                      current_diff = abs(odd_freq - even_freq)
+                      if current_diff > max_diff:
+                          max_diff = current_diff
+
+          return max_diff
+      ]
+    [3391 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '11122334400', 'k': 5}) == '1'", "assert maxDifference(**{'s': '110011223', 'k': 3}) == '1'", "assert maxDifference(**{'s': '102034023040', 'k': 6}) == '1'", "assert maxDifference(**{'s': '444333222111', 'k': 4}) == '1'", "assert maxDifference(**{'s': '222200001111', 'k': 5}) == '2'", "assert maxDifference(**{'s': '3003311100444', 'k': 3}) == '1'", "assert maxDifference(**{'s': '000111222333444', 'k': 7}) == '1'", "assert maxDifference(**{'s': '111110000022222', 'k': 10}) == '1'", "assert maxDifference(**{'s': '223344112233', 'k': 4}) == '1'", "assert maxDifference(**{'s': '133231321', 'k': 3}) == '1'"]]
+    [4377 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 7.768163442611694]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          def is_odd(n):
+              return n % 2 != 0
+
+          n = len(s)
+          max_diff = -1
+
+          for start in range(n):
+              count = [0] * 5  # there are only 5 possible distinct characters: '0' to '4'
+
+              for end in range(start, n):
+                  count[int(s[end])] += 1
+                  length = end - start + 1
+
+                  if length >= k:
+                      odd_count, even_count = 0, 0
+
+                      for freq in count:
+                          if freq > 0:
+                              if is_odd(freq):
+                                  odd_count += 1
+                              else:
+                                  even_count += 1
+
+                      if odd_count > 0 and even_count > 0:
+                          max_diff = max(max_diff, abs(odd_count - even_count))
+
+          return max_diff
+      ]
+    [2630 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '1234', 'k': 2}) == 1", "assert maxDifference(**{'s': '44400112', 'k': 3}) == 2", "assert maxDifference(**{'s': '3332211', 'k': 4}) == 1", "assert maxDifference(**{'s': '411223344', 'k': 5}) == 1", "assert maxDifference(**{'s': '0000', 'k': 3}) == -1", "assert maxDifference(**{'s': '122333444455', 'k': 6}) == 1", "assert maxDifference(**{'s': '012301230123', 'k': 8}) == 1", "assert maxDifference(**{'s': '0214021402140214', 'k': 12}) == 1"]]
+    [2029 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 20.195698738098145]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          def get_frequencies(sub):
+              frequency = {str(i): 0 for i in range(5)}
+              for char in sub:
+                  frequency[char] += 1
+              return frequency
+
+          max_diff = -1
+          n = len(s)
+
+          for i in range(n):
+              for j in range(i + k, n + 1):
+                  sub = s[i:j]
+                  freq = get_frequencies(sub)
+
+                  odd_seen = False
+                  even_seen = False
+
+                  for key in freq:
+                      if freq[key] > 0:
+                          if freq[key] % 2 == 0:
+                              even_seen = True
+                          else:
+                              odd_seen = True
+
+                  if odd_seen and even_seen:
+                      odd_freqs = [freq[key] for key in freq if freq[key] % 2 == 1]
+                      even_freqs = [freq[key] for key in freq if freq[key] % 2 == 0]
+                      if odd_freqs and even_freqs:
+                          max_odd = max(odd_freqs)
+                          max_even = max(even_freqs)
+                          diff = abs(max_odd - max_even)
+                          max_diff = max(max_diff, diff)
+
+          return max_diff
+      ]
+    [3533 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference('111222333444', 3) == '1'", "assert maxDifference('444333222111', 5) == '1'", "assert maxDifference('01234012340123', 6) == '1'", "assert maxDifference('000111222333444', 10) == '1'", "assert maxDifference('024420244202442', 8) == '1'", "assert maxDifference('142332141234321', 7) == '1'", "assert maxDifference('333222111000444', 12) == '1'", "assert maxDifference('021321030210321', 5) == '1'"]]
+    [2224 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 6 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 38.380178689956665]]
+  [18243 ms]
+[18245 ms]
+
+
+Running iteration 4 of Pythoness on p3445_config2_4.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          from collections import Counter
+    
+          max_diff = -1
+
+          # Iterate through all possible substrings of length at least k
+          for i in range(len(s) - k + 1):
+              for j in range(i + k, len(s) + 1):
+                  substr = s[i:j]
+                  freq = Counter(substr)
+
+                  # Find characters with odd and even frequencies
+                  odd_frequencies = [v for v in freq.values() if v % 2 == 1]
+                  even_frequencies = [v for v in freq.values() if v % 2 == 0]
+
+                  # If we have both types of frequencies
+                  if odd_frequencies and even_frequencies:
+                      odd_max = max(odd_frequencies)
+                      even_max = max(even_frequencies)
+                      current_diff = abs(odd_max - even_max)
+
+                      # Update max_diff
+                      if current_diff > max_diff:
+                          max_diff = current_diff
+
+          return max_diff if max_diff != -1 else -1
+
+      ]
+    [4107 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '111000', 'k': 2}) == '1'", "assert maxDifference(**{'s': '010203040', 'k': 5}) == '1'", "assert maxDifference(**{'s': '201020102010', 'k': 4}) == '1'", "assert maxDifference(**{'s': '3334444555', 'k': 6}) == '1'", "assert maxDifference(**{'s': '140314031403', 'k': 7}) == '1'", "assert maxDifference(**{'s': '000111222333', 'k': 8}) == '3'"]]
+    [1699 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 3 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 5.8060266971588135]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          from collections import Counter
+    
+          max_diff = -1
+
+          # Iterate through all possible starting points of substrings
+          for i in range(len(s) - k + 1):
+              freq = [0] * 5
+              # Iterate from i to end to check each substring
+              for j in range(i, len(s)):
+                  freq[int(s[j])] += 1
+                  # Calculate length of current substring
+                  length = j - i + 1
+                  if length >= k:
+                      # Determine max difference for current valid substring
+                      odd_max = even_max = None
+                      for f in freq:
+                          if f % 2 == 1:
+                              if odd_max is None:
+                                  odd_max = f
+                              else:
+                                  odd_max = max(odd_max, f)
+                          elif f % 2 == 0 and f > 0:
+                              if even_max is None:
+                                  even_max = f
+                              else:
+                                  even_max = max(even_max, f)
+                      if odd_max is not None and even_max is not None:
+                          current_diff = odd_max - even_max
+                          max_diff = max(max_diff, current_diff)
+
+          return str(max_diff) if max_diff != -1 else '-1'
+
+      ]
+    [3675 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '123', 'k': 2}) == '0'", "assert maxDifference(**{'s': '312', 'k': 2}) == '1'", "assert maxDifference(**{'s': '000111222', 'k': 3}) == '3'", "assert maxDifference(**{'s': '111000222', 'k': 4}) == '3'", "assert maxDifference(**{'s': '111000', 'k': 3}) == '-1'", "assert maxDifference(**{'s': '444333222', 'k': 5}) == '2'"]]
+    [1876 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 0 ms]
+Exception (["maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 17.163310050964355]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          from collections import defaultdict
+
+          max_diff = -1
+
+          # Iterate through all possible starting points of substrings
+          for i in range(len(s) - k + 1):
+              freq = defaultdict(int)
+              # Iterate from i to end to check each substring
+              for j in range(i, len(s)):
+                  freq[s[j]] += 1
+                  # Calculate length of current substring
+                  length = j - i + 1
+                  if length >= k:
+                      # Determine max difference for current valid substring
+                      odd_max = even_max = None
+                      for v in freq.values():
+                          if v % 2 == 1:
+                              if odd_max is None:
+                                  odd_max = v
+                              else:
+                                  odd_max = max(odd_max, v)
+                          elif v % 2 == 0:
+                              if even_max is None:
+                                  even_max = v
+                              else:
+                                  even_max = max(even_max, v)
+                      if odd_max is not None and even_max is not None:
+                          current_diff = abs(odd_max - even_max)
+                          max_diff = max(max_diff, current_diff)
+
+          return str(max_diff) if max_diff != -1 else '-1'
+
+      ]
+    [6685 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '111111222333', 'k': 5}) == '1'", "assert maxDifference(**{'s': '444000111', 'k': 6}) == '-1'", "assert maxDifference(**{'s': '000111222', 'k': 3}) == '1'", "assert maxDifference(**{'s': '400403', 'k': 3}) == '2'", "assert maxDifference(**{'s': '4040404040404040', 'k': 8}) == '1'"]]
+    [1735 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 36.94033408164978]]
+  [19837 ms]
+[19839 ms]
+
+
+Running iteration 5 of Pythoness on p3445_config2_5.py
+
+[Start...]
+  [[Pythoness] Getting function info...... 0 ms]
+  [[Pythoness] Creating prompt and checking the DB......]
+    [[Pythoness] Prompt:
+ 
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+    ]
+  [0 ms]
+  [[Pythoness] Generating code......]
+    [[Pythoness] Attempt 1]
+    [[Pythoness] New prompt:
+
+
+    Produce a JSON object with code for a Python function
+    named maxDifference that performs the following task as
+    a field "code". Only produce output that can be parsed as
+    JSON. 
+
+    Below is a list of classes and functions that may be used in the implementation.
+    Included is their name, signature, and docstring. Do not declare
+    these functions or classes and do not import anything to use them.
+    ```
+
+    ```
+
+    Task:
+
+        Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+
+    Include a docstring containing the task description above
+    (without the word "Task:").  The function should be
+    entirely self-contained, with all imports, code, and data, except
+    for the above helper functions. Do not define any other functions, classes,
+    or methods inside the function you are writing.
+
+    The function should pass the following tests:
+        maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'
+        maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'
+        maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'
+        maxDifference(**{'s': '024024024024', 'k': 4}) == '1'
+        maxDifference(**{'s': '004433002211', 'k': 3}) == '1'
+        maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'
+        maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'
+        maxDifference(**{'s': '032010240312', 'k': 3}) == '1'
+        maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'
+        maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'
+
+    Return only a single method or function definition. Use this template for your response:
+    ```
+
+    def maxDifference(s: str, k: int) -> int:
+        """"""
+
+    ```
+
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          def calculate_frequency(substring: str):
+              frequency = [0] * 5
+              for char in substring:
+                  frequency[int(char)] += 1
+              return frequency
+
+          max_diff = float('-inf')
+          n = len(s)
+
+          for start in range(n):
+              for end in range(start + k, n + 1):
+                  substring = s[start:end]
+                  freq = calculate_frequency(substring)
+                  odd_frequencies = [f for f in freq if f % 2 == 1]
+                  even_frequencies = [f for f in freq if f % 2 == 0]
+
+                  if not odd_frequencies or not even_frequencies:
+                      continue
+
+                  max_odd = max(odd_frequencies)
+                  max_even = max(even_frequencies)
+
+                  max_diff = max(max_diff, abs(max_odd - max_even))
+
+          return max_diff
+      ]
+    [2757 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '11022', 'k': 3}) == '1'", "assert maxDifference(**{'s': '002244', 'k': 5}) == '2'", "assert maxDifference(**{'s': '432143214321', 'k': 6}) == '1'", "assert maxDifference(**{'s': '1111100000', 'k': 5}) == '0'", "assert maxDifference(**{'s': '4443332211', 'k': 4}) == '1'"]]
+    [-92 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 2 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.01 USD]]
+    [
+    [Total time so far: 2.665111541748047]]
+    [[Pythoness] Attempt 2]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          from collections import Counter
+
+          def calculate_max_difference(freq):
+              max_odd = max((x for x in freq.values() if x % 2 == 1), default=-1)
+              max_even = max((x for x in freq.values() if x % 2 == 0), default=-1)
+              if max_odd == -1 or max_even == -1:
+                  return -1
+              return abs(max_odd - max_even)
+
+          max_diff = -1
+          n = len(s)
+
+          for start in range(n):
+              freq = Counter()
+              for end in range(start, n):
+                  freq[s[end]] += 1
+                  if end - start + 1 >= k:
+                      current_diff = calculate_max_difference(freq)
+                      if current_diff > max_diff:
+                          max_diff = current_diff
+
+          return max_diff
+      ]
+    [2686 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference(**{'s': '1111111111', 'k': 5}) == '-1'", "assert maxDifference(**{'s': '000111222333444', 'k': 3}) == '1'", "assert maxDifference(**{'s': '212121212121', 'k': 6}) == '1'", "assert maxDifference(**{'s': '310312301230', 'k': 4}) == '1'", "assert maxDifference(**{'s': '333222111000', 'k': 3}) == '2'", "assert maxDifference(**{'s': '024', 'k': 3}) == '1'", "assert maxDifference(**{'s': '444000', 'k': 3}) == '2'", "assert maxDifference(**{'s': '0000000000', 'k': 3}) == '-1'"]]
+    [1792 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 4 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.03 USD]]
+    [
+    [Total time so far: 9.808759450912476]]
+    [[Pythoness] Attempt 3]
+    [[Pythoness] New prompt:
+
+            Your previous attempt failed because tests failed.
+
+    The following tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+     Try again.
+    ]
+    [[Pythoness] Parsing......]
+      [[Pythoness] Synthesized function: 
+       def maxDifference(s: str, k: int) -> int:
+          """
+          Find the maximum difference between the frequency of two characters in a substring of a given string, where one character has an odd frequency and the other an even frequency, and the substring size is at least k. The substring can contain more than two distinct characters, and the input guarantees the presence of at least one such valid substring. This problem is constrained by string lengths ranging from 3 to 30,000, containing only digits from '0' to '4'.
+          """
+          max_diff = -1
+          n = len(s)
+
+          for i in range(n):
+              freq = [0] * 5
+              odd_count = 0
+              even_count = 0
+
+              for j in range(i, n):
+                  digit = int(s[j])
+                  freq[digit] += 1
+
+                  if freq[digit] % 2 == 0:
+                      even_count += 1
+                      odd_count -= 1
+                  else:
+                      odd_count += 1
+                      even_count -= 1
+
+                  if j - i + 1 >= k:
+                      if odd_count > 0 and even_count > 0:
+                          curr_diff = abs(odd_count - even_count)
+                          if curr_diff > max_diff:
+                              max_diff = curr_diff
+
+          return max_diff
+      ]
+    [2428 ms]
+    [[Pythoness] Compiling and executing...... 0 ms]
+    [[Pythoness] Validating types...... 0 ms]
+    [[Pythoness] Generating tests......]
+      [[Pythoness] LLM-Synthesized Unit tests:
+      ["assert maxDifference('000', 3) == '-1'", "assert maxDifference('1234', 3) == '1'", "assert maxDifference('001122', 5) == '0'", "assert maxDifference('3434343', 4) == '1'", "assert maxDifference('042042042', 5) == '1'", "assert maxDifference('03030303', 6) == '1'"]]
+    [1145 ms]
+    [[Pythoness] Validating tests......Failing tests: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+ 1 ms]
+Exception (["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"], None)
+    [[Pythoness] Tests failed.
+
+    These tests failed: ["maxDifference(**{'s': '01234012340123401234', 'k': 3}) == '1'", "maxDifference(**{'s': '1234032104320321', 'k': 4}) == '1'", "maxDifference(**{'s': '0101010101010101', 'k': 10}) == '1'", "maxDifference(**{'s': '024024024024', 'k': 4}) == '1'", "maxDifference(**{'s': '004433002211', 'k': 3}) == '1'", "maxDifference(**{'s': '2314032140321', 'k': 7}) == '1'", "maxDifference(**{'s': '0120120120123', 'k': 12}) == '-1'", "maxDifference(**{'s': '032010240312', 'k': 3}) == '1'", "maxDifference(**{'s': '222233334444111', 'k': 10}) == '1'", "maxDifference(**{'s': '00000011111122222', 'k': 9}) == '3'"]
+
+    ]
+    [
+    [Total cost so far: ~$0.07 USD]]
+    [
+    [Total time so far: 20.526463270187378]]
+  [10770 ms]
+[10771 ms]
